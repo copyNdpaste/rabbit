@@ -1,12 +1,5 @@
-from flask import Flask
+import os
 
-app = Flask(__name__)
+from app import create_app
 
-
-@app.route("/")
-def index():
-    return "hello rabbit!!~"
-
-
-if __name__ == "__main__":
-    app.run()
+app = application = create_app(os.environ.get("FLASK_CONFIG") or "default")
