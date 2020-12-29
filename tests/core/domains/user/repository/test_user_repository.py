@@ -1,9 +1,31 @@
+import uuid
+
+from app.persistence.model.region_model import RegionModel
 from app.persistence.model.user_model import UserModel
+from app.persistence.model.user_profile_model import UserProfileModel
 from core.domains.user.repository.user_repository import UserRepository
 
 
 def test_create_user_when_not_use_factory_boy(session):
-    user = UserModel(nickname="Noah")
+    user_profile = UserProfileModel(
+        uuid=str(uuid.uuid4()), file_name="file", path="uploads/"
+    )
+    session.add(user_profile)
+    session.commit()
+
+    region = RegionModel(name="청담동")
+    session.add(region)
+    session.commit()
+
+    user = UserModel(
+        login_id="hello",
+        nickname="Noah",
+        password="1234",
+        profile_id=user_profile.id,
+        status="default",
+        provider="",
+        region_id=region.id,
+    )
     session.add(user)
     session.commit()
 
@@ -13,7 +35,25 @@ def test_create_user_when_not_use_factory_boy(session):
 
 
 def test_get_user(session):
-    user = UserModel(nickname="Tester")
+    user_profile = UserProfileModel(
+        uuid=str(uuid.uuid4()), file_name="file", path="uploads/"
+    )
+    session.add(user_profile)
+    session.commit()
+
+    region = RegionModel(name="청담동")
+    session.add(region)
+    session.commit()
+
+    user = UserModel(
+        login_id="hello",
+        nickname="Noah",
+        password="1234",
+        profile_id=user_profile.id,
+        status="default",
+        provider="",
+        region_id=region.id,
+    )
     session.add(user)
     session.commit()
 

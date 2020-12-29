@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime
 
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
+from core.domains.region.entity.region_entity import RegionEntity
 
 
 class RegionModel(db.Model):
@@ -11,3 +12,11 @@ class RegionModel(db.Model):
     name = Column(String(length=50), nullable=False)
     created_at = Column(DateTime, default=get_server_timestamp())
     updated_at = Column(DateTime, default=get_server_timestamp())
+
+    def to_entity(self) -> RegionEntity:
+        return RegionEntity(
+            id=self.id,
+            name=self.name,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+        )

@@ -60,4 +60,5 @@ class PostModel(db.Model):
             last_admin_action_at=self.last_admin_action_at,
             created_at=self.created_at,
             updated_at=self.updated_at,
+            user=self.user.to_entity(),
         )

@@ -20,10 +20,10 @@ def test_create_post(session):
         login_id="test",
         nickname="Tester",
         password="123",
-        profile_id="",
+        profile_id=profile.id,
         status="",
         provider="",
-        region_id=1,
+        region_id=region.id,
     )
     session.add(user)
     session.commit()

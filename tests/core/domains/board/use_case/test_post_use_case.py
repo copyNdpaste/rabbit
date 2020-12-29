@@ -20,7 +20,7 @@ def test_when_create_post_then_success(session):
         login_id="test",
         nickname="Tester",
         password="123",
-        profile_id="",
+        profile_id=profile.id,
         status="",
         provider="",
         region_id=1,

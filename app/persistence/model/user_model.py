@@ -46,4 +46,6 @@ class UserModel(db.Model):
             region_id=self.region_id,
             created_at=self.created_at,
             updated_at=self.updated_at,
+            user_profile=self.user_profile.to_entity(),
+            region=self.region.to_entity(),
         )

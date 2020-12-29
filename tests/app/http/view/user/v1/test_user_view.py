@@ -1,14 +1,34 @@
+import uuid
+
 from flask import url_for
 from flask_jwt_extended import create_access_token
 
+from app.persistence.model.region_model import RegionModel
 from app.persistence.model.user_model import UserModel
+from app.persistence.model.user_profile_model import UserProfileModel
 from core.use_case_output import FailureType
 
 
 def test_when_get_user_with_valid_user_id_then_success(
     client, session, test_request_context, jwt_manager, make_header
 ):
-    user = UserModel(nickname="Tester")
+    region = RegionModel(name="청담동")
+    session.add(region)
+    session.commit()
+
+    profile = UserProfileModel(uuid=str(uuid.uuid4()), file_name="pic", path="uploads/")
+    session.add(profile)
+    session.commit()
+
+    user = UserModel(
+        login_id="test",
+        nickname="Tester",
+        password="123",
+        profile_id=profile.id,
+        status="",
+        provider="",
+        region_id=1,
+    )
     session.add(user)
     session.commit()
 
@@ -29,7 +49,23 @@ def test_when_get_user_with_valid_user_id_then_success(
 def test_when_get_not_existing_user_then_failure(
     client, session, test_request_context, jwt_manager, make_header
 ):
-    user = UserModel(nickname="Tester")
+    region = RegionModel(name="청담동")
+    session.add(region)
+    session.commit()
+
+    profile = UserProfileModel(uuid=str(uuid.uuid4()), file_name="pic", path="uploads/")
+    session.add(profile)
+    session.commit()
+
+    user = UserModel(
+        login_id="test",
+        nickname="Tester",
+        password="123",
+        profile_id=profile.id,
+        status="",
+        provider="",
+        region_id=1,
+    )
     session.add(user)
     session.commit()
 

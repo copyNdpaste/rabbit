@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+from core.domains.user.entity.user_entity import UserEntity
+
 
 @dataclass
 class PostEntity:
@@ -21,3 +23,4 @@ class PostEntity:
     last_admin_action_at: datetime
     created_at: datetime
     updated_at: datetime
+    user: UserEntity
