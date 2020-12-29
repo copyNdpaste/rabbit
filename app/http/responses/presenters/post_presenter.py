@@ -30,6 +30,7 @@ class PostPresenter:
                     last_admin_action_at=value.last_admin_action_at,
                     created_at=value.created_at,
                     updated_at=value.updated_at,
+                    user=value.user,
                 )
             except ValidationError as e:
                 print(e)

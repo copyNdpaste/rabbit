@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, StrictInt, StrictStr
 
+from core.domains.user.entity.user_entity import UserEntity
+
 
 class PostResponseSchema(BaseModel):
     id: StrictInt
@@ -21,3 +23,4 @@ class PostResponseSchema(BaseModel):
     last_admin_action_at: datetime
     created_at: datetime
     updated_at: datetime
+    user: UserEntity
