@@ -15,6 +15,7 @@ from app.http.view import api
 
 # event listener initialization
 from core.domains.board import event
+from core.domains.user import event
 
 
 def init_config(

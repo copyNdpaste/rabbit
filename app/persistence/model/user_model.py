@@ -35,5 +35,15 @@ class UserModel(db.Model):
     user_profile = relationship("UserProfileModel", backref="user")
     region = relationship("RegionModel", backref="user")
 
-    # def to_entity(self) -> UserEntity:
-    #     return UserEntity(id=self.id, nickname=self.nickname)
+    def to_entity(self) -> UserEntity:
+        return UserEntity(
+            id=self.id,
+            login_id=self.login_id,
+            nickname=self.nickname,
+            profile_id=self.profile_id,
+            status=self.status,
+            provider=self.provider,
+            region_id=self.region_id,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+        )

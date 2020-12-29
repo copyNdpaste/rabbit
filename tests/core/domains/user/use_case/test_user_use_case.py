@@ -26,7 +26,7 @@ def test_when_get_user_with_post_by_pypubsub_success(session):
     session.add(user)
     session.commit()
 
-    post = PostModel(user_id=user.id, title="post title", body="post body")
+    post = PostModel(user_id=user.id, title="board title", body="board body")
 
     session.add(post)
     session.commit()
@@ -51,7 +51,7 @@ def test_when_check_post_existing_then_success(session):
     session.add(user)
     session.commit()
 
-    post = PostModel(user_id=user.id, title="post title", body="post body")
+    post = PostModel(user_id=user.id, title="board title", body="board body")
 
     session.add(post)
     session.commit()
