@@ -19,3 +19,5 @@ class PostResponseSchema(BaseModel):
     last_user_action_at: datetime
     last_admin_action: StrictStr
     last_admin_action_at: datetime
+    created_at: datetime
+    updated_at: datetime
