@@ -6,7 +6,7 @@ from core.domains.board.dto.post_dto import CreatePostDto
 class CreatePostSchema(BaseModel):
     user_id: int
     title: str
-    region_group_id: str
+    region_group_id: int
     type: str
     is_comment_disabled: bool
     is_deleted: bool

@@ -37,7 +37,7 @@ def test_when_create_post_then_success(
     data = dict(
         user_id=user.id,
         title="떡볶이 나눠 먹어요",
-        region_group_id="서울",
+        region_group_id=1,
         type="article",
         is_comment_disabled=True,
         is_deleted=False,

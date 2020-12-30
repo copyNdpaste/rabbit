@@ -15,7 +15,7 @@ requestBody:
           title:
             type: string
           region_group_id:
-            type: string
+            type: integer
           type:
             type: string
           is_comment_disabled:
@@ -47,7 +47,7 @@ responses:
             title:
               type: string
             region_group_id:
-              type: string
+              type: integer
             type:
               type: string
             is_comment_disabled:

@@ -6,6 +6,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Boolean,
+    SmallInteger,
 )
 from sqlalchemy.orm import relationship
 
@@ -24,7 +25,7 @@ class PostModel(db.Model):
         nullable=False,
     )
     title = Column(String(100), nullable=False)
-    region_group_id = Column(String(50), nullable=False)
+    region_group_id = Column(SmallInteger, nullable=False)
     type = Column(String(20), nullable=False)
     is_comment_disabled = Column(Boolean, nullable=False, default=False)
     is_deleted = Column(Boolean, nullable=False, default=False)

@@ -28,7 +28,7 @@ def upgrade():
             nullable=False,
         ),
         sa.Column("title", sa.String(length=100), nullable=False),
-        sa.Column("region_group_id", sa.String(length=50), nullable=False),
+        sa.Column("region_group_id", sa.SmallInteger, nullable=False),
         sa.Column("type", sa.String(length=20), nullable=False),
         sa.Column("is_comment_disabled", sa.Boolean(), nullable=False),
         sa.Column("is_deleted", sa.Boolean(), nullable=False),

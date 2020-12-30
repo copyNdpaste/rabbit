@@ -9,7 +9,7 @@ class PostResponseSchema(BaseModel):
     id: StrictInt
     user_id: StrictInt
     title: StrictStr
-    region_group_id: StrictStr
+    region_group_id: StrictInt
     type: StrictStr
     is_comment_disabled: bool
     is_deleted: bool
