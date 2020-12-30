@@ -6,12 +6,6 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.persistence.model.post_model import PostModel
-from app.persistence.model.region_model import RegionModel
-from app.persistence.model.user_model import UserModel
-from app.persistence.model.user_profile_model import UserProfileModel
-
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 from app import db
@@ -25,7 +19,7 @@ fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-target_metadata = db.metadata
+target_metadata = db.Model.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
