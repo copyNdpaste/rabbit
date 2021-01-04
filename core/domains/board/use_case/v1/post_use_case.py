@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Optional
 
 import inject
 
@@ -27,7 +27,7 @@ class CreatePostUseCase:
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
         return UseCaseSuccessOutput(value=post)
 
-    def _get_user(self, user_id: int) -> Union[UserEntity, bool]:
+    def _get_user(self, user_id: int) -> Optional[UserEntity]:
         send_message(UserTopicEnum.GET_USER, user_id=user_id)
 
         return get_event_object(UserTopicEnum.GET_USER)

@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Optional
 
 from app.extensions.database import session
 from app.persistence.model.post_model import PostModel
@@ -7,7 +7,7 @@ from core.domains.board.entity.post_entity import PostEntity
 
 
 class BoardRepository:
-    def create_post(self, dto: CreatePostDto) -> Union[PostEntity, bool]:
+    def create_post(self, dto: CreatePostDto) -> Optional[PostEntity]:
         try:
             post = PostModel(
                 user_id=dto.user_id,
@@ -27,7 +27,7 @@ class BoardRepository:
         except Exception as e:
             # TODO : log e 필요
             session.rollback()
-            return False
+            return None
 
     def get_posts(self, user_id: int) -> List[PostEntity]:
         posts = session.query(PostModel).filter_by(user_id=user_id).all()
