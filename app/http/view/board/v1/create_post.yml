@@ -1,0 +1,81 @@
+openapi: "3.0.2"
+tags:
+  - User
+security:
+  - userAuth: []
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          user_id:
+            type: integer
+          title:
+            type: string
+          region_group_id:
+            type: integer
+          type:
+            type: string
+          is_comment_disabled:
+            type: boolean
+          is_deleted:
+            type: boolean
+          is_blocked:
+            type: boolean
+          report_count:
+            type: integer
+          read_count:
+            type: integer
+          category:
+            type: integer
+responses:
+  '200':
+    description: A post object
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            user_id:
+              type: integer
+              example: 1
+            title:
+              type: string
+            region_group_id:
+              type: integer
+            type:
+              type: string
+            is_comment_disabled:
+              type: boolean
+            is_deleted:
+              type: boolean
+            is_blocked:
+              type: boolean
+            report_count:
+              type: integer
+            read_count:
+              type: integer
+            category:
+              type: integer
+            created_at:
+              type: string
+            updated_at:
+              type: string
+  '400':
+    description: unauthorized_error, invalid_request_error, not_found_error
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error_message:
+              type: string
+              example: ""
+            type:
+              type: string
+              example: unauthorized_error
