@@ -3,28 +3,20 @@ import uuid
 from app.persistence.model.region_model import RegionModel
 from app.persistence.model.user_model import UserModel
 from app.persistence.model.user_profile_model import UserProfileModel
-from core.domains.board.dto.post_dto import CreatePostDto
-from core.domains.board.use_case.v1.post_use_case import CreatePostUseCase
+from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostContentDto
+from core.domains.board.use_case.v1.post_use_case import (
+    CreatePostUseCase,
+    UpdatePostContentUseCase,
+)
 
 
-def test_when_create_post_then_success(session):
-    region = RegionModel(name="청담동")
-    session.add(region)
-    session.commit()
+def test_when_create_post_then_success(
+    session, create_user, create_region, create_profile, create_post
+):
+    region = create_region
+    profile = create_profile
 
-    profile = UserProfileModel(uuid=str(uuid.uuid4()), file_name="pic", path="uploads/")
-    session.add(profile)
-    session.commit()
-
-    user = UserModel(
-        login_id="test",
-        nickname="Tester",
-        password="123",
-        profile_id=profile.id,
-        status="",
-        provider="",
-        region_id=1,
-    )
+    user = create_user(profile_id=profile.id, region_id=region.id)
     session.add(user)
     session.commit()
 
@@ -46,3 +38,30 @@ def test_when_create_post_then_success(session):
     post_entity = CreatePostUseCase().execute(dto=dto).value
 
     assert post_entity.title == dto.title
+
+
+def test_when_update_post_content_then_success(
+    session, create_user, create_region, create_profile, create_post
+):
+    region = create_region
+    profile = create_profile
+
+    user = create_user(profile_id=profile.id, region_id=region.id)
+    session.add(user)
+    session.commit()
+
+    post = create_post(user_id=user.id)
+
+    dto = UpdatePostContentDto(
+        id=post.id,
+        title="떡볶이 같이 먹어요",
+        region_group_id=1,
+        type="article",
+        is_comment_disabled=True,
+        category=0,
+    )
+
+    post_entity = UpdatePostContentUseCase().execute(dto=dto).value
+
+    assert post_entity.title == dto.title
+    assert post_entity.is_comment_disabled == dto.is_comment_disabled
