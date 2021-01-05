@@ -12,3 +12,12 @@ class CreatePostDto(BaseModel):
     report_count: int
     read_count: int
     category: int
+
+
+class UpdatePostContentDto(BaseModel):
+    id: int
+    title: str
+    region_group_id: int
+    type: str
+    is_comment_disabled: bool
+    category: int

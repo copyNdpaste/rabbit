@@ -21,11 +21,7 @@ class UserModel(db.Model):
     login_id = Column(String(50), nullable=False)
     nickname = Column(String(50), nullable=False)
     password = Column(String(50), nullable=False)
-    profile_id = Column(
-        BigInteger().with_variant(Integer, "sqlite"),
-        ForeignKey("user_profiles.id"),
-        nullable=False,
-    )
+    profile_id = Column(SmallInteger, ForeignKey("user_profiles.id"), nullable=False,)
     status = Column(String(10), nullable=False)
     provider = Column(String(20), nullable=False)
     region_id = Column(SmallInteger, ForeignKey("regions.id"), nullable=False)
