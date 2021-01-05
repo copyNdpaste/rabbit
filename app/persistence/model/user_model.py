@@ -24,7 +24,11 @@ class UserModel(db.Model):
     profile_id = Column(SmallInteger, ForeignKey("user_profiles.id"), nullable=False,)
     status = Column(String(10), nullable=False)
     provider = Column(String(20), nullable=False)
-    region_id = Column(SmallInteger, ForeignKey("regions.id"), nullable=False)
+    region_id = Column(
+        BigInteger().with_variant(Integer, "sqlite"),
+        ForeignKey("regions.id"),
+        nullable=False,
+    )
     created_at = Column(DateTime, default=get_server_timestamp())
     updated_at = Column(DateTime, default=get_server_timestamp())
 
