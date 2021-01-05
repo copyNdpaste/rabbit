@@ -20,7 +20,9 @@ def upgrade():
     op.create_table(
         "regions",
         sa.Column(
-            "id", sa.Integer().with_variant(sa.Integer(), "sqlite"), nullable=False
+            "id",
+            sa.SmallInteger().with_variant(sa.SmallInteger(), "sqlite"),
+            nullable=False,
         ),
         sa.Column("name", sa.String(length=50), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=True),
