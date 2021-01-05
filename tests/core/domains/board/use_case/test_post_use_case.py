@@ -1,8 +1,3 @@
-import uuid
-
-from app.persistence.model.region_model import RegionModel
-from app.persistence.model.user_model import UserModel
-from app.persistence.model.user_profile_model import UserProfileModel
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostContentDto
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
