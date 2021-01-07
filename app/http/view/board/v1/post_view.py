@@ -2,11 +2,17 @@ from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 
-from app.http.requests.view.board.v1.post_request import CreatePostRequest
+from app.http.requests.view.board.v1.post_request import (
+    CreatePostRequest,
+    UpdatePostRequest,
+)
 from app.http.responses import failure_response
 from app.http.responses.presenters.post_presenter import PostPresenter
 from app.http.view import auth_required, api
-from core.domains.board.use_case.v1.post_use_case import CreatePostUseCase
+from core.domains.board.use_case.v1.post_use_case import (
+    CreatePostUseCase,
+    UpdatePostUseCase,
+)
 from core.use_case_output import FailureType, UseCaseFailureOutput
 
 
@@ -22,3 +28,17 @@ def create_post_view():
         )
 
     return PostPresenter().transform(CreatePostUseCase().execute(dto=dto))
+
+
+@api.route("/board/v1/posts", methods=["PUT"])
+@jwt_required
+@auth_required
+@swag_from("update_post.yml", methods=["PUT"])
+def update_post_view():
+    dto = UpdatePostRequest(**request.get_json()).validate_request_and_make_dto()
+    if not dto:
+        return failure_response(
+            UseCaseFailureOutput(type=FailureType.INVALID_REQUEST_ERROR)
+        )
+
+    return PostPresenter().transform(UpdatePostUseCase().execute(dto=dto))

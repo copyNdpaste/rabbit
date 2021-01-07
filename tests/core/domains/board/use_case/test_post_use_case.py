@@ -1,17 +1,12 @@
-from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostContentDto
+from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
-    UpdatePostContentUseCase,
+    UpdatePostUseCase,
 )
 
 
-def test_when_create_post_then_success(
-    session, create_user, create_region, create_profile, create_post
-):
-    region = create_region
-    profile = create_profile
-
-    user = create_user(profile_id=profile.id, region_id=region.id)
+def test_when_create_post_then_success(session, normal_user_factory):
+    user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
 
@@ -35,20 +30,13 @@ def test_when_create_post_then_success(
     assert post_entity.title == dto.title
 
 
-def test_when_update_post_content_then_success(
-    session, create_user, create_region, create_profile, create_post
-):
-    region = create_region
-    profile = create_profile
-
-    user = create_user(profile_id=profile.id, region_id=region.id)
+def test_when_update_post_then_success(session, normal_user_factory):
+    user = normal_user_factory(Region=True, UserProfile=True, Post=True)
     session.add(user)
     session.commit()
 
-    post = create_post(user_id=user.id)
-
-    dto = UpdatePostContentDto(
-        id=post.id,
+    dto = UpdatePostDto(
+        id=user.post[0].id,
         title="떡볶이 같이 먹어요",
         region_group_id=1,
         type="article",
@@ -56,7 +44,7 @@ def test_when_update_post_content_then_success(
         category=0,
     )
 
-    post_entity = UpdatePostContentUseCase().execute(dto=dto).value
+    post_entity = UpdatePostUseCase().execute(dto=dto).value
 
     assert post_entity.title == dto.title
     assert post_entity.is_comment_disabled == dto.is_comment_disabled

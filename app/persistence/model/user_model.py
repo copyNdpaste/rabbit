@@ -7,7 +7,7 @@ from sqlalchemy import (
     SmallInteger,
     ForeignKey,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
@@ -30,8 +30,10 @@ class UserModel(db.Model):
     created_at = Column(DateTime, default=get_server_timestamp())
     updated_at = Column(DateTime, default=get_server_timestamp())
 
-    user_profile = relationship("UserProfileModel", backref="user")
-    region = relationship("RegionModel", backref="user")
+    user_profile = relationship(
+        "UserProfileModel", backref=backref("user", uselist=False)
+    )
+    region = relationship("RegionModel", backref=backref("user", uselist=False))
 
     def to_entity(self) -> UserEntity:
         return UserEntity(

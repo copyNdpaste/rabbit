@@ -1,19 +1,19 @@
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, StrictInt, StrictStr
 
-from core.domains.board.dto.post_dto import CreatePostDto
+from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto
 
 
 class CreatePostSchema(BaseModel):
-    user_id: int
-    title: str
-    region_group_id: int
-    type: str
+    user_id: StrictInt
+    title: StrictStr
+    region_group_id: StrictInt
+    type: StrictStr
     is_comment_disabled: bool
     is_deleted: bool
     is_blocked: bool
-    report_count: int
-    read_count: int
-    category: int
+    report_count: StrictInt
+    read_count: StrictInt
+    category: StrictInt
 
 
 class CreatePostRequest:
@@ -71,5 +71,51 @@ class CreatePostRequest:
             is_blocked=self.is_blocked,
             report_count=self.report_count,
             read_count=self.read_count,
+            category=self.category,
+        )
+
+
+class UpdatePostSchema(BaseModel):
+    id: StrictInt
+    title: StrictStr
+    region_group_id: StrictInt
+    type: StrictStr
+    is_comment_disabled: bool
+    category: StrictInt
+
+
+class UpdatePostRequest:
+    def __init__(
+        self, id, title, region_group_id, type, is_comment_disabled, category,
+    ):
+        self.id = id
+        self.title = title
+        self.region_group_id = region_group_id
+        self.type = type
+        self.is_comment_disabled = is_comment_disabled
+        self.category = category
+
+    def validate_request_and_make_dto(self):
+        try:
+            UpdatePostSchema(
+                id=self.id,
+                title=self.title,
+                region_group_id=self.region_group_id,
+                type=self.type,
+                is_comment_disabled=self.is_comment_disabled,
+                category=self.category,
+            )
+            return self.to_dto()
+        except ValidationError as e:
+            print(e)
+            return False
+
+    def to_dto(self) -> UpdatePostDto:
+        return UpdatePostDto(
+            id=self.id,
+            title=self.title,
+            region_group_id=self.region_group_id,
+            type=self.type,
+            is_comment_disabled=self.is_comment_disabled,
             category=self.category,
         )

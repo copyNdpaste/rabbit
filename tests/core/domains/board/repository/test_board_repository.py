@@ -1,12 +1,9 @@
-from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostContentDto
+from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto
 from core.domains.board.repository.board_repository import BoardRepository
 
 
-def test_create_post(session, create_user, create_region, create_profile):
-    region = create_region
-    profile = create_profile
-
-    user = create_user(profile_id=profile.id, region_id=region.id)
+def test_create_post(session, normal_user_factory):
+    user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
 
@@ -30,18 +27,13 @@ def test_create_post(session, create_user, create_region, create_profile):
     assert post_entity.title == dto.title
 
 
-def test_update_post(session, create_user, create_region, create_profile, create_post):
-    region = create_region
-    profile = create_profile
-
-    user = create_user(profile_id=profile.id, region_id=region.id)
+def test_update_post(session, normal_user_factory):
+    user = normal_user_factory(Region=True, UserProfile=True, Post=True)
     session.add(user)
     session.commit()
 
-    post = create_post(user_id=user.id)
-
-    dto = UpdatePostContentDto(
-        id=post.id,
+    dto = UpdatePostDto(
+        id=user.post[0].id,
         title="떡볶이 같이 먹어요",
         region_group_id=1,
         type="article",

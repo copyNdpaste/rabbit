@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from app.extensions.database import session
 from app.persistence.model.post_model import PostModel
-from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostContentDto
+from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto
 from core.domains.board.entity.post_entity import PostEntity
 
 
@@ -32,12 +32,12 @@ class BoardRepository:
     def get_posts(self, user_id: int) -> List[PostEntity]:
         posts = session.query(PostModel).filter_by(user_id=user_id).all()
 
-        return [board.to_entity() for board in posts]
+        return [post.to_entity() for post in posts]
 
     def get_post(self, id) -> PostEntity:
-        return session.query(PostModel).filter_by(id=id).first()
+        return session.query(PostModel).filter_by(id=id).first().to_entity()
 
-    def update_post(self, dto: UpdatePostContentDto) -> Optional[PostEntity]:
+    def update_post(self, dto: UpdatePostDto) -> Optional[PostEntity]:
         try:
             (
                 session.query(PostModel)

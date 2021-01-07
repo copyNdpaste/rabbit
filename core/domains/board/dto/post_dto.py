@@ -14,7 +14,7 @@ class CreatePostDto(BaseModel):
     category: int
 
 
-class UpdatePostContentDto(BaseModel):
+class UpdatePostDto(BaseModel):
     id: int
     title: str
     region_group_id: int
