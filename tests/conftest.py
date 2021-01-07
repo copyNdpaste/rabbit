@@ -67,6 +67,8 @@ def session(db: SQLAlchemy) -> scoped_session:
 
     db.session = session
 
+    set_factories_session(session)
+
     yield db.session
 
     transaction.rollback()
