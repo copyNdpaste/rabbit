@@ -1,6 +1,6 @@
 import factory
 
-from . import UserFactory, PostFactory
+from . import UserFactory, PostFactory, UserProfileFactory, RegionFactory
 
 
 class NormalUserFactory(UserFactory):
@@ -13,3 +13,13 @@ class NormalUserFactory(UserFactory):
     def Post(obj, create, extracted, **kwargs):
         if extracted:
             PostFactory(user=obj, **kwargs)
+
+    @factory.post_generation
+    def UserProfile(obj, create, extracted, **kwargs):
+        if extracted:
+            UserProfileFactory(user=obj, **kwargs)
+
+    @factory.post_generation
+    def Region(obj, create, extracted, **kwargs):
+        if extracted:
+            RegionFactory(user=obj, **kwargs)
