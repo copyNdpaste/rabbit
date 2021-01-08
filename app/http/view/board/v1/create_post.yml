@@ -1,6 +1,6 @@
 openapi: "3.0.2"
 tags:
-  - User
+  - Post
 security:
   - userAuth: []
 requestBody:
