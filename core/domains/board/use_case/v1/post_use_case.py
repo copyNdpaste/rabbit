@@ -3,7 +3,7 @@ from typing import Union, Optional
 import inject
 
 from app.extensions.utils.event_observer import send_message, get_event_object
-from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto
+from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.repository.board_repository import BoardRepository
 from core.domains.user.entity.user_entity import UserEntity
 from core.domains.user.enum import UserTopicEnum
@@ -44,6 +44,20 @@ class UpdatePostUseCase(PostBaseUseCase):
         self, dto: UpdatePostDto
     ) -> Union[UseCaseSuccessOutput, UseCaseFailureOutput]:
         post = self._board_repo.update_post(dto=dto)
+        if not post:
+            return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
+        return UseCaseSuccessOutput(value=post)
+
+
+class DeletePostUseCase(PostBaseUseCase):
+    @inject.autoparams()
+    def __init__(self, board_repo: BoardRepository):
+        self._board_repo = board_repo
+
+    def execute(
+        self, dto: DeletePostDto
+    ) -> Union[UseCaseSuccessOutput, UseCaseFailureOutput]:
+        post = self._board_repo.delete_post(dto=dto)
         if not post:
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
         return UseCaseSuccessOutput(value=post)
