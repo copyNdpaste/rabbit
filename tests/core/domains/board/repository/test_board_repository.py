@@ -1,4 +1,4 @@
-from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto
+from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.repository.board_repository import BoardRepository
 
 
@@ -45,3 +45,16 @@ def test_update_post(session, normal_user_factory):
 
     assert post_entity.title == dto.title
     assert post_entity.is_comment_disabled == dto.is_comment_disabled
+
+
+def test_delete_post(session, normal_user_factory):
+    user = normal_user_factory(Region=True, UserProfile=True, Post=True)
+    session.add(user)
+    session.commit()
+
+    dto = DeletePostDto(id=user.post[0].id)
+
+    post_entity = BoardRepository().delete_post(dto=dto)
+
+    assert post_entity.id == dto.id
+    assert post_entity.is_deleted == True

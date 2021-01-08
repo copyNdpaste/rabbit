@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from app.extensions.database import session
 from app.persistence.model.post_model import PostModel
-from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto
+from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.entity.post_entity import PostEntity
 
 
@@ -56,4 +56,12 @@ class BoardRepository:
         except Exception as e:
             session.rollback()
             # TODO : log
+            return None
+
+    def delete_post(self, dto: DeletePostDto) -> Optional[PostEntity]:
+        try:
+            session.query(PostModel).filter_by(id=dto.id).update({"is_deleted": True})
+            return self.get_post(id=dto.id)
+        except Exception as e:
+            session.rollback()
             return None

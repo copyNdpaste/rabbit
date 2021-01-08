@@ -21,3 +21,7 @@ class UpdatePostDto(BaseModel):
     type: str
     is_comment_disabled: bool
     category: int
+
+
+class DeletePostDto(BaseModel):
+    id: int
