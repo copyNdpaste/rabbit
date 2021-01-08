@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ValidationError, StrictInt, StrictStr
 
-from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto
+from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 
 
 class CreatePostSchema(BaseModel):
@@ -119,3 +119,23 @@ class UpdatePostRequest:
             is_comment_disabled=self.is_comment_disabled,
             category=self.category,
         )
+
+
+class DeletePostSchema(BaseModel):
+    post_id: StrictInt
+
+
+class DeletePostRequest:
+    def __init__(self, post_id):
+        self.post_id = post_id
+
+    def validate_request_and_make_dto(self):
+        try:
+            DeletePostSchema(post_id=self.post_id)
+            return self.to_dto()
+        except ValidationError as e:
+            print(e)
+            return False
+
+    def to_dto(self) -> DeletePostDto:
+        return DeletePostDto(id=self.post_id)

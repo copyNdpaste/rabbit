@@ -62,3 +62,27 @@ def test_when_update_post_then_success(
     assert response.status_code == 200
     data = response.get_json()["data"]
     assert data["post"]["user_id"] == user.id
+
+
+def test_when_delete_post_then_success(
+    client, session, test_request_context, jwt_manager, make_header, normal_user_factory
+):
+    user = normal_user_factory(Region=True, UserProfile=True, Post=True)
+    session.add(user)
+    session.commit()
+
+    access_token = create_access_token(identity=user.id)
+    authorization = "Bearer " + access_token
+    headers = make_header(authorization=authorization)
+    # data = dict(id=user.post[0].id)
+
+    post_id = user.post[0].id
+
+    with test_request_context:
+        response = client.delete(
+            url_for("api/rabbit.delete_post_view", post_id=post_id), headers=headers
+        )
+
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert data["post"]["id"] == user.post[0].id
