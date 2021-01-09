@@ -1,6 +1,11 @@
 import factory
 
-from . import UserFactory, PostFactory, UserProfileFactory, RegionFactory
+from . import (
+    UserFactory,
+    PostFactory,
+    UserProfileFactory,
+    RegionFactory,
+)
 
 
 class NormalUserFactory(UserFactory):

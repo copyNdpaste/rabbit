@@ -48,6 +48,7 @@ class PostModel(db.Model):
             id=self.id,
             user_id=self.user_id,
             title=self.title,
+            body=self.article.body if self.article else None,
             region_group_id=self.region_group_id,
             type=self.type,
             is_comment_disabled=self.is_comment_disabled,
