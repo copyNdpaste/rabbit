@@ -35,9 +35,9 @@ class PostModel(db.Model):
     read_count = Column(Integer, default=0)
     category = Column(Integer, nullable=False)
     last_user_action = Column(String(20), nullable=False, default="default")
-    last_user_action_at = Column(DateTime, default=get_server_timestamp())
+    last_user_action_at = Column(DateTime, nullable=True)
     last_admin_action = Column(String(20), nullable=False, default="default")
-    last_admin_action_at = Column(DateTime, default=get_server_timestamp())
+    last_admin_action_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=get_server_timestamp())
     updated_at = Column(DateTime, default=get_server_timestamp())
 

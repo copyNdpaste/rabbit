@@ -41,6 +41,14 @@ responses:
               type: integer
             category:
               type: integer
+            last_user_action:
+              type: string
+            last_user_action_at:
+              type: string
+            last_admin_action:
+              type: string
+            last_admin_action_at:
+              type: string
             created_at:
               type: string
             updated_at:

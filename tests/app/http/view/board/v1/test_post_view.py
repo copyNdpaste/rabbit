@@ -78,10 +78,20 @@ def test_when_update_post_then_success(
 
 
 def test_when_delete_post_then_success(
-    client, session, test_request_context, jwt_manager, make_header, normal_user_factory
+    client,
+    session,
+    test_request_context,
+    jwt_manager,
+    make_header,
+    normal_user_factory,
+    article_factory,
 ):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
     session.add(user)
+    session.commit()
+
+    article = article_factory(post_id=user.post[0].id)
+    session.add(article)
     session.commit()
 
     access_token = create_access_token(identity=user.id)
@@ -98,4 +108,4 @@ def test_when_delete_post_then_success(
     assert response.status_code == 200
     data = response.get_json()["data"]
     assert data["post"]["id"] == user.post[0].id
-    assert data["post"]["body"] == ""
+    assert data["post"]["body"] == article.body

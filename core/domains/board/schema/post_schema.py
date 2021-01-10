@@ -20,9 +20,9 @@ class PostResponseSchema(BaseModel):
     read_count: StrictInt
     category: StrictInt
     last_user_action: StrictStr
-    last_user_action_at: datetime
+    last_user_action_at: Optional[datetime]
     last_admin_action: StrictStr
-    last_admin_action_at: datetime
+    last_admin_action_at: Optional[datetime]
     created_at: datetime
     updated_at: datetime
     user: UserEntity
