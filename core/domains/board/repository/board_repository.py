@@ -47,7 +47,7 @@ class BoardRepository:
         try:
             (
                 session.query(PostModel)
-                .filter_by(id=dto.id)
+                .filter(PostModel.id == dto.id)
                 .update(
                     {
                         "title": dto.title,
@@ -66,6 +66,10 @@ class BoardRepository:
             session.rollback()
             # TODO : log
             return None
+
+    def is_post_owner(self, dto) -> bool:
+        post = self.get_post(id=dto.id)
+        return True if post.user_id == dto.user_id else False
 
     def delete_post(self, dto: DeletePostDto) -> Optional[PostEntity]:
         try:

@@ -39,6 +39,7 @@ def test_update_post(session, normal_user_factory, article_factory):
 
     dto = UpdatePostDto(
         id=user.post[0].id,
+        user_id=user.id,
         title="떡볶이 같이 먹어요",
         body="new body",
         region_group_id=1,
@@ -59,7 +60,7 @@ def test_delete_post(session, normal_user_factory):
     session.add(user)
     session.commit()
 
-    dto = DeletePostDto(id=user.post[0].id)
+    dto = DeletePostDto(id=user.post[0].id, user_id=user.id)
 
     post_entity = BoardRepository().delete_post(dto=dto)
 

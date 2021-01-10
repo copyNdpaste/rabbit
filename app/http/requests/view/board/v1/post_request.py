@@ -82,6 +82,7 @@ class CreatePostRequest:
 
 class UpdatePostSchema(BaseModel):
     id: StrictInt
+    user_id: StrictInt
     title: StrictStr
     body: StrictStr
     region_group_id: StrictInt
@@ -92,9 +93,18 @@ class UpdatePostSchema(BaseModel):
 
 class UpdatePostRequest:
     def __init__(
-        self, id, title, body, region_group_id, type, is_comment_disabled, category,
+        self,
+        id,
+        user_id,
+        title,
+        body,
+        region_group_id,
+        type,
+        is_comment_disabled,
+        category,
     ):
         self.id = id
+        self.user_id = user_id
         self.title = title
         self.body = body
         self.region_group_id = region_group_id
@@ -106,6 +116,7 @@ class UpdatePostRequest:
         try:
             UpdatePostSchema(
                 id=self.id,
+                user_id=self.user_id,
                 title=self.title,
                 body=self.body,
                 region_group_id=self.region_group_id,
@@ -121,6 +132,7 @@ class UpdatePostRequest:
     def to_dto(self) -> UpdatePostDto:
         return UpdatePostDto(
             id=self.id,
+            user_id=self.user_id,
             title=self.title,
             body=self.body,
             region_group_id=self.region_group_id,
@@ -132,19 +144,21 @@ class UpdatePostRequest:
 
 class DeletePostSchema(BaseModel):
     post_id: StrictInt
+    user_id: StrictInt
 
 
 class DeletePostRequest:
-    def __init__(self, post_id):
+    def __init__(self, post_id, user_id):
         self.post_id = post_id
+        self.user_id = user_id
 
     def validate_request_and_make_dto(self):
         try:
-            DeletePostSchema(post_id=self.post_id)
+            DeletePostSchema(post_id=self.post_id, user_id=self.user_id)
             return self.to_dto()
         except ValidationError as e:
             print(e)
             return False
 
     def to_dto(self) -> DeletePostDto:
-        return DeletePostDto(id=self.post_id)
+        return DeletePostDto(id=self.post_id, user_id=self.user_id)

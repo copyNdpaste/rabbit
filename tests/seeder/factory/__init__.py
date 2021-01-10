@@ -79,5 +79,3 @@ class ArticleFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     body = factory.Sequence(lambda n: "body_{}".format(n))
     post_id = 1
-
-    # post = factory.SubFactory(PostFactory)

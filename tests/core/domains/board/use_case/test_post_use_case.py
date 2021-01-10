@@ -4,6 +4,7 @@ from core.domains.board.use_case.v1.post_use_case import (
     UpdatePostUseCase,
     DeletePostUseCase,
 )
+from core.use_case_output import FailureType
 
 
 def test_when_create_post_then_success(session, normal_user_factory):
@@ -43,6 +44,7 @@ def test_when_update_post_then_success(session, normal_user_factory, article_fac
 
     dto = UpdatePostDto(
         id=user.post[0].id,
+        user_id=user.id,
         title="떡볶이 같이 먹어요",
         body="new body",
         region_group_id=1,
@@ -58,14 +60,53 @@ def test_when_update_post_then_success(session, normal_user_factory, article_fac
     assert post_entity.is_comment_disabled == dto.is_comment_disabled
 
 
+def test_when_not_owner_update_post_then_fail(
+    session, normal_user_factory, article_factory
+):
+    user = normal_user_factory(Region=True, UserProfile=True, Post=True)
+    session.add(user)
+    session.commit()
+
+    article = article_factory(post_id=user.post[0].id)
+    session.add(article)
+    session.commit()
+
+    dto = UpdatePostDto(
+        id=user.post[0].id,
+        user_id=-1,
+        title="떡볶이 같이 먹어요",
+        body="new body",
+        region_group_id=1,
+        type="article",
+        is_comment_disabled=True,
+        category=0,
+    )
+
+    result = UpdatePostUseCase().execute(dto=dto).value
+
+    assert result["type"] == FailureType.INVALID_REQUEST_ERROR
+
+
 def test_when_delete_post_then_success(session, normal_user_factory):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
     session.add(user)
     session.commit()
 
-    dto = DeletePostDto(id=user.post[0].id)
+    dto = DeletePostDto(id=user.post[0].id, user_id=user.id)
 
     post_entity = DeletePostUseCase().execute(dto=dto).value
 
     assert post_entity.id == dto.id
     assert post_entity.is_deleted == True
+
+
+def test_when_not_owner_delete_post_then_fail(session, normal_user_factory):
+    user = normal_user_factory(Region=True, UserProfile=True, Post=True)
+    session.add(user)
+    session.commit()
+
+    dto = DeletePostDto(id=user.post[0].id, user_id=-1)
+
+    result = DeletePostUseCase().execute(dto=dto).value
+
+    assert result["type"] == FailureType.INVALID_REQUEST_ERROR

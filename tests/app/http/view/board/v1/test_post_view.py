@@ -59,6 +59,7 @@ def test_when_update_post_then_success(
     headers = make_header(authorization=authorization)
     dct = dict(
         id=user.post[0].id,
+        user_id=user.id,
         title="떡볶이 같이 먹어요",
         body="new body",
         region_group_id=1,

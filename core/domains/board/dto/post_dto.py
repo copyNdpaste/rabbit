@@ -17,6 +17,7 @@ class CreatePostDto(BaseModel):
 
 class UpdatePostDto(BaseModel):
     id: int
+    user_id: int
     title: str
     body: str
     region_group_id: int
@@ -27,3 +28,4 @@ class UpdatePostDto(BaseModel):
 
 class DeletePostDto(BaseModel):
     id: int
+    user_id: int
