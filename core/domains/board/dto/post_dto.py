@@ -4,6 +4,7 @@ from pydantic.main import BaseModel
 class CreatePostDto(BaseModel):
     user_id: int
     title: str
+    body: str
     region_group_id: int
     type: str
     is_comment_disabled: bool
@@ -17,6 +18,7 @@ class CreatePostDto(BaseModel):
 class UpdatePostDto(BaseModel):
     id: int
     title: str
+    body: str
     region_group_id: int
     type: str
     is_comment_disabled: bool

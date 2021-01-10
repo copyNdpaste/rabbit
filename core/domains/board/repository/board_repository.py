@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from app.extensions.database import session
+from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.post_model import PostModel
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.entity.post_entity import PostEntity
@@ -23,6 +24,11 @@ class BoardRepository:
             )
             session.add(post)
             session.commit()
+
+            article = ArticleModel(post_id=post.id, body=dto.body)
+            session.add(article)
+            session.commit()
+
             return post.to_entity()
         except Exception as e:
             # TODO : log e 필요
@@ -51,6 +57,9 @@ class BoardRepository:
                         "category": dto.category,
                     }
                 )
+            )
+            session.query(ArticleModel).filter_by(post_id=dto.id).update(
+                {"body": dto.body}
             )
             return self.get_post(id=dto.id)
         except Exception as e:

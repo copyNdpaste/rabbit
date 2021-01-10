@@ -16,6 +16,7 @@ class PostPresenter:
                     id=value.id,
                     user_id=value.user_id,
                     title=value.title,
+                    body=value.body if value.body else "",
                     region_group_id=value.region_group_id,
                     type=value.type,
                     is_comment_disabled=value.is_comment_disabled,

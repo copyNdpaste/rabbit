@@ -9,6 +9,7 @@ class PostEntity:
     id: int
     user_id: int
     title: str
+    body: str
     region_group_id: int
     type: str
     is_comment_disabled: bool

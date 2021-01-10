@@ -11,6 +11,7 @@ from tests.seeder.factory import (
     RegionFactory,
     UserProfileFactory,
     UserFactory,
+    ArticleFactory,
 )
 from tests.seeder.factory.data_service_factory import NormalUserFactory
 
@@ -20,6 +21,7 @@ MODEL_FACTORIES = [
     PostFactory,
     UserProfileFactory,
     RegionFactory,
+    ArticleFactory,
 ]
 
 

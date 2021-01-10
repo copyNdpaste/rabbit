@@ -3,6 +3,7 @@ from faker import Factory as FakerFactory
 import uuid
 
 from app.extensions.database import session
+from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.post_model import PostModel
 from app.persistence.model.region_model import RegionModel
 from app.persistence.model.user_model import UserModel
@@ -65,3 +66,18 @@ class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
     last_admin_action = "default"
 
     user = factory.SubFactory(UserFactory)
+
+    @factory.post_generation
+    def Article(obj, create, extracted, **kwargs):
+        if extracted:
+            ArticleFactory(post=obj, **kwargs)
+
+
+class ArticleFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = ArticleModel
+
+    body = factory.Sequence(lambda n: "body_{}".format(n))
+    post_id = 1
+
+    # post = factory.SubFactory(PostFactory)

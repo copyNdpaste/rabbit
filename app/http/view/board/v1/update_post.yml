@@ -14,6 +14,8 @@ requestBody:
             type: integer
           title:
             type: string
+          body:
+            type: string
           region_group_id:
             type: integer
           type:
@@ -37,6 +39,8 @@ responses:
               type: integer
               example: 1
             title:
+              type: string
+            body:
               type: string
             region_group_id:
               type: integer

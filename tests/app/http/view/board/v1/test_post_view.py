@@ -12,9 +12,10 @@ def test_when_create_post_then_success(
     access_token = create_access_token(identity=user.id)
     authorization = "Bearer " + access_token
     headers = make_header(authorization=authorization)
-    data = dict(
+    dct = dict(
         user_id=user.id,
         title="떡볶이 나눠 먹어요",
+        body="안녕하세요",
         region_group_id=1,
         type="article",
         is_comment_disabled=True,
@@ -27,7 +28,7 @@ def test_when_create_post_then_success(
 
     with test_request_context:
         response = client.post(
-            url_for("api/rabbit.create_post_view"), json=data, headers=headers
+            url_for("api/rabbit.create_post_view"), json=dct, headers=headers
         )
 
     assert response.status_code == 200
@@ -36,18 +37,29 @@ def test_when_create_post_then_success(
 
 
 def test_when_update_post_then_success(
-    client, session, test_request_context, jwt_manager, make_header, normal_user_factory
+    client,
+    session,
+    test_request_context,
+    jwt_manager,
+    make_header,
+    normal_user_factory,
+    article_factory,
 ):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
     session.add(user)
     session.commit()
 
+    article = article_factory(post_id=user.post[0].id)
+    session.add(article)
+    session.commit()
+
     access_token = create_access_token(identity=user.id)
     authorization = "Bearer " + access_token
     headers = make_header(authorization=authorization)
-    data = dict(
+    dct = dict(
         id=user.post[0].id,
         title="떡볶이 같이 먹어요",
+        body="new body",
         region_group_id=1,
         type="article",
         is_comment_disabled=True,
@@ -56,33 +68,9 @@ def test_when_update_post_then_success(
 
     with test_request_context:
         response = client.put(
-            url_for("api/rabbit.update_post_view"), json=data, headers=headers
+            url_for("api/rabbit.update_post_view"), json=dct, headers=headers
         )
 
     assert response.status_code == 200
     data = response.get_json()["data"]
     assert data["post"]["user_id"] == user.id
-
-
-def test_when_delete_post_then_success(
-    client, session, test_request_context, jwt_manager, make_header, normal_user_factory
-):
-    user = normal_user_factory(Region=True, UserProfile=True, Post=True)
-    session.add(user)
-    session.commit()
-
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
-    headers = make_header(authorization=authorization)
-    # data = dict(id=user.post[0].id)
-
-    post_id = user.post[0].id
-
-    with test_request_context:
-        response = client.delete(
-            url_for("api/rabbit.delete_post_view", post_id=post_id), headers=headers
-        )
-
-    assert response.status_code == 200
-    data = response.get_json()["data"]
-    assert data["post"]["id"] == user.post[0].id

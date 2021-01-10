@@ -6,6 +6,7 @@ from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, Delete
 class CreatePostSchema(BaseModel):
     user_id: StrictInt
     title: StrictStr
+    body: StrictStr
     region_group_id: StrictInt
     type: StrictStr
     is_comment_disabled: bool
@@ -21,6 +22,7 @@ class CreatePostRequest:
         self,
         user_id,
         title,
+        body,
         region_group_id,
         type,
         is_comment_disabled,
@@ -32,6 +34,7 @@ class CreatePostRequest:
     ):
         self.user_id = user_id
         self.title = title
+        self.body = body
         self.region_group_id = region_group_id
         self.type = type
         self.is_comment_disabled = is_comment_disabled
@@ -46,6 +49,7 @@ class CreatePostRequest:
             CreatePostSchema(
                 user_id=self.user_id,
                 title=self.title,
+                body=self.body,
                 region_group_id=self.region_group_id,
                 type=self.type,
                 is_comment_disabled=self.is_comment_disabled,
@@ -64,6 +68,7 @@ class CreatePostRequest:
         return CreatePostDto(
             user_id=self.user_id,
             title=self.title,
+            body=self.body,
             region_group_id=self.region_group_id,
             type=self.type,
             is_comment_disabled=self.is_comment_disabled,
@@ -78,6 +83,7 @@ class CreatePostRequest:
 class UpdatePostSchema(BaseModel):
     id: StrictInt
     title: StrictStr
+    body: StrictStr
     region_group_id: StrictInt
     type: StrictStr
     is_comment_disabled: bool
@@ -86,10 +92,11 @@ class UpdatePostSchema(BaseModel):
 
 class UpdatePostRequest:
     def __init__(
-        self, id, title, region_group_id, type, is_comment_disabled, category,
+        self, id, title, body, region_group_id, type, is_comment_disabled, category,
     ):
         self.id = id
         self.title = title
+        self.body = body
         self.region_group_id = region_group_id
         self.type = type
         self.is_comment_disabled = is_comment_disabled
@@ -100,6 +107,7 @@ class UpdatePostRequest:
             UpdatePostSchema(
                 id=self.id,
                 title=self.title,
+                body=self.body,
                 region_group_id=self.region_group_id,
                 type=self.type,
                 is_comment_disabled=self.is_comment_disabled,
@@ -114,6 +122,7 @@ class UpdatePostRequest:
         return UpdatePostDto(
             id=self.id,
             title=self.title,
+            body=self.body,
             region_group_id=self.region_group_id,
             type=self.type,
             is_comment_disabled=self.is_comment_disabled,
