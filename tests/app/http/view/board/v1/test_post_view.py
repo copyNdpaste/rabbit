@@ -34,6 +34,7 @@ def test_when_create_post_then_success(
     assert response.status_code == 200
     data = response.get_json()["data"]
     assert data["post"]["user_id"] == user.id
+    assert data["post"]["body"] == dct["body"]
 
 
 def test_when_update_post_then_success(
