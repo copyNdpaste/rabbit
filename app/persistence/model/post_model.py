@@ -12,6 +12,7 @@ from sqlalchemy.orm import relationship
 
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
+from app.persistence.model.user_model import UserModel
 from core.domains.board.entity.post_entity import PostEntity
 
 
@@ -21,7 +22,7 @@ class PostModel(db.Model):
     id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
     user_id = Column(
         BigInteger().with_variant(Integer, "sqlite"),
-        ForeignKey("users.id"),
+        ForeignKey(UserModel.id),
         nullable=False,
     )
     title = Column(String(100), nullable=False)
@@ -47,6 +48,7 @@ class PostModel(db.Model):
             id=self.id,
             user_id=self.user_id,
             title=self.title,
+            body=self.article.body if self.article else None,
             region_group_id=self.region_group_id,
             type=self.type,
             is_comment_disabled=self.is_comment_disabled,

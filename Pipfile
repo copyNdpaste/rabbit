@@ -19,6 +19,8 @@ flasgger = "*"
 black = "==19.10b0"
 pytest-xdist = "*"
 pytest = "*"
+pytest-factoryboy = "*"
+faker = "*"
 
 [requires]
 python_version = "3.8"

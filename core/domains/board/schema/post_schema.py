@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, StrictInt, StrictStr
 
@@ -9,6 +10,7 @@ class PostResponseSchema(BaseModel):
     id: StrictInt
     user_id: StrictInt
     title: StrictStr
+    body: StrictStr
     region_group_id: StrictInt
     type: StrictStr
     is_comment_disabled: bool
