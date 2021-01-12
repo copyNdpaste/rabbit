@@ -66,3 +66,7 @@ def test_delete_post(session, normal_user_factory):
 
     assert post_entity.id == dto.id
     assert post_entity.is_deleted == True
+
+
+def test_report_post(session, normal_user_factory):
+    pass

@@ -12,7 +12,7 @@ from sqlalchemy.orm import relationship, backref
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
 from app.persistence.model.post_model import PostModel
-from core.domains.board.entity.ArticleEntity import ArticleEntity
+from core.domains.board.entity.article_entity import ArticleEntity
 
 
 class ArticleModel(db.Model):
