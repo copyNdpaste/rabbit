@@ -3,7 +3,7 @@ from typing import List, Optional
 from app.extensions.database import session
 from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.post_model import PostModel
-from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto
+from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.entity.post_entity import PostEntity
 
 
@@ -47,7 +47,7 @@ class BoardRepository:
         try:
             (
                 session.query(PostModel)
-                .filter_by(id=dto.id)
+                .filter(PostModel.id == dto.id)
                 .update(
                     {
                         "title": dto.title,
@@ -65,4 +65,16 @@ class BoardRepository:
         except Exception as e:
             session.rollback()
             # TODO : log
+            return None
+
+    def is_post_owner(self, dto) -> bool:
+        post = self.get_post(id=dto.id)
+        return True if post.user_id == dto.user_id else False
+
+    def delete_post(self, dto: DeletePostDto) -> Optional[PostEntity]:
+        try:
+            session.query(PostModel).filter_by(id=dto.id).update({"is_deleted": True})
+            return self.get_post(id=dto.id)
+        except Exception as e:
+            session.rollback()
             return None

@@ -3,27 +3,12 @@ tags:
   - Post
 security:
   - userAuth: []
-requestBody:
-  required: true
-  content:
-    application/json:
-      schema:
-        type: object
-        properties:
-          user_id:
-            type: integer
-          title:
-            type: string
-          body:
-            type: string
-          region_group_id:
-            type: integer
-          type:
-            type: string
-          is_comment_disabled:
-            type: boolean
-          category:
-            type: integer
+parameters:
+  - name: post_id
+    in: path
+    required: true
+    schema:
+      type: int
 responses:
   '200':
     description: A post object
@@ -39,8 +24,6 @@ responses:
               type: integer
               example: 1
             title:
-              type: string
-            body:
               type: string
             region_group_id:
               type: integer

@@ -5,13 +5,16 @@ from flask_jwt_extended import jwt_required
 from app.http.requests.view.board.v1.post_request import (
     CreatePostRequest,
     UpdatePostRequest,
+    DeletePostRequest,
 )
 from app.http.responses import failure_response
 from app.http.responses.presenters.post_presenter import PostPresenter
 from app.http.view import auth_required, api
+from app.http.view.authentication import current_user
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
     UpdatePostUseCase,
+    DeletePostUseCase,
 )
 from core.use_case_output import FailureType, UseCaseFailureOutput
 
@@ -42,3 +45,19 @@ def update_post_view():
         )
 
     return PostPresenter().transform(UpdatePostUseCase().execute(dto=dto))
+
+
+@api.route("/board/v1/posts/<int:post_id>", methods=["DELETE"])
+@jwt_required
+@auth_required
+@swag_from("delete_post.yml", methods=["DELETE"])
+def delete_post_view(post_id):
+    dto = DeletePostRequest(
+        post_id=post_id, user_id=current_user.id
+    ).validate_request_and_make_dto()
+    if not dto:
+        return failure_response(
+            UseCaseFailureOutput(type=FailureType.INVALID_REQUEST_ERROR)
+        )
+
+    return PostPresenter().transform(DeletePostUseCase().execute(dto=dto))

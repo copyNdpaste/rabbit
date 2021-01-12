@@ -17,9 +17,15 @@ class CreatePostDto(BaseModel):
 
 class UpdatePostDto(BaseModel):
     id: int
+    user_id: int
     title: str
     body: str
     region_group_id: int
     type: str
     is_comment_disabled: bool
     category: int
+
+
+class DeletePostDto(BaseModel):
+    id: int
+    user_id: int
