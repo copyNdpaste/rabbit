@@ -23,8 +23,8 @@ def upgrade():
             "id", sa.SmallInteger().with_variant(sa.Integer(), "sqlite"), nullable=False
         ),
         sa.Column("comment_id", sa.BigInteger(), nullable=False),
-        sa.Column("report_user_id", sa.BigInteger(), nullable=True),
-        sa.Column("status", sa.String(length=20), nullable=True),
+        sa.Column("report_user_id", sa.BigInteger(), nullable=False),
+        sa.Column("status", sa.String(length=20), nullable=False, default="pending"),
         sa.Column("context", sa.String(length=100), nullable=True),
         sa.Column("confirm_admin_id", sa.Integer(), nullable=True),
         sa.Column("is_system_report", sa.Boolean(), nullable=True),
