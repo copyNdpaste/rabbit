@@ -13,34 +13,28 @@ from sqlalchemy.orm import relationship
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
 from app.persistence.model.comment_model import CommentModel
-from app.persistence.model.post_model import PostModel
-from core.domains.board.entity.report_entity import ReportEntity
+from core.domains.board.entity.report_entity import PostReportEntity
 
 
-class ReportModel(db.Model):
-    __tablename__ = "reports"
+class CommentReportModel(db.Model):
+    __tablename__ = "comment_reports"
 
     id = Column(SmallInteger().with_variant(Integer, "sqlite"), primary_key=True)
-    ref_id = Column(
-        BigInteger, ForeignKey([PostModel.id, CommentModel.id], nullable=False)
-    )
-    type = Column(String(20), nullable=False)
+    comment_id = Column(BigInteger, ForeignKey(CommentModel.id), nullable=False)
     report_user_id = Column(BigInteger, nullable=True)
     status = Column(String(20))
-    context = Column(String(50))
+    context = Column(String(100))
     confirm_admin_id = Column(Integer)
     is_system_report = Column(Boolean)
     created_at = Column(DateTime, default=get_server_timestamp())
     updated_at = Column(DateTime, default=get_server_timestamp())
 
-    post = relationship("PostModel", backref="post")
-    comment = relationship("CommentModel", backref="comment")
+    comment = relationship("CommentModel", backref="comment_report")
 
-    def to_entity(self) -> ReportEntity:
-        return ReportEntity(
+    def to_entity(self) -> PostReportEntity:
+        return PostReportEntity(
             id=self.id,
-            ref_id=self.ref_id,
-            type=self.type,
+            post_id=self.post_id,
             report_user_id=self.report_user_id,
             status=self.status,
             context=self.context,
