@@ -11,4 +11,11 @@ def get_posts(user_id: int):
     setattr(g, PostTopicEnum.GET_POSTS, posts)
 
 
+def is_post_exist(post_id: int):
+    is_exist = BoardRepository().is_post_exist(post_id=post_id)
+
+    setattr(g, PostTopicEnum.IS_POST_EXIST, is_exist)
+
+
 pub.subscribe(get_posts, PostTopicEnum.GET_POSTS)
+pub.subscribe(is_post_exist, PostTopicEnum.IS_POST_EXIST)
