@@ -10,6 +10,9 @@ from alembic import context
 # access to the values within the .ini file in use.
 from app import db
 
+from app.persistence.model.comment_model import CommentModel
+from app.persistence.model.comment_report_model import CommentReportModel
+from app.persistence.model.post_report_model import PostReportModel
 
 config = context.config
 

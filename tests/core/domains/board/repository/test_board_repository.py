@@ -66,3 +66,17 @@ def test_delete_post(session, normal_user_factory):
 
     assert post_entity.id == dto.id
     assert post_entity.is_deleted == True
+
+
+def test_is_post_exist(session, normal_user_factory):
+    user = normal_user_factory(Region=True, UserProfile=True, Post=True)
+    session.add(user)
+    session.commit()
+
+    result = BoardRepository().is_post_exist(post_id=user.post[0].id)
+
+    assert result == True
+
+    result = BoardRepository().is_post_exist(post_id=0)
+
+    assert result == False

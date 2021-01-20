@@ -53,6 +53,10 @@ send_message(topic_name="topic_name", user_id=1)
 
 # 리스너로부터 생성된 값을 topic key로 가져온다.
 get_event_object(topic_name="topic_name")
+
+# 도메인의 event에 topic subscribe 해야 함
+pub.subscribe(get_posts, PostTopicEnum.GET_POSTS)
+
 ```
 ## [swagger](https://swagger.io/docs/specification/basic-structure/)
 * api docs

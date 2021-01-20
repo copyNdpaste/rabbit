@@ -78,3 +78,8 @@ class BoardRepository:
         except Exception as e:
             session.rollback()
             return None
+
+    def is_post_exist(self, post_id: int) -> bool:
+        return session.query(
+            session.query(PostModel).filter_by(id=post_id).exists()
+        ).scalar()
