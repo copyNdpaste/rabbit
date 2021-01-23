@@ -1,5 +1,6 @@
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.repository.board_repository import BoardRepository
+from tests.seeder.factory import PostFactory
 
 
 def test_create_post(session, normal_user_factory):
@@ -116,3 +117,68 @@ def test_get_post_list(session, normal_user_factory, post_factory):
     assert len(post_list) == 2
     for post in post_list:
         post.region_group = user.region.region_group
+
+
+def test_get_empty_post_list(session, normal_user_factory):
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    post_list = BoardRepository().get_post_list(region_group_id=0)
+
+    assert post_list == []
+
+
+def test_get_post_list_pagination(session, normal_user_factory):
+    """
+    post list 조회 시 페이지네이션
+    """
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    post_list = PostFactory.create_batch(
+        size=11,
+        Article=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+    )
+    session.add_all(post_list)
+    session.commit()
+
+    post_list = BoardRepository().get_post_list(
+        region_group_id=user.region.region_group.id, previous_post_id=10
+    )
+
+    assert len(post_list) == 1
+    assert post_list[0].region_group.name == user.region.region_group.name
+
+
+def test_except_deleted_or_blocked_post(session, normal_user_factory, post_factory):
+    """
+    post list 조회 시 삭제, 차단된 게시글 제외
+    """
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    deleted_post = post_factory(
+        Article=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+        is_deleted=True,
+    )
+    blocked_post = post_factory(
+        Article=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+        is_blocked=True,
+    )
+
+    session.add_all([deleted_post, blocked_post])
+    session.commit()
+
+    post_list = BoardRepository().get_post_list(
+        region_group_id=user.region.region_group.id
+    )
+
+    assert len(post_list) == 0

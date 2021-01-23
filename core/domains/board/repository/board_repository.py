@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from app.extensions.database import session
 from app.persistence.model.article_model import ArticleModel
@@ -86,13 +86,24 @@ class BoardRepository:
             session.query(PostModel).filter_by(id=post_id).exists()
         ).scalar()
 
-    def get_post_list(self, region_group_id: int) -> Optional[List[PostEntity]]:
+    def get_post_list(
+        self, region_group_id: int, previous_post_id: int = None
+    ) -> Optional[List[Union[PostEntity, list]]]:
+        """
+        :param region_group_id: 유저가 속한 동네 식별자
+        :param previous_post_id: 유저가 바로 직전 조회한 post id
+        :return: post list
+        """
         """ TODO
         1. 동일 지역의 post 가져오기, 삭제된 거 제외, block 제외
         2. 검색 filter 넣기, keyword like 검색, 선택된 type, category 등에 맞게 응답
         3. 응답 값 created_at, title, user 정보, type, read_count, hashtag
         region_group에 속한 region 목록..
         """
+        previous_post_id_filter = []
+        if previous_post_id:
+            previous_post_id_filter.append(PostModel.id > previous_post_id)
+
         try:
             post_list = (
                 session.query(PostModel)
@@ -104,6 +115,7 @@ class BoardRepository:
                     PostModel.region_group_id == region_group_id,
                     PostModel.is_blocked == False,
                     PostModel.is_deleted == False,
+                    *previous_post_id_filter,
                 )
                 .order_by(PostModel.id.desc())
                 .limit(10)
