@@ -48,6 +48,7 @@ class PostModel(db.Model):
             id=self.id,
             user_id=self.user_id,
             title=self.title,
+            article=self.article,
             region_group_id=self.region_group_id,
             type=self.type,
             is_comment_disabled=self.is_comment_disabled,
@@ -62,6 +63,7 @@ class PostModel(db.Model):
             last_admin_action_at=self.last_admin_action_at,
             created_at=self.created_at,
             updated_at=self.updated_at,
+            user=self.user,
         )
 
     def to_post_list_entity(self) -> PostListEntity:
@@ -70,7 +72,6 @@ class PostModel(db.Model):
             id=self.id,
             user_id=self.user_id,
             title=self.title,
-            # body=self.article.body if self.article else None,
             article=self.article,
             region_group_id=self.region_group_id,
             type=self.type,

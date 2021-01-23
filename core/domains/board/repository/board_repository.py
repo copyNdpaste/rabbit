@@ -36,13 +36,14 @@ class BoardRepository:
             session.rollback()
             return None
 
+    # TODO : get_posts -> 아래 get_list 사용하기
     def get_posts(self, user_id: int) -> List[PostEntity]:
         posts = session.query(PostModel).filter_by(user_id=user_id).all()
 
         return [post.to_entity() for post in posts]
 
-    def get_post(self, id) -> PostEntity:
-        return session.query(PostModel).filter_by(id=id).first().to_entity()
+    def _get_post(self, post_id) -> PostEntity:
+        return session.query(PostModel).filter_by(id=post_id).first().to_entity()
 
     def update_post(self, dto: UpdatePostDto) -> Optional[PostEntity]:
         try:
@@ -62,20 +63,20 @@ class BoardRepository:
             session.query(ArticleModel).filter_by(post_id=dto.id).update(
                 {"body": dto.body}
             )
-            return self.get_post(id=dto.id)
+            return self._get_post(post_id=dto.id)
         except Exception as e:
             session.rollback()
             # TODO : log
             return None
 
     def is_post_owner(self, dto) -> bool:
-        post = self.get_post(id=dto.id)
+        post = self._get_post(post_id=dto.id)
         return True if post.user_id == dto.user_id else False
 
     def delete_post(self, dto: DeletePostDto) -> Optional[PostEntity]:
         try:
             session.query(PostModel).filter_by(id=dto.id).update({"is_deleted": True})
-            return self.get_post(id=dto.id)
+            return self._get_post(post_id=dto.id)
         except Exception as e:
             session.rollback()
             return None

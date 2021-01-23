@@ -14,9 +14,9 @@ class PostPresenter:
             try:
                 schema = PostResponseSchema(
                     id=value.id,
-                    user_id=value.user_id,
+                    user_id=value.user.id,
                     title=value.title,
-                    body=value.body if value.body else "",
+                    body=value.article.body if value.article.body else "",
                     region_group_id=value.region_group_id,
                     type=value.type,
                     is_comment_disabled=value.is_comment_disabled,
@@ -31,7 +31,8 @@ class PostPresenter:
                     last_admin_action_at=value.last_admin_action_at,
                     created_at=value.created_at,
                     updated_at=value.updated_at,
-                    user=value.user,
+                    nickname=value.user.nickname,
+                    login_id=value.user.login_id,
                 )
             except ValidationError as e:
                 print(e)

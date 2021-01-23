@@ -11,6 +11,7 @@ class PostEntity:
     id: int
     user_id: int
     title: str
+    article: ArticleEntity
     region_group_id: int
     type: str
     is_comment_disabled: bool
@@ -25,6 +26,7 @@ class PostEntity:
     last_admin_action_at: datetime
     created_at: datetime
     updated_at: datetime
+    user: UserEntity
 
 
 @dataclass

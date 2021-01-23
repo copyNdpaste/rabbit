@@ -1,36 +1,13 @@
-import uuid
-
 from flask import url_for
 from flask_jwt_extended import create_access_token
 
-from app.persistence.model.region_model import RegionModel
-from app.persistence.model.user_model import UserModel
-from app.persistence.model.user_profile_model import UserProfileModel
 from core.use_case_output import FailureType
 
 
 def test_when_user_id_exists_then_check_auth_success(
-    client, session, test_request_context, jwt_manager, make_header
+    client, session, test_request_context, jwt_manager, make_header, normal_user_factory
 ):
-    user_profile = UserProfileModel(
-        uuid=str(uuid.uuid4()), file_name="file", path="uploads/"
-    )
-    session.add(user_profile)
-    session.commit()
-
-    region = RegionModel(name="청담동")
-    session.add(region)
-    session.commit()
-
-    user = UserModel(
-        login_id="hello",
-        nickname="Noah",
-        password="1234",
-        profile_id=user_profile.id,
-        status="default",
-        provider="",
-        region_id=region.id,
-    )
+    user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
 

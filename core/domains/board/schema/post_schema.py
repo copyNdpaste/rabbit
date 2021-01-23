@@ -3,8 +3,6 @@ from typing import Optional
 
 from pydantic import BaseModel, StrictInt, StrictStr
 
-from core.domains.user.entity.user_entity import UserEntity
-
 
 class PostResponseSchema(BaseModel):
     id: StrictInt
@@ -25,4 +23,6 @@ class PostResponseSchema(BaseModel):
     last_admin_action_at: Optional[datetime]
     created_at: datetime
     updated_at: datetime
-    user: UserEntity
+    user_id: StrictInt
+    nickname: StrictStr
+    login_id: StrictStr

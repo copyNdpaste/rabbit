@@ -28,13 +28,13 @@ def test_create_post(session, normal_user_factory):
     assert post_entity.title == dto.title
 
 
-def test_update_post(session, normal_user_factory, article_factory):
-    user = normal_user_factory(Region=True, UserProfile=True, Post=True)
+def test_update_post(session, normal_user_factory, post_factory):
+    user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
 
-    article = article_factory(post_id=user.post[0].id)
-    session.add(article)
+    post = post_factory(Article=True)
+    session.add(post)
     session.commit()
 
     dto = UpdatePostDto(
@@ -51,7 +51,7 @@ def test_update_post(session, normal_user_factory, article_factory):
     post_entity = BoardRepository().update_post(dto=dto)
 
     assert post_entity.title == dto.title
-    assert post_entity.body == dto.body
+    assert post_entity.article.body == dto.body
     assert post_entity.is_comment_disabled == dto.is_comment_disabled
 
 
