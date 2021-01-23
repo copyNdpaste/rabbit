@@ -56,7 +56,7 @@ def test_when_update_post_then_success(session, normal_user_factory, article_fac
     post_entity = UpdatePostUseCase().execute(dto=dto).value
 
     assert post_entity.title == dto.title
-    assert post_entity.body == dto.body
+    assert post_entity.article.body == dto.body
     assert post_entity.is_comment_disabled == dto.is_comment_disabled
 
 

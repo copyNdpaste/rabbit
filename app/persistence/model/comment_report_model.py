@@ -20,7 +20,9 @@ class CommentReportModel(db.Model):
     __tablename__ = "comment_reports"
 
     id = Column(SmallInteger().with_variant(Integer, "sqlite"), primary_key=True)
-    comment_id = Column(BigInteger, ForeignKey(CommentModel.id), nullable=False)
+    comment_id = Column(
+        BigInteger, ForeignKey(CommentModel.id, ondelete="CASCADE"), nullable=False
+    )
     report_user_id = Column(BigInteger, nullable=True)
     status = Column(String(20))
     context = Column(String(100))
