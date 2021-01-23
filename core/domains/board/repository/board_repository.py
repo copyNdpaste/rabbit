@@ -63,7 +63,8 @@ class BoardRepository:
             session.query(ArticleModel).filter_by(post_id=dto.id).update(
                 {"body": dto.body}
             )
-            return self._get_post(post_id=dto.id)
+            post_entity = self._get_post(post_id=dto.id)
+            return post_entity if post_entity else None
         except Exception as e:
             session.rollback()
             # TODO : log

@@ -15,6 +15,15 @@ class CreatePostDto(BaseModel):
     category: int
 
 
+class GetPostListDto(BaseModel):
+    region_group_id: int
+    previous_post_id: int = None
+    title: str = None
+    article: str = None
+    type: str = None
+    category: str = None
+
+
 class UpdatePostDto(BaseModel):
     id: int
     user_id: int

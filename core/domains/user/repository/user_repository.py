@@ -9,6 +9,4 @@ class UserRepository:
     def get_user(self, user_id: int) -> Optional[UserEntity]:
         user = session.query(UserModel).filter_by(id=user_id).first()
 
-        if not user:
-            return
-        return user.to_entity()
+        return user.to_entity() if user else None
