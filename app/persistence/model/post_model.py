@@ -13,7 +13,7 @@ from sqlalchemy.orm import relationship
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
 from app.persistence.model.user_model import UserModel
-from core.domains.board.entity.post_entity import PostEntity
+from core.domains.board.entity.post_entity import PostEntity, PostListEntity
 
 
 class PostModel(db.Model):
@@ -48,7 +48,30 @@ class PostModel(db.Model):
             id=self.id,
             user_id=self.user_id,
             title=self.title,
-            body=self.article.body if self.article else None,
+            region_group_id=self.region_group_id,
+            type=self.type,
+            is_comment_disabled=self.is_comment_disabled,
+            is_deleted=self.is_deleted,
+            is_blocked=self.is_blocked,
+            report_count=self.report_count,
+            read_count=self.read_count,
+            category=self.category,
+            last_user_action=self.last_user_action,
+            last_user_action_at=self.last_user_action_at,
+            last_admin_action=self.last_admin_action,
+            last_admin_action_at=self.last_admin_action_at,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+        )
+
+    def to_post_list_entity(self) -> PostListEntity:
+        # 게시글 리스트 응답용 entity
+        return PostListEntity(
+            id=self.id,
+            user_id=self.user_id,
+            title=self.title,
+            # body=self.article.body if self.article else None,
+            article=self.article,
             region_group_id=self.region_group_id,
             type=self.type,
             is_comment_disabled=self.is_comment_disabled,
@@ -64,4 +87,7 @@ class PostModel(db.Model):
             created_at=self.created_at,
             updated_at=self.updated_at,
             user=self.user.to_entity(),
+            user_profile=self.user.user_profile.to_entity(),
+            region=self.user.region.to_entity(),
+            region_group=self.user.region.region_group.to_entity(),
         )

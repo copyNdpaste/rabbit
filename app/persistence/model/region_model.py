@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, SmallInteger, ForeignKey
+from sqlalchemy.orm import relationship
 
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
@@ -18,6 +19,8 @@ class RegionModel(db.Model):
     name = Column(String(length=50), nullable=False)
     created_at = Column(DateTime, default=get_server_timestamp())
     updated_at = Column(DateTime, default=get_server_timestamp())
+
+    region_group = relationship("RegionGroupModel", backref="region")
 
     def to_entity(self) -> RegionEntity:
         return RegionEntity(

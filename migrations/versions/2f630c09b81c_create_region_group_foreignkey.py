@@ -21,7 +21,7 @@ def upgrade():
         "regions", sa.Column("region_group_id", sa.SmallInteger(), nullable=False)
     )
     op.create_foreign_key(
-        None,
+        "regions_group_id_fkey",
         "regions",
         "region_groups",
         ["region_group_id"],
@@ -31,5 +31,5 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_constraint(None, "regions", type_="foreignkey")
+    op.drop_constraint("regions_group_id_fkey", "regions", type_="foreignkey")
     op.drop_column("regions", "region_group_id")
