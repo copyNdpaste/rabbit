@@ -22,7 +22,7 @@ class PostModel(db.Model):
     id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
     user_id = Column(
         BigInteger().with_variant(Integer, "sqlite"),
-        ForeignKey(UserModel.id),
+        ForeignKey(UserModel.id, ondelete="CASCADE"),
         nullable=False,
     )
     title = Column(String(100), nullable=False)

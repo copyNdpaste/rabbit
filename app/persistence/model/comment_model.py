@@ -19,9 +19,15 @@ class CommentModel(db.Model):
     __tablename__ = "comments"
 
     id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
-    post_id = Column(BigInteger, ForeignKey(PostModel.id), nullable=False)
-    user_id = Column(BigInteger, ForeignKey(UserModel.id), nullable=False)
-    parent_id = Column(BigInteger, ForeignKey("comments.id"), nullable=False)
+    post_id = Column(
+        BigInteger, ForeignKey(PostModel.id, ondelete="CASCADE"), nullable=False
+    )
+    user_id = Column(
+        BigInteger, ForeignKey(UserModel.id, ondelete="CASCADE"), nullable=False
+    )
+    parent_id = Column(
+        BigInteger, ForeignKey("comments.id", ondelete="CASCADE"), nullable=False
+    )
     report_user_id = Column(BigInteger, nullable=True)
     status = Column(String(20))
     context = Column(String(50))
