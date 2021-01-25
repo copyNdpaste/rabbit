@@ -197,9 +197,12 @@ def test_when_deleted_or_blocked_post_then_except(
     """
     post list 조회 시 삭제, 차단된 게시글 제외
     """
-    user = normal_user_factory(Region=True, UserProfile=True, Post=True)
+    user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
+    post = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+    )
     deleted_post = post_factory(
         Article=True,
         region_group_id=user.region.region_group.id,
@@ -213,7 +216,7 @@ def test_when_deleted_or_blocked_post_then_except(
         is_blocked=True,
     )
 
-    session.add_all([deleted_post, blocked_post])
+    session.add_all([post, deleted_post, blocked_post])
     session.commit()
 
     dto = GetPostListDto(region_group_id=user.region.region_group.id)
