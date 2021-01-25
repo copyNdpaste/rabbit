@@ -31,12 +31,11 @@ class ArticleModel(db.Model):
 
     post = relationship("PostModel", backref=backref("article", uselist=False))
 
-
-def to_entity(self) -> ArticleEntity:
-    return ArticleEntity(
-        id=self.id,
-        post_id=self.post_id,
-        body=self.body,
-        created_at=self.created_at,
-        updated_at=self.updated_at,
-    )
+    def to_entity(self) -> ArticleEntity:
+        return ArticleEntity(
+            id=self.id,
+            post_id=self.post_id,
+            body=self.body,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+        )

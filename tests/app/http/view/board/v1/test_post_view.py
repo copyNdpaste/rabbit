@@ -110,3 +110,52 @@ def test_when_delete_post_then_success(
     data = response.get_json()["data"]
     assert data["post"]["id"] == user.post[0].id
     assert data["post"]["body"] == article.body
+
+
+def test_when_get_post_list_then_success(
+    client,
+    session,
+    test_request_context,
+    make_header,
+    normal_user_factory,
+    post_factory,
+):
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post1 = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+    )
+    post2 = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+    )
+
+    user2 = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user2)
+    session.commit()
+    post3 = post_factory(
+        Article=True, region_group_id=user2.region.region_group.id, user_id=user2.id
+    )
+    post4 = post_factory(
+        Article=True, region_group_id=user2.region.region_group.id, user_id=user2.id
+    )
+
+    session.add_all([post1, post2, post3, post4])
+    session.commit()
+
+    access_token = create_access_token(identity=user.id)
+    authorization = "Bearer " + access_token
+    headers = make_header(authorization=authorization)
+    dct = dict(region_group_id=user.region.region_group.id)
+
+    with test_request_context:
+        response = client.get(
+            url_for("api/rabbit.get_post_list_view"), json=dct, headers=headers
+        )
+
+    assert response.status_code == 200
+    post_list = response.get_json()["data"]["post_list"]
+    cursor = response.get_json()["meta"]["cursor"]
+    assert post1.id == cursor["last_post_id"]
+    assert post2.id == post_list[0]["id"]
+    assert post1.id == post_list[1]["id"]

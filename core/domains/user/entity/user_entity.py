@@ -1,12 +1,12 @@
-from dataclasses import dataclass
 from datetime import datetime
+
+from pydantic import BaseModel
 
 from core.domains.region.entity.region_entity import RegionEntity
 from core.domains.user.entity.user_profile_entity import UserProfileEntity
 
 
-@dataclass
-class UserEntity:
+class UserEntity(BaseModel):
     id: int
     login_id: str
     nickname: str

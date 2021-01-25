@@ -72,7 +72,7 @@ class PostModel(db.Model):
             id=self.id,
             user_id=self.user_id,
             title=self.title,
-            article=self.article,
+            article=self.article.to_entity() if self.article else None,
             region_group_id=self.region_group_id,
             type=self.type,
             is_comment_disabled=self.is_comment_disabled,
@@ -87,8 +87,12 @@ class PostModel(db.Model):
             last_admin_action_at=self.last_admin_action_at,
             created_at=self.created_at,
             updated_at=self.updated_at,
-            user=self.user.to_entity(),
-            user_profile=self.user.user_profile.to_entity(),
-            region=self.user.region.to_entity(),
-            region_group=self.user.region.region_group.to_entity(),
+            user=self.user.to_entity() if self.user else None,
+            user_profile=self.user.user_profile.to_entity()
+            if self.user.user_profile
+            else None,
+            region=self.user.region.to_entity() if self.user.region else None,
+            region_group=self.user.region.region_group.to_entity()
+            if self.user.region.region_group
+            else None,
         )

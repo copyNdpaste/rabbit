@@ -1,7 +1,12 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel
 
 from core.domains.board.entity.article_entity import ArticleEntity
+from core.domains.region.entity.region_entity import RegionEntity
+from core.domains.region.entity.region_group_entity import RegionGroupEntity
 from core.domains.user.entity.user_entity import UserEntity
 from core.domains.user.entity.user_profile_entity import UserProfileEntity
 
@@ -29,8 +34,7 @@ class PostEntity:
     user: UserEntity
 
 
-@dataclass
-class PostListEntity:
+class PostListEntity(BaseModel):
     id: int
     user_id: int
     title: str
@@ -43,13 +47,13 @@ class PostListEntity:
     report_count: int
     read_count: int
     category: int
-    last_user_action: str
-    last_user_action_at: datetime
-    last_admin_action: str
-    last_admin_action_at: datetime
+    last_user_action: Optional[str] = None
+    last_user_action_at: Optional[datetime] = None
+    last_admin_action: Optional[str] = None
+    last_admin_action_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
     user: UserEntity
     user_profile: UserProfileEntity
-    region: str
-    region_group: str
+    region: Optional[RegionEntity] = None
+    region_group: Optional[RegionGroupEntity] = None

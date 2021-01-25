@@ -1,5 +1,5 @@
 from pydantic import ValidationError
-from pydantic.main import BaseModel
+from pydantic import BaseModel
 
 from core.domains.report.dto.post_report_dto import CreatePostReportDto
 

@@ -1,4 +1,4 @@
-from pydantic.main import BaseModel
+from pydantic import BaseModel
 
 
 class CreatePostDto(BaseModel):
@@ -19,7 +19,6 @@ class GetPostListDto(BaseModel):
     region_group_id: int
     previous_post_id: int = None
     title: str = None
-    article: str = None
     type: str = None
     category: str = None
 

@@ -1,6 +1,11 @@
 from pydantic import BaseModel, ValidationError, StrictInt, StrictStr
 
-from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
+from core.domains.board.dto.post_dto import (
+    CreatePostDto,
+    UpdatePostDto,
+    DeletePostDto,
+    GetPostListDto,
+)
 
 
 class CreatePostSchema(BaseModel):
@@ -76,6 +81,53 @@ class CreatePostRequest:
             is_blocked=self.is_blocked,
             report_count=self.report_count,
             read_count=self.read_count,
+            category=self.category,
+        )
+
+
+class GetPostListSchema(BaseModel):
+    region_group_id: StrictInt
+    previous_post_id: StrictInt = None
+    title: StrictStr = None
+    type: StrictStr = None
+    category: StrictInt = None
+
+
+class GetPostListRequest:
+    def __init__(
+        self,
+        region_group_id,
+        previous_post_id=None,
+        title=None,
+        type=None,
+        category=None,
+    ):
+        self.region_group_id = region_group_id
+        self.previous_post_id = previous_post_id
+        self.title = title
+        self.type = type
+        self.category = category
+
+    def validate_request_and_make_dto(self):
+        try:
+            GetPostListSchema(
+                region_group_id=self.region_group_id,
+                previous_post_id=self.previous_post_id,
+                title=self.title,
+                type=self.type,
+                category=self.category,
+            )
+            return self.to_dto()
+        except ValidationError as e:
+            print(e)
+            return False
+
+    def to_dto(self) -> GetPostListDto:
+        return GetPostListDto(
+            region_group_id=self.region_group_id,
+            previous_post_id=self.previous_post_id,
+            title=self.title,
+            type=self.type,
             category=self.category,
         )
 
