@@ -94,9 +94,13 @@ def test_when_not_owner_update_post_then_fail(
     assert result["type"] == FailureType.INVALID_REQUEST_ERROR
 
 
-def test_when_delete_post_then_success(session, normal_user_factory):
-    user = normal_user_factory(Region=True, UserProfile=True, Post=True)
+def test_when_delete_post_then_success(session, normal_user_factory, post_factory):
+    user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
+    session.commit()
+
+    post = post_factory(Article=True, user_id=user.id)
+    session.add(post)
     session.commit()
 
     dto = DeletePostDto(id=user.post[0].id, user_id=user.id)
@@ -107,9 +111,15 @@ def test_when_delete_post_then_success(session, normal_user_factory):
     assert post_entity.is_deleted == True
 
 
-def test_when_not_owner_delete_post_then_fail(session, normal_user_factory):
-    user = normal_user_factory(Region=True, UserProfile=True, Post=True)
+def test_when_not_owner_delete_post_then_fail(
+    session, normal_user_factory, post_factory
+):
+    user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
+    session.commit()
+
+    post = post_factory(Article=True, user_id=user.id)
+    session.add(post)
     session.commit()
 
     dto = DeletePostDto(id=user.post[0].id, user_id=-1)

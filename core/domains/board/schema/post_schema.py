@@ -7,7 +7,7 @@ from core.domains.board.entity.article_entity import ArticleEntity
 from core.domains.user.entity.user_entity import UserEntity
 
 
-class PostResponseSchema(BaseModel):
+class PostResponseBaseSchema(BaseModel):
     id: StrictInt
     user_id: StrictInt
     title: StrictStr
@@ -29,5 +29,9 @@ class PostResponseSchema(BaseModel):
     user: UserEntity
 
 
+class PostResponseSchema(BaseModel):
+    post: PostResponseBaseSchema
+
+
 class PostListResponseSchema(BaseModel):
-    post_list: List[PostResponseSchema]
+    post_list: List[PostResponseBaseSchema]

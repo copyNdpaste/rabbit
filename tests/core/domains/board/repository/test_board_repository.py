@@ -34,7 +34,7 @@ def test_update_post(session, normal_user_factory, post_factory):
     session.add(user)
     session.commit()
 
-    post = post_factory(Article=True)
+    post = post_factory(Article=True, user_id=user.id)
     session.add(post)
     session.commit()
 
@@ -56,9 +56,13 @@ def test_update_post(session, normal_user_factory, post_factory):
     assert post_entity.is_comment_disabled == dto.is_comment_disabled
 
 
-def test_delete_post(session, normal_user_factory):
-    user = normal_user_factory(Region=True, UserProfile=True, Post=True)
+def test_delete_post(session, normal_user_factory, post_factory):
+    user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
+    session.commit()
+
+    post = post_factory(Article=True, user_id=user.id)
+    session.add(post)
     session.commit()
 
     dto = DeletePostDto(id=user.post[0].id, user_id=user.id)

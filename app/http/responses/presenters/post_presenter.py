@@ -15,27 +15,7 @@ class PostPresenter:
         if isinstance(output, UseCaseSuccessOutput):
             value = output.value
             try:
-                schema = PostResponseSchema(
-                    id=value.id,
-                    user_id=value.user.id,
-                    title=value.title,
-                    article=value.article.to_entity() if value.article else None,
-                    region_group_id=value.region_group_id,
-                    type=value.type,
-                    is_comment_disabled=value.is_comment_disabled,
-                    is_deleted=value.is_deleted,
-                    is_blocked=value.is_blocked,
-                    report_count=value.report_count,
-                    read_count=value.read_count,
-                    category=value.category,
-                    last_user_action=value.last_user_action,
-                    last_user_action_at=value.last_user_action_at,
-                    last_admin_action=value.last_admin_action,
-                    last_admin_action_at=value.last_admin_action_at,
-                    created_at=value.created_at,
-                    updated_at=value.updated_at,
-                    user=value.user.to_entity() if value.user else None,
-                )
+                schema = PostResponseSchema(post=value)
             except ValidationError as e:
                 print(e)
                 return failure_response(
@@ -45,7 +25,7 @@ class PostPresenter:
                     )
                 )
             result = {
-                "data": {"post": schema.dict()},
+                "data": schema.dict(),
                 "meta": output.meta,
             }
             return success_response(result=result)
