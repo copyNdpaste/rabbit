@@ -11,30 +11,6 @@ class PostResponseSchema(BaseModel):
     id: StrictInt
     user_id: StrictInt
     title: StrictStr
-    body: StrictStr
-    region_group_id: StrictInt
-    type: StrictStr
-    is_comment_disabled: bool
-    is_deleted: bool
-    is_blocked: bool
-    report_count: StrictInt
-    read_count: StrictInt
-    category: StrictInt
-    last_user_action: StrictStr
-    last_user_action_at: Optional[datetime]
-    last_admin_action: StrictStr
-    last_admin_action_at: Optional[datetime]
-    created_at: datetime
-    updated_at: datetime
-    user_id: StrictInt
-    nickname: StrictStr
-    login_id: StrictStr
-
-
-class PostResponseSchema2(BaseModel):
-    id: StrictInt
-    user_id: StrictInt
-    title: StrictStr
     article: ArticleEntity
     region_group_id: StrictInt
     type: StrictStr
@@ -54,5 +30,4 @@ class PostResponseSchema2(BaseModel):
 
 
 class PostListResponseSchema(BaseModel):
-    # TODO : PostResponseSchema2 - >PostResponseSchema 수정
-    post_list: List[PostResponseSchema2]
+    post_list: List[PostResponseSchema]

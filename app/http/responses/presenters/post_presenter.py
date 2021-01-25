@@ -19,7 +19,7 @@ class PostPresenter:
                     id=value.id,
                     user_id=value.user.id,
                     title=value.title,
-                    body=value.article.body if value.article.body else "",
+                    article=value.article.to_entity() if value.article else None,
                     region_group_id=value.region_group_id,
                     type=value.type,
                     is_comment_disabled=value.is_comment_disabled,
@@ -34,8 +34,7 @@ class PostPresenter:
                     last_admin_action_at=value.last_admin_action_at,
                     created_at=value.created_at,
                     updated_at=value.updated_at,
-                    nickname=value.user.nickname,
-                    login_id=value.user.login_id,
+                    user=value.user.to_entity() if value.user else None,
                 )
             except ValidationError as e:
                 print(e)
