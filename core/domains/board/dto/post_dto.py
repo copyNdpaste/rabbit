@@ -23,6 +23,10 @@ class GetPostListDto(BaseModel):
     category: str = None
 
 
+class GetPostDto(BaseModel):
+    id: int
+
+
 class UpdatePostDto(BaseModel):
     id: int
     user_id: int

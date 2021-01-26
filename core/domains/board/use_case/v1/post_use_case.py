@@ -8,6 +8,7 @@ from core.domains.board.dto.post_dto import (
     UpdatePostDto,
     DeletePostDto,
     GetPostListDto,
+    GetPostDto,
 )
 from core.domains.board.repository.board_repository import BoardRepository
 from core.domains.region.enum import RegionTopicEnum
@@ -79,6 +80,19 @@ class GetPostListUseCase(PostBaseUseCase):
         send_message(topic_name=RegionTopicEnum.GET_REGION_GROUP, id=id)
 
         return get_event_object(topic_name=RegionTopicEnum.GET_REGION_GROUP)
+
+
+class GetPostUseCase(PostBaseUseCase):
+    @inject.autoparams()
+    def __init__(self, board_repo: BoardRepository):
+        super().__init__(board_repo)
+        self._board_repo = board_repo
+
+    def execute(self, dto: GetPostDto):
+        post = self._board_repo.get_post(id=dto.id)
+        if not post:
+            return UseCaseFailureOutput(FailureType.NOT_FOUND_ERROR)
+        return UseCaseSuccessOutput(value=post)
 
 
 class UpdatePostUseCase(PostBaseUseCase):

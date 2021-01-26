@@ -211,7 +211,7 @@ def test_get_post(session, normal_user_factory, post_factory):
     session.add_all([post1, post2])
     session.commit()
 
-    post_entity = BoardRepository().get_post(post_id=user.post[0].id)
+    post_entity = BoardRepository().get_post(id=user.post[0].id)
 
     assert post_entity.id == user.post[0].id
     assert post_entity.is_deleted == False
@@ -229,7 +229,7 @@ def test_get_empty_post(session, normal_user_factory):
     session.add(user)
     session.commit()
 
-    post = BoardRepository().get_post(post_id=0)
+    post = BoardRepository().get_post(id=0)
 
     assert post == None
 
@@ -257,8 +257,8 @@ def test_get_post_except_deleted_or_blocked(session, normal_user_factory, post_f
     session.add_all([deleted_post, blocked_post])
     session.commit()
 
-    post = BoardRepository().get_post(post_id=deleted_post.id)
+    post = BoardRepository().get_post(id=deleted_post.id)
     assert post == None
 
-    post = BoardRepository().get_post(post_id=blocked_post.id)
+    post = BoardRepository().get_post(id=blocked_post.id)
     assert post == None

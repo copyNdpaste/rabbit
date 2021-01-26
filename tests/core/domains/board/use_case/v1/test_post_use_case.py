@@ -3,12 +3,14 @@ from core.domains.board.dto.post_dto import (
     UpdatePostDto,
     DeletePostDto,
     GetPostListDto,
+    GetPostDto,
 )
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
     UpdatePostUseCase,
     DeletePostUseCase,
     GetPostListUseCase,
+    GetPostUseCase,
 )
 from core.use_case_output import FailureType
 from tests.seeder.factory import PostFactory
@@ -233,3 +235,35 @@ def test_when_deleted_or_blocked_post_then_except(
     post_list = GetPostListUseCase().execute(dto=dto).value
 
     assert len(post_list) == 1
+
+
+def test_when_get_post_then_success(session, normal_user_factory, post_factory):
+    """
+    post 조회
+    """
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+    )
+
+    session.add(post)
+    session.commit()
+
+    dto = GetPostDto(id=post.id)
+
+    post_entity = GetPostUseCase().execute(dto=dto).value
+
+    assert post_entity.id == dto.id
+
+
+def test_when_get_not_exist_post_then_not_found(session):
+    """
+    없는 post 조회
+    """
+    dto = GetPostDto(id=0)
+
+    result = GetPostUseCase().execute(dto=dto)
+
+    assert result.type == FailureType.NOT_FOUND_ERROR

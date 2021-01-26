@@ -120,7 +120,7 @@ class BoardRepository:
         except Exception as e:
             pass
 
-    def get_post(self, post_id: int) -> Optional[PostEntity]:
+    def get_post(self, id: int) -> Optional[PostEntity]:
         """
         TODO
         1. 삭제, 블락 정보, 유저 정보, 제목, article, type, category, 댓글 사용 가능 여부, 조회 수, 카테고리,
@@ -131,7 +131,7 @@ class BoardRepository:
             .join(PostModel.user)
             .join(UserModel.region)
             .join(UserModel.user_profile)
-            .filter_by(id=post_id)
+            .filter_by(id=id)
             .filter(PostModel.is_blocked == False, PostModel.is_deleted == False,)
             .first()
         )
