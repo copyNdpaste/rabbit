@@ -36,12 +36,6 @@ class BoardRepository:
             session.rollback()
             return None
 
-    # TODO : get_posts -> 아래 get_list 사용하기
-    def get_posts(self, user_id: int) -> List[PostEntity]:
-        posts = session.query(PostModel).filter_by(user_id=user_id).all()
-
-        return [post.to_entity() for post in posts]
-
     def _get_post(self, post_id) -> PostEntity:
         return session.query(PostModel).filter_by(id=post_id).first().to_entity()
 
