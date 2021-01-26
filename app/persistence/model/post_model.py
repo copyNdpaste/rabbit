@@ -8,10 +8,11 @@ from sqlalchemy import (
     Boolean,
     SmallInteger,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
+from app.persistence.model.region_group_model import RegionGroupModel
 from app.persistence.model.user_model import UserModel
 from core.domains.board.entity.post_entity import PostEntity, PostListEntity
 
@@ -26,7 +27,11 @@ class PostModel(db.Model):
         nullable=False,
     )
     title = Column(String(100), nullable=False)
-    region_group_id = Column(SmallInteger, nullable=False)
+    region_group_id = Column(
+        SmallInteger,
+        ForeignKey(RegionGroupModel.id, ondelete="CASCADE"),
+        nullable=False,
+    )
     type = Column(String(20), nullable=False)
     is_comment_disabled = Column(Boolean, nullable=False, default=False)
     is_deleted = Column(Boolean, nullable=False, default=False)
@@ -42,6 +47,9 @@ class PostModel(db.Model):
     updated_at = Column(DateTime, default=get_server_timestamp())
 
     user = relationship("UserModel", backref="post")
+    region_group = relationship(
+        "RegionGroupModel", backref=backref("post", uselist=False)
+    )
 
     def to_entity(self) -> PostEntity:
         return PostEntity(
@@ -64,6 +72,7 @@ class PostModel(db.Model):
             created_at=self.created_at,
             updated_at=self.updated_at,
             user=self.user.to_entity() if self.user else None,
+            region_group=self.region_group.to_entity() if self.region_group else None,
         )
 
     def to_post_list_entity(self) -> PostListEntity:

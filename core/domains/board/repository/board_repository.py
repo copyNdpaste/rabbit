@@ -93,7 +93,6 @@ class BoardRepository:
         1. 동일 지역의 post 가져오기, 삭제된 거 제외, block 제외
         2. 검색 filter 넣기, keyword like 검색, 선택된 type, category 등에 맞게 응답
         3. 응답 값 created_at, title, user 정보, type, read_count, hashtag
-        region_group에 속한 region 목록..
         """
         previous_post_id_filter = []
         if previous_post_id:
@@ -121,9 +120,22 @@ class BoardRepository:
         except Exception as e:
             pass
 
-    def get_post(self) -> PostEntity:
+    def get_post(self, post_id: int) -> Optional[PostEntity]:
         """
         TODO
-        1. 삭제, 블락 정보, 유저 정보, 제목, article body, type, 댓글 사용 가능 여부, 조회 수, 카테고리,
+        1. 삭제, 블락 정보, 유저 정보, 제목, article, type, category, 댓글 사용 가능 여부, 조회 수, 카테고리,
         """
-        pass
+        post = (
+            session.query(PostModel)
+            .outerjoin("article")
+            .join(PostModel.user)
+            .join(UserModel.region)
+            .join(UserModel.user_profile)
+            .filter_by(id=post_id)
+            .filter(PostModel.is_blocked == False, PostModel.is_deleted == False,)
+            .first()
+        )
+
+        return post.to_entity() if post else None
+
+    # TODO : get_post view 시 read_count +1 해야 함.

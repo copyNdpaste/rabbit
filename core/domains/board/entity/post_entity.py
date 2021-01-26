@@ -30,6 +30,7 @@ class PostEntity(BaseModel):
     created_at: datetime
     updated_at: datetime
     user: UserEntity
+    region_group: RegionGroupEntity
 
 
 class PostListEntity(BaseModel):
