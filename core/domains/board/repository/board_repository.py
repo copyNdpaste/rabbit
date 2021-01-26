@@ -101,10 +101,6 @@ class BoardRepository:
         try:
             post_list = (
                 session.query(PostModel)
-                .outerjoin("article")
-                .join(PostModel.user)
-                .join(UserModel.region)
-                .join(UserModel.user_profile)
                 .filter(
                     PostModel.region_group_id == region_group_id,
                     PostModel.is_blocked == False,
@@ -121,21 +117,17 @@ class BoardRepository:
             pass
 
     def get_post(self, id: int) -> Optional[PostEntity]:
-        """
-        TODO
-        1. 삭제, 블락 정보, 유저 정보, 제목, article, type, category, 댓글 사용 가능 여부, 조회 수, 카테고리,
-        """
-        post = (
-            session.query(PostModel)
-            .outerjoin("article")
-            .join(PostModel.user)
-            .join(UserModel.region)
-            .join(UserModel.user_profile)
-            .filter_by(id=id)
-            .filter(PostModel.is_blocked == False, PostModel.is_deleted == False,)
-            .first()
-        )
+        post = session.query(PostModel).filter_by(id=id).first()
 
         return post.to_entity() if post else None
 
-    # TODO : get_post view 시 read_count +1 해야 함.
+    def add_read_count(self, id: int) -> bool:
+        try:
+            session.query(PostModel).filter_by(id=id).update(
+                {"read_count": PostModel.read_count + 1}
+            )
+            return True
+        except Exception as e:
+            # TODO : log
+            session.rollback()
+            return False

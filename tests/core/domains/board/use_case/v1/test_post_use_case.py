@@ -256,6 +256,7 @@ def test_when_get_post_then_success(session, normal_user_factory, post_factory):
     post_entity = GetPostUseCase().execute(dto=dto).value
 
     assert post_entity.id == dto.id
+    assert post_entity.read_count == 1
 
 
 def test_when_get_not_exist_post_then_not_found(session):

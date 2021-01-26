@@ -236,7 +236,7 @@ def test_get_empty_post(session, normal_user_factory):
 
 def test_get_post_except_deleted_or_blocked(session, normal_user_factory, post_factory):
     """
-    post 조회 시 삭제, 차단된 게시글 제외
+    post 조회 시 삭제, 차단 정보 포함
     """
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
@@ -253,12 +253,29 @@ def test_get_post_except_deleted_or_blocked(session, normal_user_factory, post_f
         user_id=user.id,
         is_blocked=True,
     )
-
     session.add_all([deleted_post, blocked_post])
     session.commit()
 
-    post = BoardRepository().get_post(id=deleted_post.id)
-    assert post == None
+    post_entity = BoardRepository().get_post(id=deleted_post.id)
+    assert post_entity.is_deleted == True
 
-    post = BoardRepository().get_post(id=blocked_post.id)
-    assert post == None
+    post_entity = BoardRepository().get_post(id=blocked_post.id)
+    assert post_entity.is_blocked == True
+
+
+def test_add_read_count(session, normal_user_factory, post_factory):
+    """
+    post 조회 시 read_count + 1
+    """
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+    )
+    session.add(post)
+    session.commit()
+
+    result = BoardRepository().add_read_count(id=post.id)
+
+    assert result == True

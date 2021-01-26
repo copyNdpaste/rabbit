@@ -92,6 +92,12 @@ class GetPostUseCase(PostBaseUseCase):
         post = self._board_repo.get_post(id=dto.id)
         if not post:
             return UseCaseFailureOutput(FailureType.NOT_FOUND_ERROR)
+        try:
+            self._board_repo.add_read_count(id=dto.id)
+        except Exception as e:
+            # TODO : 로그
+            return UseCaseFailureOutput(FailureType.SYSTEM_ERROR)
+        post = self._board_repo.get_post(id=dto.id)
         return UseCaseSuccessOutput(value=post)
 
 
