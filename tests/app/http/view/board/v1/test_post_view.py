@@ -34,7 +34,7 @@ def test_when_create_post_then_success(
     assert response.status_code == 200
     data = response.get_json()["data"]
     assert data["post"]["user_id"] == user.id
-    assert data["post"]["article"]["body"] == dct["body"]
+    assert data["post"]["body"] == dct["body"]
 
 
 def test_when_update_post_then_success(
@@ -109,7 +109,7 @@ def test_when_delete_post_then_success(
     assert response.status_code == 200
     data = response.get_json()["data"]
     assert data["post"]["id"] == user.post[0].id
-    assert data["post"]["article"]["body"] == article.body
+    assert data["post"]["body"] == article.body
 
 
 def test_when_get_post_list_then_success(

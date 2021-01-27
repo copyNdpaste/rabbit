@@ -65,7 +65,7 @@ def test_when_update_post_then_success(session, normal_user_factory, article_fac
     post_entity = UpdatePostUseCase().execute(dto=dto).value
 
     assert post_entity.title == dto.title
-    assert post_entity.article.body == dto.body
+    assert post_entity.body == dto.body
     assert post_entity.is_comment_disabled == dto.is_comment_disabled
 
 
@@ -163,7 +163,7 @@ def test_when_get_post_list_then_success(session, normal_user_factory, post_fact
 
     assert len(post_list) == 2
     for post in post_list:
-        post.region_group = user.region.region_group
+        post.region_group_name = user.region.region_group.name
 
 
 def test_when_get_empty_post_list_then_not_found(session, normal_user_factory):
@@ -200,7 +200,7 @@ def test_when_get_post_list_pagination_then_success(session, normal_user_factory
     post_list = GetPostListUseCase().execute(dto=dto).value
 
     assert len(post_list) == 1
-    assert post_list[0].region_group.name == user.region.region_group.name
+    assert post_list[0].region_group_name == user.region.region_group.name
 
 
 def test_when_deleted_or_blocked_post_then_except(

@@ -56,8 +56,9 @@ class PostModel(db.Model):
             id=self.id,
             user_id=self.user_id,
             title=self.title,
-            article=self.article.to_entity() if self.article else None,
+            body=self.article.body if self.article else None,
             region_group_id=self.region_group_id,
+            region_group_name=self.region_group.name if self.region_group else None,
             type=self.type,
             is_comment_disabled=self.is_comment_disabled,
             is_deleted=self.is_deleted,
@@ -72,7 +73,6 @@ class PostModel(db.Model):
             created_at=self.created_at,
             updated_at=self.updated_at,
             user=self.user.to_entity() if self.user else None,
-            region_group=self.region_group.to_entity() if self.region_group else None,
         )
 
     def to_post_list_entity(self) -> PostListEntity:
@@ -81,8 +81,12 @@ class PostModel(db.Model):
             id=self.id,
             user_id=self.user_id,
             title=self.title,
-            article=self.article.to_entity() if self.article else None,
+            body=self.article.body if self.article else None,
+            region_name=self.user.region.name if self.user.region else None,
             region_group_id=self.region_group_id,
+            region_group_name=self.user.region.region_group.name
+            if self.user.region.region_group
+            else None,
             type=self.type,
             is_comment_disabled=self.is_comment_disabled,
             is_deleted=self.is_deleted,
@@ -99,9 +103,5 @@ class PostModel(db.Model):
             user=self.user.to_entity() if self.user else None,
             user_profile=self.user.user_profile.to_entity()
             if self.user.user_profile
-            else None,
-            region=self.user.region.to_entity() if self.user.region else None,
-            region_group=self.user.region.region_group.to_entity()
-            if self.user.region.region_group
             else None,
         )

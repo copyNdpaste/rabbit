@@ -3,7 +3,6 @@ from typing import Optional, List
 
 from pydantic import BaseModel, StrictInt, StrictStr
 
-from core.domains.board.entity.article_entity import ArticleEntity
 from core.domains.user.entity.user_entity import UserEntity
 
 
@@ -11,8 +10,10 @@ class PostResponseBaseSchema(BaseModel):
     id: StrictInt
     user_id: StrictInt
     title: StrictStr
-    article: ArticleEntity
+    body: StrictStr
+    region_name: StrictStr = None
     region_group_id: StrictInt
+    region_group_name: StrictStr
     type: StrictStr
     is_comment_disabled: bool
     is_deleted: bool

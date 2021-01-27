@@ -3,9 +3,6 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from core.domains.board.entity.article_entity import ArticleEntity
-from core.domains.region.entity.region_entity import RegionEntity
-from core.domains.region.entity.region_group_entity import RegionGroupEntity
 from core.domains.user.entity.user_entity import UserEntity
 from core.domains.user.entity.user_profile_entity import UserProfileEntity
 
@@ -14,8 +11,9 @@ class PostEntity(BaseModel):
     id: int
     user_id: int
     title: str
-    article: ArticleEntity
+    body: str
     region_group_id: int
+    region_group_name: str
     type: str
     is_comment_disabled: bool
     is_deleted: bool
@@ -30,15 +28,16 @@ class PostEntity(BaseModel):
     created_at: datetime
     updated_at: datetime
     user: UserEntity
-    region_group: RegionGroupEntity
 
 
 class PostListEntity(BaseModel):
     id: int
     user_id: int
     title: str
-    article: ArticleEntity
+    body: str
+    region_name: str
     region_group_id: int
+    region_group_name: Optional[str] = None
     type: str
     is_comment_disabled: bool
     is_deleted: bool
@@ -54,5 +53,3 @@ class PostListEntity(BaseModel):
     updated_at: datetime
     user: UserEntity
     user_profile: UserProfileEntity
-    region: Optional[RegionEntity] = None
-    region_group: Optional[RegionGroupEntity] = None

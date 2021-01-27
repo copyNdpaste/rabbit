@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
-from core.domains.board.entity.article_entity import ArticleEntity
 from core.domains.board.repository.board_repository import BoardRepository
 from core.domains.user.entity.user_entity import UserEntity
 from tests.seeder.factory import PostFactory
@@ -56,7 +55,7 @@ def test_update_post(session, normal_user_factory, post_factory):
     post_entity = BoardRepository().update_post(dto=dto)
 
     assert post_entity.title == dto.title
-    assert post_entity.article.body == dto.body
+    assert post_entity.body == dto.body
     assert post_entity.is_comment_disabled == dto.is_comment_disabled
 
 
@@ -124,7 +123,7 @@ def test_get_post_list(session, normal_user_factory, post_factory):
 
     assert len(post_list) == 2
     for post in post_list:
-        post.region_group = user.region.region_group
+        post.region_group_name = user.region.region_group.name
 
 
 def test_get_empty_post_list(session, normal_user_factory):
@@ -159,7 +158,7 @@ def test_get_post_list_pagination(session, normal_user_factory):
     )
 
     assert len(post_list) == 1
-    assert post_list[0].region_group.name == user.region.region_group.name
+    assert post_list[0].region_group_name == user.region.region_group.name
 
 
 def test_get_post_list_except_deleted_or_blocked(
@@ -214,14 +213,14 @@ def test_get_post(session, normal_user_factory, post_factory):
     post_entity = BoardRepository().get_post(post_id=user.post[0].id)
 
     assert post_entity.id == user.post[0].id
+    assert post_entity.body == user.post[0].article.body
     assert post_entity.is_deleted == False
     assert post_entity.is_blocked == False
     assert post_entity.read_count == 0
     assert post_entity.is_comment_disabled == False
-    assert post_entity.region_group.name == user.post[0].region_group.name
+    assert post_entity.region_group_name == user.post[0].region_group.name
     assert isinstance(post_entity.created_at, datetime)
     assert isinstance(post_entity.user, UserEntity)
-    assert isinstance(post_entity.article, ArticleEntity)
 
 
 def test_get_empty_post(session, normal_user_factory):
