@@ -159,3 +159,38 @@ def test_when_get_post_list_then_success(
     assert post1.id == cursor["last_post_id"]
     assert post2.id == post_list[0]["id"]
     assert post1.id == post_list[1]["id"]
+
+
+def test_when_get_post_then_success(
+    client,
+    session,
+    test_request_context,
+    make_header,
+    normal_user_factory,
+    post_factory,
+):
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post1 = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+    )
+    post2 = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+    )
+
+    session.add_all([post1, post2])
+    session.commit()
+
+    access_token = create_access_token(identity=user.id)
+    authorization = "Bearer " + access_token
+    headers = make_header(authorization=authorization)
+
+    with test_request_context:
+        response = client.get(
+            url_for("api/rabbit.get_post_view", id=post1.id), headers=headers
+        )
+
+    assert response.status_code == 200
+    post = response.get_json()["data"]["post"]
+    assert post1.id == post["id"]

@@ -5,6 +5,7 @@ from core.domains.board.dto.post_dto import (
     UpdatePostDto,
     DeletePostDto,
     GetPostListDto,
+    GetPostDto,
 )
 
 
@@ -130,6 +131,26 @@ class GetPostListRequest:
             type=self.type,
             category=self.category,
         )
+
+
+class GetPostSchema(BaseModel):
+    id: StrictInt
+
+
+class GetPostRequest:
+    def __init__(self, id):
+        self.id = id
+
+    def validate_request_and_make_dto(self):
+        try:
+            GetPostSchema(id=self.id)
+            return self.to_dto()
+        except ValidationError as e:
+            print(e)
+            return False
+
+    def to_dto(self) -> GetPostDto:
+        return GetPostDto(id=self.id)
 
 
 class UpdatePostSchema(BaseModel):

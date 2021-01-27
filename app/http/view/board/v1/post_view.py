@@ -7,6 +7,7 @@ from app.http.requests.view.board.v1.post_request import (
     UpdatePostRequest,
     DeletePostRequest,
     GetPostListRequest,
+    GetPostRequest,
 )
 from app.http.responses import failure_response
 from app.http.responses.presenters.post_presenter import (
@@ -20,6 +21,7 @@ from core.domains.board.use_case.v1.post_use_case import (
     UpdatePostUseCase,
     DeletePostUseCase,
     GetPostListUseCase,
+    GetPostUseCase,
 )
 from core.use_case_output import FailureType, UseCaseFailureOutput
 
@@ -50,6 +52,20 @@ def get_post_list_view():
         )
 
     return PostListPresenter().transform(GetPostListUseCase().execute(dto=dto))
+
+
+@api.route("/board/v1/post/<int:id>", methods=["GET"])
+@jwt_required
+@auth_required
+@swag_from("get_post.yml", methods=["GET"])
+def get_post_view(id):
+    dto = GetPostRequest(id=id).validate_request_and_make_dto()
+    if not dto:
+        return failure_response(
+            UseCaseFailureOutput(type=FailureType.INVALID_REQUEST_ERROR)
+        )
+
+    return PostPresenter().transform(GetPostUseCase().execute(dto=dto))
 
 
 @api.route("/board/v1/posts", methods=["PUT"])
