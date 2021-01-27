@@ -134,27 +134,27 @@ class GetPostListRequest:
 
 
 class GetPostSchema(BaseModel):
-    id: StrictInt
+    post_id: StrictInt
 
 
 class GetPostRequest:
-    def __init__(self, id):
-        self.id = id
+    def __init__(self, post_id):
+        self.post_id = post_id
 
     def validate_request_and_make_dto(self):
         try:
-            GetPostSchema(id=self.id)
+            GetPostSchema(post_id=self.post_id)
             return self.to_dto()
         except ValidationError as e:
             print(e)
             return False
 
     def to_dto(self) -> GetPostDto:
-        return GetPostDto(id=self.id)
+        return GetPostDto(post_id=self.post_id)
 
 
 class UpdatePostSchema(BaseModel):
-    id: StrictInt
+    post_id: StrictInt
     user_id: StrictInt
     title: StrictStr
     body: StrictStr
@@ -167,7 +167,7 @@ class UpdatePostSchema(BaseModel):
 class UpdatePostRequest:
     def __init__(
         self,
-        id,
+        post_id,
         user_id,
         title,
         body,
@@ -176,7 +176,7 @@ class UpdatePostRequest:
         is_comment_disabled,
         category,
     ):
-        self.id = id
+        self.post_id = post_id
         self.user_id = user_id
         self.title = title
         self.body = body
@@ -188,7 +188,7 @@ class UpdatePostRequest:
     def validate_request_and_make_dto(self):
         try:
             UpdatePostSchema(
-                id=self.id,
+                post_id=self.post_id,
                 user_id=self.user_id,
                 title=self.title,
                 body=self.body,
@@ -204,7 +204,7 @@ class UpdatePostRequest:
 
     def to_dto(self) -> UpdatePostDto:
         return UpdatePostDto(
-            id=self.id,
+            post_id=self.post_id,
             user_id=self.user_id,
             title=self.title,
             body=self.body,
@@ -234,4 +234,4 @@ class DeletePostRequest:
             return False
 
     def to_dto(self) -> DeletePostDto:
-        return DeletePostDto(id=self.post_id, user_id=self.user_id)
+        return DeletePostDto(post_id=self.post_id, user_id=self.user_id)

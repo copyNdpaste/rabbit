@@ -3,7 +3,6 @@ from typing import List, Optional, Union
 from app.extensions.database import session
 from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.post_model import PostModel
-from app.persistence.model.user_model import UserModel
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.entity.post_entity import PostEntity
 
@@ -43,7 +42,7 @@ class BoardRepository:
         try:
             (
                 session.query(PostModel)
-                .filter(PostModel.id == dto.id)
+                .filter(PostModel.id == dto.post_id)
                 .update(
                     {
                         "title": dto.title,
@@ -54,10 +53,10 @@ class BoardRepository:
                     }
                 )
             )
-            session.query(ArticleModel).filter_by(post_id=dto.id).update(
+            session.query(ArticleModel).filter_by(post_id=dto.post_id).update(
                 {"body": dto.body}
             )
-            post_entity = self._get_post(post_id=dto.id)
+            post_entity = self._get_post(post_id=dto.post_id)
             return post_entity if post_entity else None
         except Exception as e:
             session.rollback()
@@ -65,13 +64,15 @@ class BoardRepository:
             return None
 
     def is_post_owner(self, dto) -> bool:
-        post = self._get_post(post_id=dto.id)
+        post = self._get_post(post_id=dto.post_id)
         return True if post.user_id == dto.user_id else False
 
     def delete_post(self, dto: DeletePostDto) -> Optional[PostEntity]:
         try:
-            session.query(PostModel).filter_by(id=dto.id).update({"is_deleted": True})
-            return self._get_post(post_id=dto.id)
+            session.query(PostModel).filter_by(id=dto.post_id).update(
+                {"is_deleted": True}
+            )
+            return self._get_post(post_id=dto.post_id)
         except Exception as e:
             session.rollback()
             return None
@@ -116,14 +117,14 @@ class BoardRepository:
         except Exception as e:
             pass
 
-    def get_post(self, id: int) -> Optional[PostEntity]:
-        post = session.query(PostModel).filter_by(id=id).first()
+    def get_post(self, post_id: int) -> Optional[PostEntity]:
+        post = session.query(PostModel).filter_by(id=post_id).first()
 
         return post.to_entity() if post else None
 
-    def add_read_count(self, id: int) -> bool:
+    def add_read_count(self, post_id: int) -> bool:
         try:
-            session.query(PostModel).filter_by(id=id).update(
+            session.query(PostModel).filter_by(id=post_id).update(
                 {"read_count": PostModel.read_count + 1}
             )
             return True

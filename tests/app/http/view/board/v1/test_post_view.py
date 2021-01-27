@@ -58,7 +58,7 @@ def test_when_update_post_then_success(
     authorization = "Bearer " + access_token
     headers = make_header(authorization=authorization)
     dct = dict(
-        id=user.post[0].id,
+        post_id=user.post[0].id,
         user_id=user.id,
         title="떡볶이 같이 먹어요",
         body="new body",
@@ -188,7 +188,7 @@ def test_when_get_post_then_success(
 
     with test_request_context:
         response = client.get(
-            url_for("api/rabbit.get_post_view", id=post1.id), headers=headers
+            url_for("api/rabbit.get_post_view", post_id=post1.id), headers=headers
         )
 
     assert response.status_code == 200

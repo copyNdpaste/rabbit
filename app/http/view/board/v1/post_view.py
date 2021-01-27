@@ -54,12 +54,12 @@ def get_post_list_view():
     return PostListPresenter().transform(GetPostListUseCase().execute(dto=dto))
 
 
-@api.route("/board/v1/post/<int:id>", methods=["GET"])
+@api.route("/board/v1/post/<int:post_id>", methods=["GET"])
 @jwt_required
 @auth_required
 @swag_from("get_post.yml", methods=["GET"])
-def get_post_view(id):
-    dto = GetPostRequest(id=id).validate_request_and_make_dto()
+def get_post_view(post_id):
+    dto = GetPostRequest(post_id=post_id).validate_request_and_make_dto()
     if not dto:
         return failure_response(
             UseCaseFailureOutput(type=FailureType.INVALID_REQUEST_ERROR)

@@ -24,11 +24,11 @@ class GetPostListDto(BaseModel):
 
 
 class GetPostDto(BaseModel):
-    id: int
+    post_id: int
 
 
 class UpdatePostDto(BaseModel):
-    id: int
+    post_id: int
     user_id: int
     title: str
     body: str
@@ -39,5 +39,5 @@ class UpdatePostDto(BaseModel):
 
 
 class DeletePostDto(BaseModel):
-    id: int
+    post_id: int
     user_id: int

@@ -89,15 +89,15 @@ class GetPostUseCase(PostBaseUseCase):
         self._board_repo = board_repo
 
     def execute(self, dto: GetPostDto):
-        post = self._board_repo.get_post(id=dto.id)
+        post = self._board_repo.get_post(post_id=dto.post_id)
         if not post:
             return UseCaseFailureOutput(FailureType.NOT_FOUND_ERROR)
         try:
-            self._board_repo.add_read_count(id=dto.id)
+            self._board_repo.add_read_count(post_id=dto.post_id)
         except Exception as e:
             # TODO : 로그
             return UseCaseFailureOutput(FailureType.SYSTEM_ERROR)
-        post = self._board_repo.get_post(id=dto.id)
+        post = self._board_repo.get_post(post_id=dto.post_id)
         return UseCaseSuccessOutput(value=post)
 
 

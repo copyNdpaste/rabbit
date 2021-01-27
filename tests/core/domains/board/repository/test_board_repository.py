@@ -43,7 +43,7 @@ def test_update_post(session, normal_user_factory, post_factory):
     session.commit()
 
     dto = UpdatePostDto(
-        id=user.post[0].id,
+        post_id=user.post[0].id,
         user_id=user.id,
         title="떡볶이 같이 먹어요",
         body="new body",
@@ -69,11 +69,11 @@ def test_delete_post(session, normal_user_factory, post_factory):
     session.add(post)
     session.commit()
 
-    dto = DeletePostDto(id=user.post[0].id, user_id=user.id)
+    dto = DeletePostDto(post_id=user.post[0].id, user_id=user.id)
 
     post_entity = BoardRepository().delete_post(dto=dto)
 
-    assert post_entity.id == dto.id
+    assert post_entity.id == dto.post_id
     assert post_entity.is_deleted == True
 
 
@@ -211,7 +211,7 @@ def test_get_post(session, normal_user_factory, post_factory):
     session.add_all([post1, post2])
     session.commit()
 
-    post_entity = BoardRepository().get_post(id=user.post[0].id)
+    post_entity = BoardRepository().get_post(post_id=user.post[0].id)
 
     assert post_entity.id == user.post[0].id
     assert post_entity.is_deleted == False
@@ -229,7 +229,7 @@ def test_get_empty_post(session, normal_user_factory):
     session.add(user)
     session.commit()
 
-    post = BoardRepository().get_post(id=0)
+    post = BoardRepository().get_post(post_id=0)
 
     assert post == None
 
@@ -256,10 +256,10 @@ def test_get_post_except_deleted_or_blocked(session, normal_user_factory, post_f
     session.add_all([deleted_post, blocked_post])
     session.commit()
 
-    post_entity = BoardRepository().get_post(id=deleted_post.id)
+    post_entity = BoardRepository().get_post(post_id=deleted_post.id)
     assert post_entity.is_deleted == True
 
-    post_entity = BoardRepository().get_post(id=blocked_post.id)
+    post_entity = BoardRepository().get_post(post_id=blocked_post.id)
     assert post_entity.is_blocked == True
 
 
@@ -276,6 +276,6 @@ def test_add_read_count(session, normal_user_factory, post_factory):
     session.add(post)
     session.commit()
 
-    result = BoardRepository().add_read_count(id=post.id)
+    result = BoardRepository().add_read_count(post_id=post.id)
 
     assert result == True

@@ -52,7 +52,7 @@ def test_when_update_post_then_success(session, normal_user_factory, article_fac
     session.commit()
 
     dto = UpdatePostDto(
-        id=user.post[0].id,
+        post_id=user.post[0].id,
         user_id=user.id,
         title="떡볶이 같이 먹어요",
         body="new body",
@@ -81,7 +81,7 @@ def test_when_not_owner_update_post_then_fail(
     session.commit()
 
     dto = UpdatePostDto(
-        id=user.post[0].id,
+        post_id=user.post[0].id,
         user_id=-1,
         title="떡볶이 같이 먹어요",
         body="new body",
@@ -105,11 +105,11 @@ def test_when_delete_post_then_success(session, normal_user_factory, post_factor
     session.add(post)
     session.commit()
 
-    dto = DeletePostDto(id=user.post[0].id, user_id=user.id)
+    dto = DeletePostDto(post_id=user.post[0].id, user_id=user.id)
 
     post_entity = DeletePostUseCase().execute(dto=dto).value
 
-    assert post_entity.id == dto.id
+    assert post_entity.id == dto.post_id
     assert post_entity.is_deleted == True
 
 
@@ -124,7 +124,7 @@ def test_when_not_owner_delete_post_then_fail(
     session.add(post)
     session.commit()
 
-    dto = DeletePostDto(id=user.post[0].id, user_id=-1)
+    dto = DeletePostDto(post_id=user.post[0].id, user_id=-1)
 
     result = DeletePostUseCase().execute(dto=dto).value
 
@@ -251,11 +251,11 @@ def test_when_get_post_then_success(session, normal_user_factory, post_factory):
     session.add(post)
     session.commit()
 
-    dto = GetPostDto(id=post.id)
+    dto = GetPostDto(post_id=post.id)
 
     post_entity = GetPostUseCase().execute(dto=dto).value
 
-    assert post_entity.id == dto.id
+    assert post_entity.id == dto.post_id
     assert post_entity.read_count == 1
 
 
@@ -263,7 +263,7 @@ def test_when_get_not_exist_post_then_not_found(session):
     """
     없는 post 조회
     """
-    dto = GetPostDto(id=0)
+    dto = GetPostDto(post_id=0)
 
     result = GetPostUseCase().execute(dto=dto)
 
