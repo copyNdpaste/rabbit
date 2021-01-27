@@ -13,7 +13,7 @@ from core.use_case_output import UseCaseFailureOutput, FailureType
 @api.route("/report/v1/posts", methods=["POST"])
 @jwt_required
 @auth_required
-# @swag_from("create_post_report.yml", methods=["POST"])
+@swag_from("create_post_report.yml", methods=["POST"])
 def create_post_report_view():
     dto = CreatePostReportRequest(**request.get_json()).validate_request_and_make_dto()
     if not dto:

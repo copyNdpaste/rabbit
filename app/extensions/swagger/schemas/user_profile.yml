@@ -1,0 +1,14 @@
+user_profile:
+  properties:
+    id:
+      type: integer
+    file_name:
+      type: string
+    path:
+      type: string
+    uuid:
+      type: string
+    created_at:
+      type: string
+    updated_at:
+      type: string

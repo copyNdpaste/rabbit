@@ -42,10 +42,8 @@ responses:
           properties:
             id:
               type: integer
-              example: 1
             user_id:
               type: integer
-              example: 1
             title:
               type: string
             body:
@@ -78,6 +76,8 @@ responses:
               type: string
             updated_at:
               type: string
+            user:
+              $ref: '#/components/schemas/user'
   '400':
     description: unauthorized_error, invalid_request_error, not_found_error
     content:
