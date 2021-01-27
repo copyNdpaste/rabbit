@@ -32,7 +32,7 @@ responses:
         schema:
           $ref: '#/components/schemas/post'
   '400':
-    description: unauthorized_error, invalid_request_error, not_found_error
+    description: unauthorized_error, invalid_request_error, not_found_error, system_error
     content:
       application/json:
         schema:
