@@ -5,10 +5,10 @@ security:
   - userAuth: []
 parameters:
   - name: post_id
-    in: path
     required: true
+    description: post id
     schema:
-      type: int
+      type: integer
 responses:
   '200':
     description: A post object
@@ -17,7 +17,7 @@ responses:
         schema:
           $ref: '#/components/schemas/post'
   '400':
-    description: unauthorized_error, invalid_request_error, not_found_error
+    description: unauthorized_error, invalid_request_error, not_found_error, system_error
     content:
       application/json:
         schema:
