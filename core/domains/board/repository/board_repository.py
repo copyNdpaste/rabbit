@@ -5,6 +5,7 @@ from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.post_model import PostModel
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.entity.post_entity import PostEntity
+from core.domains.board.enum.post_enum import PostLimitEnum
 
 
 class BoardRepository:
@@ -109,7 +110,7 @@ class BoardRepository:
                     *previous_post_id_filter,
                 )
                 .order_by(PostModel.id.desc())
-                .limit(10)
+                .limit(PostLimitEnum.LIMIT)
                 .all()
             )
 
