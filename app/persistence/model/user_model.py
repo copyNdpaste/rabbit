@@ -23,14 +23,10 @@ class UserModel(db.Model):
     login_id = Column(String(50), nullable=False)
     nickname = Column(String(50), nullable=False)
     password = Column(String(50), nullable=False)
-    profile_id = Column(
-        BigInteger, ForeignKey(UserProfileModel.id, ondelete="CASCADE"), nullable=False,
-    )
+    profile_id = Column(BigInteger, ForeignKey(UserProfileModel.id), nullable=False,)
     status = Column(String(10), nullable=False)
     provider = Column(String(20), nullable=False)
-    region_id = Column(
-        SmallInteger, ForeignKey(RegionModel.id, ondelete="CASCADE"), nullable=False,
-    )
+    region_id = Column(SmallInteger, ForeignKey(RegionModel.id), nullable=False,)
     created_at = Column(DateTime, default=get_server_timestamp())
     updated_at = Column(DateTime, default=get_server_timestamp())
 

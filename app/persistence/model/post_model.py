@@ -23,14 +23,12 @@ class PostModel(db.Model):
     id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
     user_id = Column(
         BigInteger().with_variant(Integer, "sqlite"),
-        ForeignKey(UserModel.id, ondelete="CASCADE"),
+        ForeignKey(UserModel.id),
         nullable=False,
     )
     title = Column(String(100), nullable=False)
     region_group_id = Column(
-        SmallInteger,
-        ForeignKey(RegionGroupModel.id, ondelete="CASCADE"),
-        nullable=False,
+        SmallInteger, ForeignKey(RegionGroupModel.id), nullable=False,
     )
     type = Column(String(20), nullable=False)
     is_comment_disabled = Column(Boolean, nullable=False, default=False)

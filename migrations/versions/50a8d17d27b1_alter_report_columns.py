@@ -29,7 +29,6 @@ def upgrade():
     op.alter_column(
         "post_reports", "status", existing_type=sa.VARCHAR(length=20), nullable=True
     )
-    # ### end Alembic commands ###
 
 
 def downgrade():

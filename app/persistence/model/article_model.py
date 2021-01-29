@@ -21,7 +21,7 @@ class ArticleModel(db.Model):
     id = Column(SmallInteger().with_variant(Integer, "sqlite"), primary_key=True)
     post_id = Column(
         BigInteger().with_variant(Integer, "sqlite"),
-        ForeignKey(PostModel.id, ondelete="CASCADE"),
+        ForeignKey(PostModel.id),
         nullable=False,
     )
     # TODO : 성능상 글자 수 변경될 수 있음.

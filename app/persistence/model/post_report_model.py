@@ -20,9 +20,7 @@ class PostReportModel(db.Model):
     __tablename__ = "post_reports"
 
     id = Column(SmallInteger().with_variant(Integer, "sqlite"), primary_key=True)
-    post_id = Column(
-        BigInteger, ForeignKey(PostModel.id, ondelete="CASCADE"), nullable=False
-    )
+    post_id = Column(BigInteger, ForeignKey(PostModel.id), nullable=False)
     report_user_id = Column(BigInteger, nullable=True)
     status = Column(String(20))
     context = Column(String(100))

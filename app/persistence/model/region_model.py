@@ -12,9 +12,7 @@ class RegionModel(db.Model):
 
     id = Column(SmallInteger().with_variant(Integer, "sqlite"), primary_key=True)
     region_group_id = Column(
-        SmallInteger,
-        ForeignKey(RegionGroupModel.id, ondelete="CASCADE"),
-        nullable=False,
+        SmallInteger, ForeignKey(RegionGroupModel.id), nullable=False,
     )
     name = Column(String(length=50), nullable=False)
     created_at = Column(DateTime, default=get_server_timestamp())
