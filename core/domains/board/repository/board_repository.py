@@ -116,6 +116,7 @@ class BoardRepository:
 
             return [post.to_post_list_entity() for post in post_list]
         except Exception as e:
+            # TODO : log 추가
             pass
 
     def get_post(self, post_id: int) -> Optional[PostEntity]:
