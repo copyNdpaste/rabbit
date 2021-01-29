@@ -11,7 +11,7 @@ _swagger_schema: dict = {}
 DESC = "rabbit swagger"
 
 
-def swagger_config(app):
+def swagger_config():
     return {
         "config": {
             "openapi": "3.0.2",
