@@ -67,7 +67,10 @@ class GetPostListUseCase(PostBaseUseCase):
             return UseCaseFailureOutput(FailureType.NOT_FOUND_ERROR)
 
         post_list = self._board_repo.get_post_list(
-            region_group_id=dto.region_group_id, previous_post_id=dto.previous_post_id
+            region_group_id=dto.region_group_id,
+            previous_post_id=dto.previous_post_id,
+            title=dto.title,
+            category=dto.category,
         )
         if not post_list:
             return UseCaseFailureOutput(FailureType.NOT_FOUND_ERROR)

@@ -346,7 +346,7 @@ def test_search_post_list_with_category(session, normal_user_factory, post_facto
         Article=True,
         region_group_id=region_group_id,
         user_id=user_list[0].id,
-        category="",
+        category=PostCategoryEnum.HOME_APPLIANCE,
     )
     post3 = post_factory(
         Article=True,

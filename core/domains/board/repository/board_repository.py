@@ -88,7 +88,7 @@ class BoardRepository:
         region_group_id: int,
         previous_post_id: int = None,
         title: str = "",
-        category: str = "",
+        category: int = 0,
     ) -> Optional[List[Union[PostEntity, list]]]:
         """
         :param region_group_id: 유저가 속한 동네 식별자
