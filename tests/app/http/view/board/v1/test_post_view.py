@@ -194,3 +194,41 @@ def test_when_get_post_then_success(
     assert response.status_code == 200
     post = response.get_json()["data"]["post"]
     assert post1.id == post["id"]
+
+
+def test_when_search_post_list_then_success(
+    session,
+    normal_user_factory,
+    post_factory,
+    make_header,
+    test_request_context,
+    client,
+):
+    """
+    post 검색
+    """
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    region_group_id = user.region.region_group_id
+
+    post = post_factory(Article=True, region_group_id=region_group_id, user_id=user.id,)
+
+    session.add(post)
+    session.commit()
+
+    access_token = create_access_token(identity=user.id)
+    authorization = "Bearer " + access_token
+    headers = make_header(authorization=authorization)
+
+    dct = dict(region_group_id=region_group_id, title=post.title[2:6])
+
+    with test_request_context:
+        response = client.get(
+            url_for("api/rabbit.get_post_list_view"), json=dct, headers=headers
+        )
+
+    assert response.status_code == 200
+    post_list = response.get_json()["data"]["post_list"]
+    assert post_list[0]["id"] == post.id
