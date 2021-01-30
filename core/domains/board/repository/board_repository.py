@@ -84,22 +84,30 @@ class BoardRepository:
         ).scalar()
 
     def get_post_list(
-        self, region_group_id: int, previous_post_id: int = None
+        self,
+        region_group_id: int,
+        previous_post_id: int = None,
+        title: str = "",
+        category: str = "",
     ) -> Optional[List[Union[PostEntity, list]]]:
         """
         :param region_group_id: 유저가 속한 동네 식별자
         :param previous_post_id: 유저가 바로 직전 조회한 post id
+        :param title: 게시글 제목
+        :param category: 상품 카테고리
         :return: post list
+        1. 동일 지역의 post 가져오기, deleted, blocked 제외
+        2. title like 검색, 선택된 type, category 등에 맞게 응답
         """
-        """ TODO
-        1. 동일 지역의 post 가져오기, 삭제된 거 제외, block 제외
-        2. 검색 filter 넣기, keyword like 검색, 선택된 type, category 등에 맞게 응답
-        3. 응답 값 created_at, title, user 정보, type, read_count, hashtag
-        """
+        category_filter = []
+        if category:
+            category_filter.append(PostModel.category == category)
+        search_filter = []
+        if title:
+            search_filter.append(PostModel.title.like(f"%{title}%"))
         previous_post_id_filter = []
         if previous_post_id:
             previous_post_id_filter.append(PostModel.id > previous_post_id)
-
         try:
             post_list = (
                 session.query(PostModel)
@@ -107,6 +115,8 @@ class BoardRepository:
                     PostModel.region_group_id == region_group_id,
                     PostModel.is_blocked == False,
                     PostModel.is_deleted == False,
+                    *category_filter,
+                    *search_filter,
                     *previous_post_id_filter,
                 )
                 .order_by(PostModel.id.desc())
