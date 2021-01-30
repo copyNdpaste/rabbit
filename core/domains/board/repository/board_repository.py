@@ -1,10 +1,11 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from app.extensions.database import session
 from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.post_model import PostModel
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.entity.post_entity import PostEntity
+from core.domains.board.enum.post_enum import PostLimitEnum
 
 
 class BoardRepository:
@@ -35,19 +36,14 @@ class BoardRepository:
             session.rollback()
             return None
 
-    def get_posts(self, user_id: int) -> List[PostEntity]:
-        posts = session.query(PostModel).filter_by(user_id=user_id).all()
-
-        return [post.to_entity() for post in posts]
-
-    def get_post(self, id) -> PostEntity:
-        return session.query(PostModel).filter_by(id=id).first().to_entity()
+    def _get_post(self, post_id) -> PostEntity:
+        return session.query(PostModel).filter_by(id=post_id).first().to_entity()
 
     def update_post(self, dto: UpdatePostDto) -> Optional[PostEntity]:
         try:
             (
                 session.query(PostModel)
-                .filter(PostModel.id == dto.id)
+                .filter(PostModel.id == dto.post_id)
                 .update(
                     {
                         "title": dto.title,
@@ -58,23 +54,26 @@ class BoardRepository:
                     }
                 )
             )
-            session.query(ArticleModel).filter_by(post_id=dto.id).update(
+            session.query(ArticleModel).filter_by(post_id=dto.post_id).update(
                 {"body": dto.body}
             )
-            return self.get_post(id=dto.id)
+            post_entity = self._get_post(post_id=dto.post_id)
+            return post_entity if post_entity else None
         except Exception as e:
             session.rollback()
             # TODO : log
             return None
 
     def is_post_owner(self, dto) -> bool:
-        post = self.get_post(id=dto.id)
+        post = self._get_post(post_id=dto.post_id)
         return True if post.user_id == dto.user_id else False
 
     def delete_post(self, dto: DeletePostDto) -> Optional[PostEntity]:
         try:
-            session.query(PostModel).filter_by(id=dto.id).update({"is_deleted": True})
-            return self.get_post(id=dto.id)
+            session.query(PostModel).filter_by(id=dto.post_id).update(
+                {"is_deleted": True}
+            )
+            return self._get_post(post_id=dto.post_id)
         except Exception as e:
             session.rollback()
             return None
@@ -83,3 +82,55 @@ class BoardRepository:
         return session.query(
             session.query(PostModel).filter_by(id=post_id).exists()
         ).scalar()
+
+    def get_post_list(
+        self, region_group_id: int, previous_post_id: int = None
+    ) -> Optional[List[Union[PostEntity, list]]]:
+        """
+        :param region_group_id: 유저가 속한 동네 식별자
+        :param previous_post_id: 유저가 바로 직전 조회한 post id
+        :return: post list
+        """
+        """ TODO
+        1. 동일 지역의 post 가져오기, 삭제된 거 제외, block 제외
+        2. 검색 filter 넣기, keyword like 검색, 선택된 type, category 등에 맞게 응답
+        3. 응답 값 created_at, title, user 정보, type, read_count, hashtag
+        """
+        previous_post_id_filter = []
+        if previous_post_id:
+            previous_post_id_filter.append(PostModel.id > previous_post_id)
+
+        try:
+            post_list = (
+                session.query(PostModel)
+                .filter(
+                    PostModel.region_group_id == region_group_id,
+                    PostModel.is_blocked == False,
+                    PostModel.is_deleted == False,
+                    *previous_post_id_filter,
+                )
+                .order_by(PostModel.id.desc())
+                .limit(PostLimitEnum.LIMIT)
+                .all()
+            )
+
+            return [post.to_post_list_entity() for post in post_list]
+        except Exception as e:
+            # TODO : log 추가
+            pass
+
+    def get_post(self, post_id: int) -> Optional[PostEntity]:
+        post = session.query(PostModel).filter_by(id=post_id).first()
+
+        return post.to_entity() if post else None
+
+    def add_read_count(self, post_id: int) -> bool:
+        try:
+            session.query(PostModel).filter_by(id=post_id).update(
+                {"read_count": PostModel.read_count + 1}
+            )
+            return True
+        except Exception as e:
+            # TODO : log
+            session.rollback()
+            return False

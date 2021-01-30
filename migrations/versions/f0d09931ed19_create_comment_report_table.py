@@ -30,7 +30,7 @@ def upgrade():
         sa.Column("is_system_report", sa.Boolean(), nullable=True),
         sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(["comment_id"], ["comments.id"],),
+        sa.ForeignKeyConstraint(["comment_id"], ["comments.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
 

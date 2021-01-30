@@ -30,7 +30,7 @@ def upgrade():
         sa.Column("body", sa.String(length=2000), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(["post_id"], ["posts.id"],),
+        sa.ForeignKeyConstraint(["post_id"], ["posts.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
 
