@@ -9,3 +9,11 @@ class PostLikeStateEntity(BaseModel):
     state: str
     created_at: datetime
     updated_at: datetime
+
+
+class PostLikeCountEntity(BaseModel):
+    id: int
+    post_id: int
+    count: int
+    created_at: datetime
+    updated_at: datetime
