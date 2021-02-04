@@ -30,9 +30,12 @@ def upgrade():
         sa.ForeignKeyConstraint(["post_id"], ["posts.id"],),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"],),
         sa.PrimaryKeyConstraint("id"),
-        sa.Index("post_id_user_id_index", "post_id", "user_id", unique=True),
+    )
+    op.create_index(
+        "post_id_user_id_index", "post_like_states", ["post_id", "user_id"], unique=True
     )
 
 
 def downgrade():
+    op.drop_index("post_id_user_id_index", table_name="post_like_states")
     op.drop_table("post_like_states")
