@@ -5,6 +5,7 @@ from core.domains.board.dto.post_dto import (
     GetPostListDto,
     GetPostDto,
 )
+from core.domains.board.enum.post_enum import PostCategoryEnum
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
     UpdatePostUseCase,
@@ -268,3 +269,94 @@ def test_when_get_not_exist_post_then_not_found(session):
     result = GetPostUseCase().execute(dto=dto)
 
     assert result.type == FailureType.NOT_FOUND_ERROR
+
+
+def test_when_search_post_list_then_success(session, normal_user_factory, post_factory):
+    """
+    post 검색. user1 post 2개, user2 post 2개, user3 post 1개, 다른 지역 user4 post 1개
+    총 5개 post 응답
+    """
+    user_list = normal_user_factory.build_batch(size=4, Region=True, UserProfile=True)
+    session.add_all(user_list)
+    session.commit()
+
+    region_group_id = user_list[0].region.region_group_id
+
+    post1 = post_factory(
+        Article=True, region_group_id=region_group_id, user_id=user_list[0].id,
+    )
+    post2 = post_factory(
+        Article=True, region_group_id=region_group_id, user_id=user_list[0].id,
+    )
+    post3 = post_factory(
+        Article=True, region_group_id=region_group_id, user_id=user_list[1].id,
+    )
+    post4 = post_factory(
+        Article=True, region_group_id=region_group_id, user_id=user_list[1].id,
+    )
+    post5 = post_factory(
+        Article=True, region_group_id=region_group_id, user_id=user_list[2].id,
+    )
+    post6 = post_factory(
+        Article=True,
+        region_group_id=user_list[3].region.region_group_id,
+        user_id=user_list[3].id,
+    )
+
+    session.add_all([post1, post2, post3, post4, post5, post6])
+    session.commit()
+
+    dto = GetPostListDto(region_group_id=region_group_id, title=post1.title[2:6])
+
+    post_list = GetPostListUseCase().execute(dto=dto).value
+
+    for post in post_list:
+        assert post.region_group_id == region_group_id
+        assert post1.title[2:6] in post.title
+    assert len(post_list) == 5
+
+
+def test_when_search_post_list_with_category_then_success(
+    session, normal_user_factory, post_factory
+):
+    """
+    category 조건으로 post 검색.
+    """
+    user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
+    session.add_all(user_list)
+    session.commit()
+
+    region_group_id = user_list[0].region.region_group_id
+
+    post1 = post_factory(
+        Article=True,
+        region_group_id=region_group_id,
+        user_id=user_list[0].id,
+        category=PostCategoryEnum.FOOD,
+    )
+    post2 = post_factory(
+        Article=True,
+        region_group_id=region_group_id,
+        user_id=user_list[0].id,
+        category=PostCategoryEnum.HOME_APPLIANCE,
+    )
+    post3 = post_factory(
+        Article=True,
+        region_group_id=region_group_id,
+        user_id=user_list[1].id,
+        category=PostCategoryEnum.FOOD,
+    )
+
+    session.add_all([post1, post2, post3])
+    session.commit()
+
+    dto = GetPostListDto(
+        region_group_id=region_group_id, category=PostCategoryEnum.FOOD
+    )
+
+    post_list = GetPostListUseCase().execute(dto=dto).value
+
+    for post in post_list:
+        assert post.region_group_id == region_group_id
+        assert post.category == PostCategoryEnum.FOOD
+    assert len(post_list) == 2
