@@ -21,6 +21,10 @@ class CreatePostSchema(BaseModel):
     report_count: StrictInt
     read_count: StrictInt
     category: StrictInt
+    amount: StrictInt
+    unit: StrictStr
+    price_per_unit: StrictInt
+    status: StrictStr
 
 
 class CreatePostRequest:
@@ -37,6 +41,10 @@ class CreatePostRequest:
         report_count,
         read_count,
         category,
+        amount,
+        unit,
+        price_per_unit,
+        status,
     ):
         self.user_id = user_id
         self.title = title
@@ -49,6 +57,10 @@ class CreatePostRequest:
         self.report_count = report_count
         self.read_count = read_count
         self.category = category
+        self.amount = amount
+        self.unit = unit
+        self.price_per_unit = price_per_unit
+        self.status = status
 
     def validate_request_and_make_dto(self):
         try:
@@ -64,6 +76,10 @@ class CreatePostRequest:
                 report_count=self.report_count,
                 read_count=self.read_count,
                 category=self.category,
+                amount=self.amount,
+                unit=self.unit,
+                price_per_unit=self.price_per_unit,
+                status=self.status,
             )
             return self.to_dto()
         except ValidationError as e:
@@ -83,6 +99,10 @@ class CreatePostRequest:
             report_count=self.report_count,
             read_count=self.read_count,
             category=self.category,
+            amount=self.amount,
+            unit=self.unit,
+            price_per_unit=self.price_per_unit,
+            status=self.status,
         )
 
 
@@ -162,6 +182,10 @@ class UpdatePostSchema(BaseModel):
     type: StrictStr
     is_comment_disabled: bool
     category: StrictInt
+    amount: StrictInt
+    unit: StrictStr
+    price_per_unit: StrictInt
+    status: StrictStr
 
 
 class UpdatePostRequest:
@@ -175,6 +199,10 @@ class UpdatePostRequest:
         type,
         is_comment_disabled,
         category,
+        amount,
+        unit,
+        price_per_unit,
+        status,
     ):
         self.post_id = post_id
         self.user_id = user_id
@@ -184,6 +212,10 @@ class UpdatePostRequest:
         self.type = type
         self.is_comment_disabled = is_comment_disabled
         self.category = category
+        self.amount = amount
+        self.unit = unit
+        self.price_per_unit = price_per_unit
+        self.status = status
 
     def validate_request_and_make_dto(self):
         try:
@@ -196,6 +228,10 @@ class UpdatePostRequest:
                 type=self.type,
                 is_comment_disabled=self.is_comment_disabled,
                 category=self.category,
+                amount=self.amount,
+                unit=self.unit,
+                price_per_unit=self.price_per_unit,
+                status=self.status,
             )
             return self.to_dto()
         except ValidationError as e:
@@ -212,6 +248,10 @@ class UpdatePostRequest:
             type=self.type,
             is_comment_disabled=self.is_comment_disabled,
             category=self.category,
+            amount=self.amount,
+            unit=self.unit,
+            price_per_unit=self.price_per_unit,
+            status=self.status,
         )
 
 
