@@ -1,6 +1,12 @@
 from pydantic import BaseModel, ValidationError, StrictInt, StrictStr
 
-from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
+from core.domains.board.dto.post_dto import (
+    CreatePostDto,
+    UpdatePostDto,
+    DeletePostDto,
+    GetPostListDto,
+    GetPostDto,
+)
 
 
 class CreatePostSchema(BaseModel):
@@ -80,8 +86,75 @@ class CreatePostRequest:
         )
 
 
+class GetPostListSchema(BaseModel):
+    region_group_id: StrictInt
+    previous_post_id: StrictInt = None
+    title: StrictStr = None
+    type: StrictStr = None
+    category: StrictInt = None
+
+
+class GetPostListRequest:
+    def __init__(
+        self,
+        region_group_id,
+        previous_post_id=None,
+        title=None,
+        type=None,
+        category=None,
+    ):
+        self.region_group_id = region_group_id
+        self.previous_post_id = previous_post_id
+        self.title = title
+        self.type = type
+        self.category = category
+
+    def validate_request_and_make_dto(self):
+        try:
+            GetPostListSchema(
+                region_group_id=self.region_group_id,
+                previous_post_id=self.previous_post_id,
+                title=self.title,
+                type=self.type,
+                category=self.category,
+            )
+            return self.to_dto()
+        except ValidationError as e:
+            print(e)
+            return False
+
+    def to_dto(self) -> GetPostListDto:
+        return GetPostListDto(
+            region_group_id=self.region_group_id,
+            previous_post_id=self.previous_post_id,
+            title=self.title,
+            type=self.type,
+            category=self.category,
+        )
+
+
+class GetPostSchema(BaseModel):
+    post_id: StrictInt
+
+
+class GetPostRequest:
+    def __init__(self, post_id):
+        self.post_id = post_id
+
+    def validate_request_and_make_dto(self):
+        try:
+            GetPostSchema(post_id=self.post_id)
+            return self.to_dto()
+        except ValidationError as e:
+            print(e)
+            return False
+
+    def to_dto(self) -> GetPostDto:
+        return GetPostDto(post_id=self.post_id)
+
+
 class UpdatePostSchema(BaseModel):
-    id: StrictInt
+    post_id: StrictInt
     user_id: StrictInt
     title: StrictStr
     body: StrictStr
@@ -94,7 +167,7 @@ class UpdatePostSchema(BaseModel):
 class UpdatePostRequest:
     def __init__(
         self,
-        id,
+        post_id,
         user_id,
         title,
         body,
@@ -103,7 +176,7 @@ class UpdatePostRequest:
         is_comment_disabled,
         category,
     ):
-        self.id = id
+        self.post_id = post_id
         self.user_id = user_id
         self.title = title
         self.body = body
@@ -115,7 +188,7 @@ class UpdatePostRequest:
     def validate_request_and_make_dto(self):
         try:
             UpdatePostSchema(
-                id=self.id,
+                post_id=self.post_id,
                 user_id=self.user_id,
                 title=self.title,
                 body=self.body,
@@ -131,7 +204,7 @@ class UpdatePostRequest:
 
     def to_dto(self) -> UpdatePostDto:
         return UpdatePostDto(
-            id=self.id,
+            post_id=self.post_id,
             user_id=self.user_id,
             title=self.title,
             body=self.body,
@@ -161,4 +234,4 @@ class DeletePostRequest:
             return False
 
     def to_dto(self) -> DeletePostDto:
-        return DeletePostDto(id=self.post_id, user_id=self.user_id)
+        return DeletePostDto(post_id=self.post_id, user_id=self.user_id)

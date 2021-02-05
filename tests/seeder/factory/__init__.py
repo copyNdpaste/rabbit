@@ -5,6 +5,7 @@ import uuid
 from app.extensions.database import session
 from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.post_model import PostModel
+from app.persistence.model.region_group_model import RegionGroupModel
 from app.persistence.model.region_model import RegionModel
 from app.persistence.model.user_model import UserModel
 
@@ -25,8 +26,10 @@ class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
     login_id = factory.Sequence(lambda n: "test_user_{}".format(n))
     nickname = factory.Sequence(lambda n: "test_user_{}".format(n))
     password = "1234"
+    profile_id = 1
     status = "default"
     provider = ""
+    region_id = 1
 
 
 class UserProfileFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -36,17 +39,6 @@ class UserProfileFactory(factory.alchemy.SQLAlchemyModelFactory):
     uuid = str(uuid.uuid4())
     file_name = "file"
     path = "uploads/"
-
-    user = factory.SubFactory(UserFactory)
-
-
-class RegionFactory(factory.alchemy.SQLAlchemyModelFactory):
-    class Meta:
-        model = RegionModel
-
-    name = factory.Sequence(lambda n: "region_{}".format(n))
-
-    user = factory.SubFactory(UserFactory)
 
 
 class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -64,8 +56,7 @@ class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
     category = 0
     last_user_action = "default"
     last_admin_action = "default"
-
-    user = factory.SubFactory(UserFactory)
+    user_id = 1
 
     @factory.post_generation
     def Article(obj, create, extracted, **kwargs):
@@ -79,3 +70,24 @@ class ArticleFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     body = factory.Sequence(lambda n: "body_{}".format(n))
     post_id = 1
+
+
+class RegionGroupFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = RegionGroupModel
+
+    name = factory.Sequence(lambda n: "region_group_{}".format(n))
+
+
+class RegionFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = RegionModel
+
+    name = factory.Sequence(lambda n: "region_{}".format(n))
+
+    region_group = factory.SubFactory(RegionGroupFactory)
+
+    @factory.post_generation
+    def RegionGroup(obj, create, extracted, **kwargs):
+        if extracted:
+            RegionGroupFactory(region=obj, **kwargs)

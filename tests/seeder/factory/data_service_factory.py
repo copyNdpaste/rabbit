@@ -17,7 +17,7 @@ class NormalUserFactory(UserFactory):
     @factory.post_generation
     def Post(obj, create, extracted, **kwargs):
         if extracted:
-            PostFactory(user=obj, **kwargs)
+            PostFactory.create_batch(size=extracted, user=obj, **kwargs)
 
     @factory.post_generation
     def UserProfile(obj, create, extracted, **kwargs):

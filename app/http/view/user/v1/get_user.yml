@@ -31,11 +31,4 @@ responses:
     content:
       application/json:
         schema:
-          type: object
-          properties:
-            error_message:
-              type: string
-              example: ""
-            type:
-              type: string
-              example: unauthorized_error
+          $ref: '#/components/schemas/error'

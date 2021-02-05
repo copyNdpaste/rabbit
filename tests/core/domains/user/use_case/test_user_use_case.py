@@ -10,26 +10,8 @@ from core.domains.user.entity.user_profile_entity import UserProfileEntity
 from core.domains.user.use_case.v1.user_use_case import GetUserUseCase
 
 
-def test_when_get_user_then_success(session):
-    user_profile = UserProfileModel(
-        uuid=str(uuid.uuid4()), file_name="file", path="uploads/"
-    )
-    session.add(user_profile)
-    session.commit()
-
-    region = RegionModel(name="청담동")
-    session.add(region)
-    session.commit()
-
-    user = UserModel(
-        login_id="hello",
-        nickname="Noah",
-        password="1234",
-        profile_id=user_profile.id,
-        status="default",
-        provider="",
-        region_id=region.id,
-    )
+def test_when_get_user_then_success(session, normal_user_factory):
+    user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
 
@@ -40,26 +22,8 @@ def test_when_get_user_then_success(session):
     assert user_entity.id == user.id
 
 
-def test_when_get_user_with_relations_then_success(session):
-    user_profile = UserProfileModel(
-        uuid=str(uuid.uuid4()), file_name="file", path="uploads/"
-    )
-    session.add(user_profile)
-    session.commit()
-
-    region = RegionModel(name="청담동")
-    session.add(region)
-    session.commit()
-
-    user = UserModel(
-        login_id="hello",
-        nickname="Noah",
-        password="1234",
-        profile_id=user_profile.id,
-        status="default",
-        provider="",
-        region_id=region.id,
-    )
+def test_when_get_user_with_relations_then_success(session, normal_user_factory):
+    user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
 

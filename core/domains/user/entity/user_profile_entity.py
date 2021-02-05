@@ -1,9 +1,8 @@
-from dataclasses import dataclass
 from datetime import datetime
+from pydantic import BaseModel
 
 
-@dataclass
-class UserProfileEntity:
+class UserProfileEntity(BaseModel):
     id: int
     uuid: str
     file_name: str

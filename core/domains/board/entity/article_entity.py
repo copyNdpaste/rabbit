@@ -1,9 +1,8 @@
-from dataclasses import dataclass
 from datetime import datetime
+from pydantic import BaseModel
 
 
-@dataclass
-class ArticleEntity:
+class ArticleEntity(BaseModel):
     id: int
     post_id: int
     body: str

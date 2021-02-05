@@ -1,0 +1,22 @@
+user:
+  properties:
+    id:
+      type: integer
+    login_id:
+      type: string
+    nickname:
+      type: string
+    status:
+      type: string
+    provider:
+      type: string
+    region_id:
+      type: integer
+    created_at:
+      type: string
+    updated_at:
+      type: string
+    user_profile:
+      $ref: '#/components/schemas/user_profile'
+    region:
+      $ref: '#/components/schemas/region'

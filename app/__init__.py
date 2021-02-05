@@ -16,6 +16,7 @@ from app.http.view import api
 # event listener initialization
 from core.domains.board import event
 from core.domains.user import event
+from core.domains.region import event
 
 
 def init_config(
@@ -36,7 +37,7 @@ def init_blueprint(app: Flask):
 
 
 def init_extensions(app: Flask):
-    Swagger(app, config=swagger_config)
+    Swagger(app, **swagger_config())
     jwt.init_app(app)
 
 
