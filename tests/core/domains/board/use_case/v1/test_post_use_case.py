@@ -9,6 +9,7 @@ from core.domains.board.enum.post_enum import (
     PostCategoryEnum,
     PostUnitEnum,
     PostStatusEnum,
+    PostLikeCountEnum,
 )
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
@@ -49,6 +50,7 @@ def test_when_create_post_then_success(session, normal_user_factory):
     post_entity = CreatePostUseCase().execute(dto=dto).value
 
     assert post_entity.title == dto.title
+    assert post_entity.post_like_count == PostLikeCountEnum.DEFAULT.value
 
 
 def test_when_update_post_then_success(session, normal_user_factory, article_factory):
@@ -377,3 +379,10 @@ def test_when_search_post_list_with_category_then_success(
         assert post.region_group_id == region_group_id
         assert post.category == PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value
     assert len(post_list) == 2
+
+
+"""
+TODO
+찜하기 -> state, count 확인
+찜취소 ->
+"""

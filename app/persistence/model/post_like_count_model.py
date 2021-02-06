@@ -19,7 +19,7 @@ class PostLikeCountModel(db.Model):
 
     id = Column(SmallInteger().with_variant(Integer, "sqlite"), primary_key=True)
     post_id = Column(BigInteger, ForeignKey(PostModel.id), nullable=False)
-    count = Column(Integer)
+    count = Column(Integer, default=0, nullable=False)
     created_at = Column(DateTime, default=get_server_timestamp())
     updated_at = Column(DateTime, default=get_server_timestamp())
 

@@ -79,6 +79,9 @@ class PostModel(db.Model):
             unit=self.unit,
             price_per_unit=self.price_per_unit,
             status=self.status,
+            post_like_count=self.post_like_count.count
+            if self.post_like_count
+            else None,
         )
 
     def to_post_list_entity(self) -> PostListEntity:
@@ -114,4 +117,7 @@ class PostModel(db.Model):
             unit=self.unit,
             price_per_unit=self.price_per_unit,
             status=self.status,
+            post_like_count=self.post_like_count.count
+            if self.post_like_count
+            else None,
         )

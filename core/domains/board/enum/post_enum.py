@@ -28,3 +28,9 @@ class PostStatusEnum(Enum):
 class PostLikeStateEnum(Enum):
     LIKE = "like"
     UNLIKE = "unlike"
+
+
+class PostLikeCountEnum(Enum):
+    DEFAULT = 0
+    UP = 1
+    DOWN = 1

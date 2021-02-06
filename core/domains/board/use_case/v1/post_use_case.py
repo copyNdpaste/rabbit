@@ -50,6 +50,12 @@ class CreatePostUseCase(PostBaseUseCase):
         post = self._board_repo.create_post(dto=dto)
         if not post:
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
+
+        post_like_count = self._board_repo.create_post_like_count(post_id=post.id)
+        if not post_like_count:
+            return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
+
+        post.post_like_count = post_like_count.count
         return UseCaseSuccessOutput(value=post)
 
 

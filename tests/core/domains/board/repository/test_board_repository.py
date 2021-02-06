@@ -6,6 +6,7 @@ from core.domains.board.enum.post_enum import (
     PostUnitEnum,
     PostStatusEnum,
     PostLikeStateEnum,
+    PostLikeCountEnum,
 )
 from core.domains.board.repository.board_repository import BoardRepository
 from core.domains.user.entity.user_entity import UserEntity
@@ -467,11 +468,11 @@ def test_when_like_post_then_up_post_like_count(
     session.commit()
 
     post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
-    assert post_like_count.count == 0
+    assert post_like_count.count == PostLikeCountEnum.DEFAULT.value
 
     is_post_like_counted = BoardRepository().up_post_like(post_id=post.id)
     post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
-    assert post_like_count.count == 1
+    assert post_like_count.count == PostLikeCountEnum.UP.value
     assert is_post_like_counted == True
 
 
@@ -487,15 +488,29 @@ def test_when_unlike_post_then_down_post_like_count(
         PostLikeCount=True,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
-        PostLikeCount__count=1,
+        PostLikeCount__count=PostLikeCountEnum.UP.value,
     )
     session.add(post)
     session.commit()
 
     post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
-    assert post_like_count.count == 1
+    assert post_like_count.count == PostLikeCountEnum.UP.value
 
     is_post_like_counted = BoardRepository().down_post_like(post_id=post.id)
     post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
-    assert post_like_count.count == 0
+    assert post_like_count.count == PostLikeCountEnum.DEFAULT.value
     assert is_post_like_counted == True
+
+
+def test_create_post_like_count(session, normal_user_factory, post_factory):
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+
+    post_like_count = BoardRepository().create_post_like_count(post_id=post.id)
+    assert post_like_count.count == PostLikeCountEnum.DEFAULT.value

@@ -32,6 +32,7 @@ class PostEntity(BaseModel):
     unit: str
     price_per_unit: int
     status: str
+    post_like_count: int = None
 
 
 class PostListEntity(BaseModel):
@@ -61,3 +62,4 @@ class PostListEntity(BaseModel):
     unit: str
     price_per_unit: int
     status: str
+    post_like_count: int = None

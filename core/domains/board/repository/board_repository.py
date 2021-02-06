@@ -155,6 +155,18 @@ class BoardRepository:
             session.rollback()
             return False
 
+    def create_post_like_count(self, post_id) -> Optional[PostLikeCountEntity]:
+        try:
+            post_like_count = PostLikeCountModel(post_id=post_id)
+
+            session.add(post_like_count)
+            session.commit()
+            return post_like_count.to_entity()
+        except Exception as e:
+            # TODO : log
+            session.rollback()
+            return None
+
     def get_post_like_count(self, post_id: int) -> Optional[PostLikeCountEntity]:
         post_like_count = (
             session.query(PostLikeCountModel).filter_by(post_id=post_id).first()
