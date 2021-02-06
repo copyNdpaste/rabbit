@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from core.domains.board.enum.post_enum import PostLikeStateEnum
 from core.domains.user.entity.user_entity import UserEntity
 from core.domains.user.entity.user_profile_entity import UserProfileEntity
 
@@ -32,7 +33,8 @@ class PostEntity(BaseModel):
     unit: str
     price_per_unit: int
     status: str
-    post_like_count: int = None
+    post_like_count: int = 0
+    post_like_state: str = PostLikeStateEnum.DEFAULT.value
 
 
 class PostListEntity(BaseModel):
@@ -62,4 +64,5 @@ class PostListEntity(BaseModel):
     unit: str
     price_per_unit: int
     status: str
-    post_like_count: int = None
+    post_like_count: int = 0
+    post_like_state: str = PostLikeStateEnum.DEFAULT.value

@@ -1,7 +1,12 @@
 from flask import url_for
 from flask_jwt_extended import create_access_token
 
-from core.domains.board.enum.post_enum import PostUnitEnum, PostStatusEnum
+from core.domains.board.enum.post_enum import (
+    PostUnitEnum,
+    PostStatusEnum,
+    PostLikeStateEnum,
+    PostLikeCountEnum,
+)
 
 
 def test_when_create_post_then_success(
@@ -242,3 +247,44 @@ def test_when_search_post_list_then_success(
     assert response.status_code == 200
     post_list = response.get_json()["data"]["post_list"]
     assert post_list[0]["id"] == post.id
+
+
+def test_when_like_post_then_success(
+    client,
+    session,
+    test_request_context,
+    jwt_manager,
+    make_header,
+    normal_user_factory,
+    post_factory,
+):
+    # 찜하기, 찜취소
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+
+    access_token = create_access_token(identity=user.id)
+    authorization = "Bearer " + access_token
+    headers = make_header(authorization=authorization)
+
+    post_id = user.post[0].id
+
+    with test_request_context:
+        response = client.post(
+            url_for("api/rabbit.like_post_view", post_id=post_id), headers=headers
+        )
+
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert data["post"]["id"] == post_id
+    assert data["post"]["user_id"] == user.id
+    assert data["post"]["post_like_count"] == PostLikeCountEnum.UP.value
+    assert data["post"]["post_like_state"] == PostLikeStateEnum.LIKE.value

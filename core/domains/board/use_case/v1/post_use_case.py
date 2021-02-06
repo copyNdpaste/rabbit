@@ -198,7 +198,10 @@ class LikePostUseCase(PostBaseUseCase):
                 user_id=dto.user_id, post_id=dto.post_id
             )
 
-        return UseCaseSuccessOutput(value=post_like_state)
+        post = self._board_repo.get_post(post_id=dto.post_id)
+        post.post_like_state = post_like_state.state
+
+        return UseCaseSuccessOutput(value=post)
 
     def _is_post_exist(self, post_id) -> bool:
         send_message(PostTopicEnum.IS_POST_EXIST, post_id=post_id)

@@ -13,7 +13,6 @@ from core.domains.board.enum.post_enum import (
     PostLikeCountEnum,
     PostLikeStateEnum,
 )
-from core.domains.board.repository.board_repository import BoardRepository
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
     UpdatePostUseCase,
@@ -404,13 +403,11 @@ def test_when_post_like_first_then_create_post_like_state(
 
     dto = LikePostDto(user_id=user.id, post_id=post.id)
 
-    post_like_state_entity = LikePostUseCase().execute(dto=dto).value
+    post_entity = LikePostUseCase().execute(dto=dto).value
 
-    assert post_like_state_entity.post_id == post.id
-    assert post_like_state_entity.user_id == user.id
-    assert post_like_state_entity.state == PostLikeStateEnum.LIKE.value
-
-    post_entity = BoardRepository().get_post(post_id=post.id)
+    assert post_entity.id == post.id
+    assert post_entity.user_id == user.id
+    assert post_entity.post_like_state == PostLikeStateEnum.LIKE.value
     assert post_entity.post_like_count == PostLikeCountEnum.UP.value
 
 
@@ -432,20 +429,16 @@ def test_when_post_like_then_update_post_like_state(
 
     dto = LikePostDto(user_id=user.id, post_id=post.id)
 
-    post_like_state_entity = LikePostUseCase().execute(dto=dto).value
+    post_entity = LikePostUseCase().execute(dto=dto).value
 
-    assert post_like_state_entity.post_id == post.id
-    assert post_like_state_entity.user_id == user.id
-    assert post_like_state_entity.state == PostLikeStateEnum.LIKE.value
-
-    post_entity = BoardRepository().get_post(post_id=post.id)
+    assert post_entity.id == post.id
+    assert post_entity.user_id == user.id
+    assert post_entity.post_like_state == PostLikeStateEnum.LIKE.value
     assert post_entity.post_like_count == PostLikeCountEnum.UP.value
 
-    post_like_state_entity = LikePostUseCase().execute(dto=dto).value
+    post_entity = LikePostUseCase().execute(dto=dto).value
 
-    assert post_like_state_entity.post_id == post.id
-    assert post_like_state_entity.user_id == user.id
-    assert post_like_state_entity.state == PostLikeStateEnum.UNLIKE.value
-
-    post_entity = BoardRepository().get_post(post_id=post.id)
+    assert post_entity.id == post.id
+    assert post_entity.user_id == user.id
+    assert post_entity.post_like_state == PostLikeStateEnum.UNLIKE.value
     assert post_entity.post_like_count == PostLikeCountEnum.DEFAULT.value
