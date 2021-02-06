@@ -5,12 +5,15 @@ from core.domains.board.dto.post_dto import (
     GetPostListDto,
     GetPostDto,
 )
+from core.domains.board.dto.post_like_dto import LikePostDto
 from core.domains.board.enum.post_enum import (
     PostCategoryEnum,
     PostUnitEnum,
     PostStatusEnum,
     PostLikeCountEnum,
+    PostLikeStateEnum,
 )
+from core.domains.board.use_case.v1.post_like_use_case import LikePostUseCase
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
     UpdatePostUseCase,
@@ -386,3 +389,53 @@ TODO
 찜하기 -> state, count 확인
 찜취소 ->
 """
+
+
+def test_when_post_like_first_then_create_post_like_state(
+    session, normal_user_factory, post_factory
+):
+    # 최초 찜하기
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+
+    dto = LikePostDto(user_id=user.id, post_id=post.id)
+
+    post_like_state_entity = LikePostUseCase().execute(dto=dto).value
+
+    assert post_like_state_entity.post_id == post.id
+    assert post_like_state_entity.user_id == user.id
+    assert post_like_state_entity.state == PostLikeStateEnum.LIKE.value
+
+
+def test_when_post_like_then_update_post_like_state(
+    session, normal_user_factory, post_factory
+):
+    # 찜하기, 찜취소
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+
+    dto = LikePostDto(user_id=user.id, post_id=post.id)
+
+    post_like_state_entity = LikePostUseCase().execute(dto=dto).value
+
+    assert post_like_state_entity.post_id == post.id
+    assert post_like_state_entity.user_id == user.id
+    assert post_like_state_entity.state == PostLikeStateEnum.LIKE.value
+
+    post_like_state_entity = LikePostUseCase().execute(dto=dto).value
+
+    assert post_like_state_entity.post_id == post.id
+    assert post_like_state_entity.user_id == user.id
+    assert post_like_state_entity.state == PostLikeStateEnum.UNLIKE.value
