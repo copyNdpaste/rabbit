@@ -382,13 +382,6 @@ def test_search_post_list_with_category(session, normal_user_factory, post_facto
     assert len(post_list) == 2
 
 
-"""
-TODO :
-찜 개수 증감
-post 생성 시 row 생성 -> use case
-"""
-
-
 def test_create_post_like_state(session, normal_user_factory, post_factory):
     # 최초 찜하기
     user = normal_user_factory(Region=True, UserProfile=True)
