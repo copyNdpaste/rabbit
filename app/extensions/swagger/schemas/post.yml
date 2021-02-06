@@ -48,3 +48,7 @@ post:
       type: integer
     status:
       type: string
+    post_like_state:
+      type: string
+    post_like_count:
+      type: integer

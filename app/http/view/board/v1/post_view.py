@@ -100,7 +100,7 @@ def delete_post_view(post_id):
     return PostPresenter().transform(DeletePostUseCase().execute(dto=dto))
 
 
-@api.route("/board/v1/posts/<int:post_id>/like", methods=["POST"])
+@api.route("/board/v1/posts/<int:post_id>", methods=["POST"])
 @jwt_required
 @auth_required
 @swag_from("like_post.yml", methods=["POST"])
