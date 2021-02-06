@@ -2,10 +2,13 @@ from typing import List, Optional, Union
 
 from app.extensions.database import session
 from app.persistence.model.article_model import ArticleModel
+from app.persistence.model.post_like_count_model import PostLikeCountModel
+from app.persistence.model.post_like_state_model import PostLikeStateModel
 from app.persistence.model.post_model import PostModel
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
+from core.domains.board.entity.like_entity import PostLikeStateEntity
 from core.domains.board.entity.post_entity import PostEntity
-from core.domains.board.enum.post_enum import PostLimitEnum
+from core.domains.board.enum.post_enum import PostLimitEnum, PostLikeStateEnum
 
 
 class BoardRepository:
@@ -144,6 +147,54 @@ class BoardRepository:
                 {"read_count": PostModel.read_count + 1}
             )
             return True
+        except Exception as e:
+            # TODO : log
+            session.rollback()
+            return False
+
+    def up_post_like(self, post_id: int) -> bool:
+        try:
+            session.query(PostLikeCountModel).filter_by(post_id=post_id).update(
+                {"count": PostLikeCountModel.count + 1}
+            )
+            return True
+        except Exception as e:
+            # TODO : log
+            session.rollback()
+            return False
+
+    def get_post_like_state(
+        self, user_id: int, post_id: int
+    ) -> Optional[PostLikeStateEntity]:
+        post_like_state = (
+            session.query(PostLikeStateModel)
+            .filter_by(user_id=user_id, post_id=post_id)
+            .first()
+        )
+
+        return post_like_state.to_entity() if post_like_state else None
+
+    def create_post_like_state(self, user_id: int, post_id: int):
+        try:
+            post_like_state = PostLikeStateModel(
+                user_id=user_id, post_id=post_id, state=PostLikeStateEnum.LIKE.value
+            )
+            session.add(post_like_state)
+            session.commit()
+
+            return self.get_post_like_state(user_id=user_id, post_id=post_id)
+        except Exception as e:
+            # TODO : log
+            session.rollback()
+            return False
+
+    def update_post_like_state(self, user_id: int, post_id: int, state: str):
+        try:
+            session.query(PostLikeStateModel).filter_by(
+                user_id=user_id, post_id=post_id,
+            ).update({"state": state})
+
+            return self.get_post_like_state(user_id=user_id, post_id=post_id)
         except Exception as e:
             # TODO : log
             session.rollback()

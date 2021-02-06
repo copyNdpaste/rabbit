@@ -5,6 +5,7 @@ from core.domains.board.enum.post_enum import (
     PostCategoryEnum,
     PostUnitEnum,
     PostStatusEnum,
+    PostLikeStateEnum,
 )
 from core.domains.board.repository.board_repository import BoardRepository
 from core.domains.user.entity.user_entity import UserEntity
@@ -379,3 +380,83 @@ def test_search_post_list_with_category(session, normal_user_factory, post_facto
         assert post.region_group_id == region_group_id
         assert post.category == PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value
     assert len(post_list) == 2
+
+
+"""
+TODO :
+찜 개수 증감
+post 생성 시 row 생성 -> use case
+"""
+
+
+def test_create_post_like_state(session, normal_user_factory, post_factory):
+    # 최초 찜하기
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True,
+        PostLikeState=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+
+    post_like_state = BoardRepository().create_post_like_state(
+        user_id=user.id, post_id=post.id
+    )
+
+    assert post_like_state.post_id == post.id
+    assert post_like_state.user_id == user.id
+    assert post_like_state.state == PostLikeStateEnum.LIKE.value
+
+
+def test_like_post(session, normal_user_factory, post_factory):
+    # 최초 아닌 찜하기
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True,
+        PostLikeState=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+
+    post_like_state = BoardRepository().update_post_like_state(
+        user_id=user.id, post_id=post.id, state=PostLikeStateEnum.LIKE.value
+    )
+
+    assert post_like_state.post_id == post.id
+    assert post_like_state.user_id == user.id
+    assert post_like_state.state == PostLikeStateEnum.LIKE.value
+
+
+def test_unlike_post_like(session, normal_user_factory, post_factory):
+    # 찜취소
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True,
+        PostLikeState=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+
+    post_like_state = BoardRepository().update_post_like_state(
+        user_id=user.id, post_id=post.id, state=PostLikeStateEnum.UNLIKE.value
+    )
+
+    assert post_like_state.post_id == post.id
+    assert post_like_state.user_id == user.id
+    assert post_like_state.state == PostLikeStateEnum.UNLIKE.value
+
+
+# def test_unlike_post
+# create row
