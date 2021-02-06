@@ -6,7 +6,7 @@ from sqlalchemy import (
     BigInteger,
     ForeignKey,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
@@ -23,7 +23,7 @@ class PostLikeCountModel(db.Model):
     created_at = Column(DateTime, default=get_server_timestamp())
     updated_at = Column(DateTime, default=get_server_timestamp())
 
-    post = relationship("PostModel", backref="post_like_count")
+    post = relationship("PostModel", backref=backref("post_like_count", uselist=False))
 
     def to_entity(self) -> PostLikeCountEntity:
         return PostLikeCountEntity(

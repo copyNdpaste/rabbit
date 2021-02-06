@@ -13,13 +13,14 @@ from core.domains.board.enum.post_enum import (
     PostLikeCountEnum,
     PostLikeStateEnum,
 )
-from core.domains.board.use_case.v1.post_like_use_case import LikePostUseCase
+from core.domains.board.repository.board_repository import BoardRepository
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
     UpdatePostUseCase,
     DeletePostUseCase,
     GetPostListUseCase,
     GetPostUseCase,
+    LikePostUseCase,
 )
 from core.use_case_output import FailureType
 from tests.seeder.factory import PostFactory
@@ -384,22 +385,19 @@ def test_when_search_post_list_with_category_then_success(
     assert len(post_list) == 2
 
 
-"""
-TODO
-찜하기 -> state, count 확인
-찜취소 ->
-"""
-
-
 def test_when_post_like_first_then_create_post_like_state(
     session, normal_user_factory, post_factory
 ):
     # 최초 찜하기
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
+
     session.commit()
     post = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id,
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
     session.add(post)
     session.commit()
@@ -411,6 +409,9 @@ def test_when_post_like_first_then_create_post_like_state(
     assert post_like_state_entity.post_id == post.id
     assert post_like_state_entity.user_id == user.id
     assert post_like_state_entity.state == PostLikeStateEnum.LIKE.value
+
+    post_entity = BoardRepository().get_post(post_id=post.id)
+    assert post_entity.post_like_count == PostLikeCountEnum.UP.value
 
 
 def test_when_post_like_then_update_post_like_state(
@@ -421,7 +422,10 @@ def test_when_post_like_then_update_post_like_state(
     session.add(user)
     session.commit()
     post = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id,
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
     session.add(post)
     session.commit()
@@ -434,8 +438,14 @@ def test_when_post_like_then_update_post_like_state(
     assert post_like_state_entity.user_id == user.id
     assert post_like_state_entity.state == PostLikeStateEnum.LIKE.value
 
+    post_entity = BoardRepository().get_post(post_id=post.id)
+    assert post_entity.post_like_count == PostLikeCountEnum.UP.value
+
     post_like_state_entity = LikePostUseCase().execute(dto=dto).value
 
     assert post_like_state_entity.post_id == post.id
     assert post_like_state_entity.user_id == user.id
     assert post_like_state_entity.state == PostLikeStateEnum.UNLIKE.value
+
+    post_entity = BoardRepository().get_post(post_id=post.id)
+    assert post_entity.post_like_count == PostLikeCountEnum.DEFAULT.value

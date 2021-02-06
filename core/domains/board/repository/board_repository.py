@@ -210,7 +210,9 @@ class BoardRepository:
             session.rollback()
             return False
 
-    def update_post_like_state(self, user_id: int, post_id: int, state: str):
+    def update_post_like_state(
+        self, user_id: int, post_id: int, state: str
+    ) -> Optional[PostLikeStateEntity]:
         try:
             session.query(PostLikeStateModel).filter_by(
                 user_id=user_id, post_id=post_id,
@@ -220,4 +222,4 @@ class BoardRepository:
         except Exception as e:
             # TODO : log
             session.rollback()
-            return False
+            return None
