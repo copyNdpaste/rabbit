@@ -14,6 +14,7 @@ from tests.seeder.factory import (
     ArticleFactory,
     RegionGroupFactory,
     PostLikeStateFactory,
+    PostLikeCountFactory,
 )
 from tests.seeder.factory.data_service_factory import NormalUserFactory
 
@@ -26,6 +27,7 @@ MODEL_FACTORIES = [
     RegionGroupFactory,
     ArticleFactory,
     PostLikeStateFactory,
+    PostLikeCountFactory,
 ]
 
 

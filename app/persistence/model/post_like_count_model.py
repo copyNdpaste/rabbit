@@ -11,7 +11,7 @@ from sqlalchemy.orm import relationship
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
 from app.persistence.model.post_model import PostModel
-from core.domains.board.entity.like_entity import PostLikeStateEntity
+from core.domains.board.entity.like_entity import PostLikeCountEntity
 
 
 class PostLikeCountModel(db.Model):
@@ -23,10 +23,10 @@ class PostLikeCountModel(db.Model):
     created_at = Column(DateTime, default=get_server_timestamp())
     updated_at = Column(DateTime, default=get_server_timestamp())
 
-    post = relationship("PostModel", backref="post_like_state")
+    post = relationship("PostModel", backref="post_like_count")
 
-    def to_entity(self) -> PostLikeStateEntity:
-        return PostLikeStateEntity(
+    def to_entity(self) -> PostLikeCountEntity:
+        return PostLikeCountEntity(
             id=self.id,
             post_id=self.post_id,
             count=self.count,

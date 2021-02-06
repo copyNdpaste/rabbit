@@ -6,7 +6,10 @@ from app.persistence.model.post_like_count_model import PostLikeCountModel
 from app.persistence.model.post_like_state_model import PostLikeStateModel
 from app.persistence.model.post_model import PostModel
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
-from core.domains.board.entity.like_entity import PostLikeStateEntity
+from core.domains.board.entity.like_entity import (
+    PostLikeStateEntity,
+    PostLikeCountEntity,
+)
 from core.domains.board.entity.post_entity import PostEntity
 from core.domains.board.enum.post_enum import PostLimitEnum, PostLikeStateEnum
 
@@ -152,10 +155,28 @@ class BoardRepository:
             session.rollback()
             return False
 
+    def get_post_like_count(self, post_id: int) -> Optional[PostLikeCountEntity]:
+        post_like_count = (
+            session.query(PostLikeCountModel).filter_by(post_id=post_id).first()
+        )
+
+        return post_like_count.to_entity() if post_like_count else None
+
     def up_post_like(self, post_id: int) -> bool:
         try:
             session.query(PostLikeCountModel).filter_by(post_id=post_id).update(
                 {"count": PostLikeCountModel.count + 1}
+            )
+            return True
+        except Exception as e:
+            # TODO : log
+            session.rollback()
+            return False
+
+    def down_post_like(self, post_id: int) -> bool:
+        try:
+            session.query(PostLikeCountModel).filter_by(post_id=post_id).update(
+                {"count": PostLikeCountModel.count - 1}
             )
             return True
         except Exception as e:

@@ -395,10 +395,7 @@ def test_create_post_like_state(session, normal_user_factory, post_factory):
     session.add(user)
     session.commit()
     post = post_factory(
-        Article=True,
-        PostLikeState=True,
-        region_group_id=user.region.region_group.id,
-        user_id=user.id,
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id,
     )
     session.add(post)
     session.commit()
@@ -412,18 +409,18 @@ def test_create_post_like_state(session, normal_user_factory, post_factory):
     assert post_like_state.state == PostLikeStateEnum.LIKE.value
 
 
-def test_like_post(session, normal_user_factory, post_factory):
+def test_like_post(session, normal_user_factory, post_factory, post_like_state_factory):
     # 최초 아닌 찜하기
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
     post = post_factory(
-        Article=True,
-        PostLikeState=True,
-        region_group_id=user.region.region_group.id,
-        user_id=user.id,
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id,
     )
     session.add(post)
+    session.commit()
+    post_like_state = post_like_state_factory(user_id=user.id, post_id=post.id)
+    session.add(post_like_state)
     session.commit()
 
     post_like_state = BoardRepository().update_post_like_state(
@@ -435,18 +432,20 @@ def test_like_post(session, normal_user_factory, post_factory):
     assert post_like_state.state == PostLikeStateEnum.LIKE.value
 
 
-def test_unlike_post_like(session, normal_user_factory, post_factory):
+def test_unlike_post_like(
+    session, normal_user_factory, post_factory, post_like_state_factory
+):
     # 찜취소
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
     post = post_factory(
-        Article=True,
-        PostLikeState=True,
-        region_group_id=user.region.region_group.id,
-        user_id=user.id,
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id,
     )
     session.add(post)
+    session.commit()
+    post_like_state = post_like_state_factory(user_id=user.id, post_id=post.id)
+    session.add(post_like_state)
     session.commit()
 
     post_like_state = BoardRepository().update_post_like_state(
@@ -458,5 +457,52 @@ def test_unlike_post_like(session, normal_user_factory, post_factory):
     assert post_like_state.state == PostLikeStateEnum.UNLIKE.value
 
 
-# def test_unlike_post
-# create row
+def test_when_like_post_then_up_post_like_count(
+    session, normal_user_factory, post_factory
+):
+    # 찜하면 count + 1
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+
+    post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
+    assert post_like_count.count == 0
+
+    is_post_like_counted = BoardRepository().up_post_like(post_id=post.id)
+    post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
+    assert post_like_count.count == 1
+    assert is_post_like_counted == True
+
+
+def test_when_unlike_post_then_down_post_like_count(
+    session, normal_user_factory, post_factory
+):
+    # 찜취소하면 count - 1
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+        PostLikeCount__count=1,
+    )
+    session.add(post)
+    session.commit()
+
+    post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
+    assert post_like_count.count == 1
+
+    is_post_like_counted = BoardRepository().down_post_like(post_id=post.id)
+    post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
+    assert post_like_count.count == 0
+    assert is_post_like_counted == True

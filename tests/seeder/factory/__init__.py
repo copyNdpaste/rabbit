@@ -90,9 +90,9 @@ class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
             ArticleFactory(post=obj, **kwargs)
 
     @factory.post_generation
-    def PostLikeState(obj, create, extracted, **kwargs):
+    def PostLikeCount(obj, create, extracted, **kwargs):
         if extracted:
-            PostLikeStateFactory(post=obj, **kwargs)
+            PostLikeCountFactory(post=obj, **kwargs)
 
 
 class ArticleFactory(factory.alchemy.SQLAlchemyModelFactory):
