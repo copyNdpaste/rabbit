@@ -11,6 +11,7 @@ from app.persistence.model.user_model import UserModel
 
 # factory에 사용해야 하는 Model을 가져온다
 from app.persistence.model.user_profile_model import UserProfileModel
+from core.domains.board.enum.post_enum import PostUnitEnum, PostStatusEnum
 
 faker = FakerFactory.create(locale="ko_KR")
 
@@ -57,6 +58,10 @@ class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
     last_user_action = "default"
     last_admin_action = "default"
     user_id = 1
+    amount = 0
+    unit = PostUnitEnum.UNIT.value
+    price_per_unit = 10000
+    status = PostStatusEnum.SALE.value
 
     @factory.post_generation
     def Article(obj, create, extracted, **kwargs):

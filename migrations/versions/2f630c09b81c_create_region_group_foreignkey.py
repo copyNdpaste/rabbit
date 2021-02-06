@@ -26,7 +26,6 @@ def upgrade():
         "region_groups",
         ["region_group_id"],
         ["id"],
-        ondelete="CASCADE",
     )
 
 

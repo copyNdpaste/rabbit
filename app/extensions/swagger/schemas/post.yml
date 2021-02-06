@@ -40,3 +40,11 @@ post:
       type: string
     user:
       $ref: '#/components/schemas/user'
+    amount:
+      type: integer
+    unit:
+      type: string
+    price_per_unit:
+      type: integer
+    status:
+      type: string
