@@ -28,6 +28,10 @@ class PostEntity(BaseModel):
     created_at: datetime
     updated_at: datetime
     user: UserEntity
+    amount: int
+    unit: str
+    price_per_unit: int
+    status: str
 
 
 class PostListEntity(BaseModel):
@@ -53,3 +57,7 @@ class PostListEntity(BaseModel):
     updated_at: datetime
     user: UserEntity
     user_profile: UserProfileEntity
+    amount: int
+    unit: str
+    price_per_unit: int
+    status: str

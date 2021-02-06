@@ -22,6 +22,10 @@ class BoardRepository:
                 report_count=dto.report_count,
                 read_count=dto.read_count,
                 category=dto.category,
+                amount=dto.amount,
+                unit=dto.unit,
+                price_per_unit=dto.price_per_unit,
+                status=dto.status,
             )
             session.add(post)
             session.commit()
@@ -120,7 +124,7 @@ class BoardRepository:
                     *previous_post_id_filter,
                 )
                 .order_by(PostModel.id.desc())
-                .limit(PostLimitEnum.LIMIT)
+                .limit(PostLimitEnum.LIMIT.value)
                 .all()
             )
 

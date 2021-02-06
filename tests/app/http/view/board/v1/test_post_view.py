@@ -1,6 +1,8 @@
 from flask import url_for
 from flask_jwt_extended import create_access_token
 
+from core.domains.board.enum.post_enum import PostUnitEnum, PostStatusEnum
+
 
 def test_when_create_post_then_success(
     client, session, test_request_context, jwt_manager, make_header, normal_user_factory
@@ -24,6 +26,10 @@ def test_when_create_post_then_success(
         report_count=0,
         read_count=0,
         category=0,
+        amount=10,
+        unit=PostUnitEnum.UNIT.value,
+        price_per_unit=10000,
+        status=PostStatusEnum.SALE.value,
     )
 
     with test_request_context:
@@ -66,6 +72,10 @@ def test_when_update_post_then_success(
         type="article",
         is_comment_disabled=True,
         category=0,
+        amount=10,
+        unit=PostUnitEnum.UNIT.value,
+        price_per_unit=10000,
+        status=PostStatusEnum.SALE.value,
     )
 
     with test_request_context:

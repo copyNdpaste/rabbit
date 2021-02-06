@@ -5,7 +5,11 @@ from core.domains.board.dto.post_dto import (
     GetPostListDto,
     GetPostDto,
 )
-from core.domains.board.enum.post_enum import PostCategoryEnum
+from core.domains.board.enum.post_enum import (
+    PostCategoryEnum,
+    PostUnitEnum,
+    PostStatusEnum,
+)
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
     UpdatePostUseCase,
@@ -36,6 +40,10 @@ def test_when_create_post_then_success(session, normal_user_factory):
         category=0,
         last_user_action="default",
         last_admin_action="default",
+        amount=10,
+        unit=PostUnitEnum.UNIT.value,
+        price_per_unit=10000,
+        status=PostStatusEnum.SALE.value,
     )
 
     post_entity = CreatePostUseCase().execute(dto=dto).value
@@ -61,6 +69,10 @@ def test_when_update_post_then_success(session, normal_user_factory, article_fac
         type="article",
         is_comment_disabled=True,
         category=0,
+        amount=10,
+        unit=PostUnitEnum.UNIT.value,
+        price_per_unit=10000,
+        status=PostStatusEnum.SALE.value,
     )
 
     post_entity = UpdatePostUseCase().execute(dto=dto).value
@@ -90,6 +102,10 @@ def test_when_not_owner_update_post_then_fail(
         type="article",
         is_comment_disabled=True,
         category=0,
+        amount=10,
+        unit=PostUnitEnum.UNIT.value,
+        price_per_unit=10000,
+        status=PostStatusEnum.SALE.value,
     )
 
     result = UpdatePostUseCase().execute(dto=dto).value
@@ -332,31 +348,32 @@ def test_when_search_post_list_with_category_then_success(
         Article=True,
         region_group_id=region_group_id,
         user_id=user_list[0].id,
-        category=PostCategoryEnum.FOOD,
+        category=PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value,
     )
     post2 = post_factory(
         Article=True,
         region_group_id=region_group_id,
         user_id=user_list[0].id,
-        category=PostCategoryEnum.HOME_APPLIANCE,
+        category=PostCategoryEnum.DIVIDING_NECESSITIES.value,
     )
     post3 = post_factory(
         Article=True,
         region_group_id=region_group_id,
         user_id=user_list[1].id,
-        category=PostCategoryEnum.FOOD,
+        category=PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value,
     )
 
     session.add_all([post1, post2, post3])
     session.commit()
 
     dto = GetPostListDto(
-        region_group_id=region_group_id, category=PostCategoryEnum.FOOD
+        region_group_id=region_group_id,
+        category=PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value,
     )
 
     post_list = GetPostListUseCase().execute(dto=dto).value
 
     for post in post_list:
         assert post.region_group_id == region_group_id
-        assert post.category == PostCategoryEnum.FOOD
+        assert post.category == PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value
     assert len(post_list) == 2

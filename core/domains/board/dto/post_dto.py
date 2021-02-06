@@ -13,6 +13,10 @@ class CreatePostDto(BaseModel):
     report_count: int
     read_count: int
     category: int
+    amount: int
+    unit: str
+    price_per_unit: int
+    status: str
 
 
 class GetPostListDto(BaseModel):
@@ -36,6 +40,10 @@ class UpdatePostDto(BaseModel):
     type: str
     is_comment_disabled: bool
     category: int
+    amount: int
+    unit: str
+    price_per_unit: int
+    status: str
 
 
 class DeletePostDto(BaseModel):

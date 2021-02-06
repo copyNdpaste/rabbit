@@ -43,6 +43,10 @@ class PostModel(db.Model):
     last_admin_action_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=get_server_timestamp())
     updated_at = Column(DateTime, default=get_server_timestamp())
+    amount = Column(SmallInteger, default=0)
+    unit = Column(String(5))
+    price_per_unit = Column(Integer)
+    status = Column(String(20), default="selling", nullable=False)
 
     user = relationship("UserModel", backref="post")
     region_group = relationship(
@@ -71,6 +75,10 @@ class PostModel(db.Model):
             created_at=self.created_at,
             updated_at=self.updated_at,
             user=self.user.to_entity() if self.user else None,
+            amount=self.amount,
+            unit=self.unit,
+            price_per_unit=self.price_per_unit,
+            status=self.status,
         )
 
     def to_post_list_entity(self) -> PostListEntity:
@@ -102,4 +110,8 @@ class PostModel(db.Model):
             user_profile=self.user.user_profile.to_entity()
             if self.user.user_profile
             else None,
+            amount=self.amount,
+            unit=self.unit,
+            price_per_unit=self.price_per_unit,
+            status=self.status,
         )
