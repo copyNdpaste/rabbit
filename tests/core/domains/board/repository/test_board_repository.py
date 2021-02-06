@@ -470,7 +470,9 @@ def test_when_like_post_then_up_post_like_count(
     post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
     assert post_like_count.count == PostLikeCountEnum.DEFAULT.value
 
-    is_post_like_counted = BoardRepository().up_post_like(post_id=post.id)
+    is_post_like_counted = BoardRepository().update_post_like_count(
+        post_id=post.id, count=PostLikeCountEnum.UP.value
+    )
     post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
     assert post_like_count.count == PostLikeCountEnum.UP.value
     assert is_post_like_counted == True
@@ -496,7 +498,9 @@ def test_when_unlike_post_then_down_post_like_count(
     post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
     assert post_like_count.count == PostLikeCountEnum.UP.value
 
-    is_post_like_counted = BoardRepository().down_post_like(post_id=post.id)
+    is_post_like_counted = BoardRepository().update_post_like_count(
+        post_id=post.id, count=PostLikeCountEnum.DOWN.value
+    )
     post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
     assert post_like_count.count == PostLikeCountEnum.DEFAULT.value
     assert is_post_like_counted == True

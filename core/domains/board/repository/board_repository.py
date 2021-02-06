@@ -174,21 +174,10 @@ class BoardRepository:
 
         return post_like_count.to_entity() if post_like_count else None
 
-    def up_post_like(self, post_id: int) -> bool:
+    def update_post_like_count(self, post_id: int, count: int) -> bool:
         try:
             session.query(PostLikeCountModel).filter_by(post_id=post_id).update(
-                {"count": PostLikeCountModel.count + 1}
-            )
-            return True
-        except Exception as e:
-            # TODO : log
-            session.rollback()
-            return False
-
-    def down_post_like(self, post_id: int) -> bool:
-        try:
-            session.query(PostLikeCountModel).filter_by(post_id=post_id).update(
-                {"count": PostLikeCountModel.count - 1}
+                {"count": PostLikeCountModel.count + count}
             )
             return True
         except Exception as e:

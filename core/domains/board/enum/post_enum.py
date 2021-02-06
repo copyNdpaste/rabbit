@@ -33,4 +33,4 @@ class PostLikeStateEnum(Enum):
 class PostLikeCountEnum(Enum):
     DEFAULT = 0
     UP = 1
-    DOWN = 1
+    DOWN = -1
