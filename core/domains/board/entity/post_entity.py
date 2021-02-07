@@ -65,4 +65,3 @@ class PostListEntity(BaseModel):
     price_per_unit: int
     status: str
     post_like_count: int = 0
-    post_like_state: str = PostLikeStateEnum.DEFAULT.value

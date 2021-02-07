@@ -442,3 +442,46 @@ def test_when_post_like_then_update_post_like_state(
     assert post_entity.user_id == user.id
     assert post_entity.post_like_state == PostLikeStateEnum.UNLIKE.value
     assert post_entity.post_like_count == PostLikeCountEnum.DEFAULT.value
+
+
+def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
+    session, normal_user_factory, post_factory, like_post
+):
+    """
+    post list 조회 시 찜 개수 포함, 찜 상태 제외
+    user1 -> post1 찜
+    user2 -> post1 찜
+    user2 -> post2 찜
+    """
+    user1 = normal_user_factory(Region=True, UserProfile=True)
+    user2 = normal_user_factory(Region=True, UserProfile=True)
+    session.add_all([user1, user2])
+    session.commit()
+
+    post1 = post_factory(
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user1.region.region_group.id,
+        user_id=user1.id,
+    )
+    post2 = post_factory(
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user1.region.region_group.id,
+        user_id=user1.id,
+    )
+
+    session.add_all([post1, post2])
+    session.commit()
+
+    # 찜하기
+    like_post(user_id=user1.id, post_id=post1.id)
+    like_post(user_id=user2.id, post_id=post1.id)
+    like_post(user_id=user2.id, post_id=post2.id)
+
+    dto = GetPostListDto(region_group_id=user1.region.region_group.id)
+    post_list = GetPostListUseCase().execute(dto=dto).value
+
+    assert len(post_list) == 2
+    assert post_list[0].post_like_count == 1
+    assert post_list[1].post_like_count == 2
