@@ -48,7 +48,7 @@ class PostListPresenter:
                     )
                 )
             result = {
-                "data": schema.dict(),
+                "data": schema.dict(exclude_unset={"post_like_state"}),
                 "meta": output.meta,
             }
             return success_response(result=result)

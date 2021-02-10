@@ -1,7 +1,12 @@
 from flask import url_for
 from flask_jwt_extended import create_access_token
 
-from core.domains.board.enum.post_enum import PostUnitEnum, PostStatusEnum
+from core.domains.board.enum.post_enum import (
+    PostUnitEnum,
+    PostStatusEnum,
+    PostLikeStateEnum,
+    PostLikeCountEnum,
+)
 
 
 def test_when_create_post_then_success(
@@ -242,3 +247,101 @@ def test_when_search_post_list_then_success(
     assert response.status_code == 200
     post_list = response.get_json()["data"]["post_list"]
     assert post_list[0]["id"] == post.id
+
+
+def test_when_like_post_then_success(
+    client,
+    session,
+    test_request_context,
+    jwt_manager,
+    make_header,
+    normal_user_factory,
+    post_factory,
+):
+    # 찜하기, 찜취소
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+
+    access_token = create_access_token(identity=user.id)
+    authorization = "Bearer " + access_token
+    headers = make_header(authorization=authorization)
+
+    post_id = user.post[0].id
+
+    with test_request_context:
+        response = client.post(
+            url_for("api/rabbit.like_post_view", post_id=post_id), headers=headers
+        )
+
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert data["post"]["id"] == post_id
+    assert data["post"]["user_id"] == user.id
+    assert data["post"]["post_like_count"] == PostLikeCountEnum.UP.value
+    assert data["post"]["post_like_state"] == PostLikeStateEnum.LIKE.value
+
+
+def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
+    session,
+    normal_user_factory,
+    make_header,
+    post_factory,
+    like_post,
+    test_request_context,
+    client,
+):
+    """
+    post list 조회 시 찜 개수 포함, 찜 상태 제외
+    user1 -> post1 찜
+    user2 -> post1 찜
+    user2 -> post2 찜
+    """
+    user1 = normal_user_factory(Region=True, UserProfile=True)
+    user2 = normal_user_factory(Region=True, UserProfile=True)
+    session.add_all([user1, user2])
+    session.commit()
+
+    post1 = post_factory(
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user1.region.region_group.id,
+        user_id=user1.id,
+    )
+    post2 = post_factory(
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user1.region.region_group.id,
+        user_id=user1.id,
+    )
+
+    session.add_all([post1, post2])
+    session.commit()
+
+    # 찜하기
+    like_post(user_id=user1.id, post_id=post1.id)
+    like_post(user_id=user2.id, post_id=post1.id)
+    like_post(user_id=user2.id, post_id=post2.id)
+
+    access_token = create_access_token(identity=user1.id)
+    authorization = "Bearer " + access_token
+    headers = make_header(authorization=authorization)
+    dct = dict(region_group_id=user1.region.region_group.id)
+
+    with test_request_context:
+        response = client.get(
+            url_for("api/rabbit.get_post_list_view"), json=dct, headers=headers
+        )
+
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert data["post_list"][0]["post_like_count"] == 1
+    assert data["post_list"][1]["post_like_count"] == 2

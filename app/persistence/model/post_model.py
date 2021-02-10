@@ -15,6 +15,7 @@ from app.extensions.utils.time_helper import get_server_timestamp
 from app.persistence.model.region_group_model import RegionGroupModel
 from app.persistence.model.user_model import UserModel
 from core.domains.board.entity.post_entity import PostEntity, PostListEntity
+from core.domains.board.enum.post_enum import PostLikeStateEnum
 
 
 class PostModel(db.Model):
@@ -79,6 +80,10 @@ class PostModel(db.Model):
             unit=self.unit,
             price_per_unit=self.price_per_unit,
             status=self.status,
+            post_like_count=self.post_like_count.count if self.post_like_count else 0,
+            post_like_state=self.post_like_state[0].state
+            if self.post_like_state
+            else PostLikeStateEnum.DEFAULT.value,
         )
 
     def to_post_list_entity(self) -> PostListEntity:
@@ -114,4 +119,5 @@ class PostModel(db.Model):
             unit=self.unit,
             price_per_unit=self.price_per_unit,
             status=self.status,
+            post_like_count=self.post_like_count.count if self.post_like_count else 0,
         )
