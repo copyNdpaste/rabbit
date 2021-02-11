@@ -31,7 +31,6 @@ def test_create_post(session, normal_user_factory):
         is_blocked=False,
         report_count=0,
         read_count=0,
-        category=0,
         last_user_action="default",
         last_admin_action="default",
         amount=10,
@@ -62,7 +61,6 @@ def test_update_post(session, normal_user_factory, post_factory):
         region_group_id=1,
         type="article",
         is_comment_disabled=True,
-        category=0,
         amount=10,
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
@@ -107,28 +105,45 @@ def test_is_post_exist(session, normal_user_factory):
     assert result == False
 
 
-def test_get_post_list(session, normal_user_factory, post_factory):
+def test_get_post_list(
+    session, normal_user_factory, post_factory, create_post_categories
+):
     """
     post list 조회 시 관련 table 목록 가져옴.
     """
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
+
+    post_categories = create_post_categories(name_list=PostCategoryEnum.get_list())
+
     post1 = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+        Article=True,
+        Categories=post_categories,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
     post2 = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+        Article=True,
+        Categories=post_categories,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
 
     user2 = normal_user_factory(Region=True, UserProfile=True)
     session.add(user2)
     session.commit()
     post3 = post_factory(
-        Article=True, region_group_id=user2.region.region_group.id, user_id=user2.id
+        Article=True,
+        Categories=post_categories,
+        region_group_id=user2.region.region_group.id,
+        user_id=user2.id,
     )
     post4 = post_factory(
-        Article=True, region_group_id=user2.region.region_group.id, user_id=user2.id
+        Article=True,
+        Categories=post_categories,
+        region_group_id=user2.region.region_group.id,
+        user_id=user2.id,
     )
 
     session.add_all([post1, post2, post3, post4])
@@ -153,7 +168,7 @@ def test_get_empty_post_list(session, normal_user_factory):
     assert post_list == []
 
 
-def test_get_post_list_pagination(session, normal_user_factory):
+def test_get_post_list_pagination(session, normal_user_factory, create_post_categories):
     """
     post list 조회 시 페이지네이션
     """
@@ -161,9 +176,12 @@ def test_get_post_list_pagination(session, normal_user_factory):
     session.add(user)
     session.commit()
 
+    post_categories = create_post_categories(PostCategoryEnum.get_list())
+
     post_list = PostFactory.create_batch(
         size=11,
         Article=True,
+        Categories=post_categories,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
     )
@@ -297,7 +315,9 @@ def test_add_read_count(session, normal_user_factory, post_factory):
     assert result == True
 
 
-def test_search_post_list(session, normal_user_factory, post_factory):
+def test_search_post_list(
+    session, normal_user_factory, post_factory, create_post_categories
+):
     """
     post 검색. user1 post 2개, user2 post 2개, user3 post 1개, 다른 지역 user4 post 1개
     총 5개 post 응답
@@ -308,23 +328,41 @@ def test_search_post_list(session, normal_user_factory, post_factory):
 
     region_group_id = user_list[0].region.region_group_id
 
+    post_categories = create_post_categories(PostCategoryEnum.get_list())
+
     post1 = post_factory(
-        Article=True, region_group_id=region_group_id, user_id=user_list[0].id,
+        Article=True,
+        Categories=post_categories,
+        region_group_id=region_group_id,
+        user_id=user_list[0].id,
     )
     post2 = post_factory(
-        Article=True, region_group_id=region_group_id, user_id=user_list[0].id,
+        Article=True,
+        Categories=post_categories,
+        region_group_id=region_group_id,
+        user_id=user_list[0].id,
     )
     post3 = post_factory(
-        Article=True, region_group_id=region_group_id, user_id=user_list[1].id,
+        Article=True,
+        Categories=post_categories,
+        region_group_id=region_group_id,
+        user_id=user_list[1].id,
     )
     post4 = post_factory(
-        Article=True, region_group_id=region_group_id, user_id=user_list[1].id,
+        Article=True,
+        Categories=post_categories,
+        region_group_id=region_group_id,
+        user_id=user_list[1].id,
     )
     post5 = post_factory(
-        Article=True, region_group_id=region_group_id, user_id=user_list[2].id,
+        Article=True,
+        Categories=post_categories,
+        region_group_id=region_group_id,
+        user_id=user_list[2].id,
     )
     post6 = post_factory(
         Article=True,
+        Categories=post_categories,
         region_group_id=user_list[3].region.region_group_id,
         user_id=user_list[3].id,
     )
@@ -340,49 +378,6 @@ def test_search_post_list(session, normal_user_factory, post_factory):
         assert post.region_group_id == region_group_id
         assert post1.title[2:6] in post.title
     assert len(post_list) == 5
-
-
-def test_search_post_list_with_category(session, normal_user_factory, post_factory):
-    """
-    category 조건으로 post 검색.
-    """
-    user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
-    session.add_all(user_list)
-    session.commit()
-
-    region_group_id = user_list[0].region.region_group_id
-
-    post1 = post_factory(
-        Article=True,
-        region_group_id=region_group_id,
-        user_id=user_list[0].id,
-        category=PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value,
-    )
-    post2 = post_factory(
-        Article=True,
-        region_group_id=region_group_id,
-        user_id=user_list[0].id,
-        category=PostCategoryEnum.DIVIDING_NECESSITIES.value,
-    )
-    post3 = post_factory(
-        Article=True,
-        region_group_id=region_group_id,
-        user_id=user_list[1].id,
-        category=PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value,
-    )
-
-    session.add_all([post1, post2, post3])
-    session.commit()
-
-    post_list = BoardRepository().get_post_list(
-        region_group_id=region_group_id,
-        category=PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value,
-    )
-
-    for post in post_list:
-        assert post.region_group_id == region_group_id
-        assert post.category == PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value
-    assert len(post_list) == 2
 
 
 def test_create_post_like_state(session, normal_user_factory, post_factory):
@@ -527,7 +522,12 @@ def test_create_post_like_count(session, normal_user_factory, post_factory):
     [(PostStatusEnum.SELLING.value, 2), (PostStatusEnum.COMPLETED.value, 1)],
 )
 def test_get_post_list_by_status(
-    input_status, result_count, session, normal_user_factory, post_factory
+    input_status,
+    result_count,
+    session,
+    normal_user_factory,
+    post_factory,
+    create_post_categories,
 ):
     """
     post list 조회 시 판매중, 거래완료 상태에 따라 응답
@@ -538,11 +538,17 @@ def test_get_post_list_by_status(
 
     region_group_id = user.region.region_group_id
 
+    post_categories = create_post_categories(PostCategoryEnum.get_list())
+
     post1 = post_factory(
-        Article=True, region_group_id=region_group_id, user_id=user.id,
+        Article=True,
+        Categories=post_categories,
+        region_group_id=region_group_id,
+        user_id=user.id,
     )
     post2 = post_factory(
         Article=True,
+        Categories=post_categories,
         region_group_id=region_group_id,
         user_id=user.id,
         status=input_status,
@@ -552,5 +558,55 @@ def test_get_post_list_by_status(
     session.commit()
 
     post_list = BoardRepository().get_post_list(region_group_id=region_group_id)
+
+    assert len(post_list) == result_count
+
+
+@pytest.mark.parametrize(
+    "input_categories, result_count",
+    [
+        ([PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value], 1),
+        ([PostCategoryEnum.USED_TRADING.value], 2),
+        ([PostCategoryEnum.LOST_MISSING.value], 0),
+    ],
+)
+def test_get_post_list_by_category(
+    input_categories,
+    result_count,
+    session,
+    normal_user_factory,
+    post_factory,
+    create_post_categories,
+):
+    """
+    post category에 맞게 응답
+    """
+    user = normal_user_factory.build(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    category_list = create_post_categories(PostCategoryEnum.get_list())
+
+    region_group_id = user.region.region_group_id
+
+    post1 = post_factory(
+        Article=True,
+        Categories=[category_list[0], category_list[1], category_list[3]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+    )
+    post2 = post_factory(
+        Article=True,
+        Categories=[category_list[3]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+    )
+
+    session.add_all([post1, post2])
+    session.commit()
+
+    post_list = BoardRepository().get_post_list(
+        region_group_id=region_group_id, categories=input_categories
+    )
 
     assert len(post_list) == result_count

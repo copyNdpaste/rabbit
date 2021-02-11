@@ -1,7 +1,8 @@
 from typing import List, Optional, Union
-
 from app.extensions.database import session
 from app.persistence.model.article_model import ArticleModel
+from app.persistence.model.category_model import CategoryModel
+from app.persistence.model.post_category_model import PostCategoryModel
 from app.persistence.model.post_like_count_model import PostLikeCountModel
 from app.persistence.model.post_like_state_model import PostLikeStateModel
 from app.persistence.model.post_model import PostModel
@@ -15,6 +16,7 @@ from core.domains.board.enum.post_enum import (
     PostLimitEnum,
     PostLikeStateEnum,
     PostStatusEnum,
+    PostCategoryEnum,
 )
 
 
@@ -31,7 +33,6 @@ class BoardRepository:
                 is_blocked=dto.is_blocked,
                 report_count=dto.report_count,
                 read_count=dto.read_count,
-                category=dto.category,
                 amount=dto.amount,
                 unit=dto.unit,
                 price_per_unit=dto.price_per_unit,
@@ -64,7 +65,6 @@ class BoardRepository:
                         "region_group_id": dto.region_group_id,
                         "type": dto.type,
                         "is_comment_disabled": dto.is_comment_disabled,
-                        "category": dto.category,
                     }
                 )
             )
@@ -102,7 +102,7 @@ class BoardRepository:
         region_group_id: int,
         previous_post_id: int = None,
         title: str = "",
-        category: int = 0,
+        categories: list = PostCategoryEnum.get_list(),
         status: str = PostStatusEnum.SELLING.value,
     ) -> Optional[List[Union[PostEntity, list]]]:
         """
@@ -110,14 +110,12 @@ class BoardRepository:
         :param region_group_id: 유저가 속한 동네 식별자
         :param previous_post_id: 유저가 바로 직전 조회한 post id
         :param title: 게시글 제목
-        :param category: 상품 카테고리
+        :param categories: 상품 카테고리
         :return: post list
         1. 동일 지역의 post 가져오기, deleted, blocked 제외
         2. title like 검색, 선택된 type, category 등에 맞게 응답
         """
-        category_filter = []
-        if category:
-            category_filter.append(PostModel.category == category)
+
         search_filter = []
         if title:
             search_filter.append(PostModel.title.like(f"%{title}%"))
@@ -128,18 +126,29 @@ class BoardRepository:
         if status:
             status_filter.append(PostModel.status == status)
         try:
-            post_list = (
-                session.query(PostModel)
-                .filter(
-                    PostModel.region_group_id == region_group_id,
-                    PostModel.is_blocked == False,
-                    PostModel.is_deleted == False,
-                    *category_filter,
-                    *search_filter,
-                    *previous_post_id_filter,
-                    *status_filter,
+            query = session.query(PostModel).filter(
+                PostModel.region_group_id == region_group_id,
+                PostModel.is_blocked == False,
+                PostModel.is_deleted == False,
+                *search_filter,
+                *previous_post_id_filter,
+                *status_filter,
+            )
+
+            query_list = []
+            for category in categories:
+                q = query
+                query_list.append(
+                    q.filter(
+                        PostModel.id == PostCategoryModel.post_id,
+                        CategoryModel.id == PostCategoryModel.category_id,
+                        CategoryModel.name == category,
+                    )
                 )
-                .order_by(PostModel.id.desc())
+            query = query_list[0].union(*query_list[1:])
+
+            post_list = (
+                query.order_by(PostModel.id.desc())
                 .limit(PostLimitEnum.LIMIT.value)
                 .all()
             )

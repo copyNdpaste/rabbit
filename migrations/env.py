@@ -10,7 +10,6 @@ from alembic import context
 # access to the values within the .ini file in use.
 from app import db
 from app.persistence.model.post_like_count_model import PostLikeCountModel
-from app.persistence.model.post_model import post_category
 from app.persistence.model.user_profile_model import UserProfileModel
 from app.persistence.model.comment_model import CommentModel
 from app.persistence.model.comment_report_model import CommentReportModel

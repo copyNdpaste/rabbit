@@ -7,28 +7,16 @@ from sqlalchemy import (
     ForeignKey,
     Boolean,
     SmallInteger,
-    Table,
 )
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
-from app.persistence.model.category_model import CategoryModel
+
 from app.persistence.model.region_group_model import RegionGroupModel
 from app.persistence.model.user_model import UserModel
 from core.domains.board.entity.post_entity import PostEntity, PostListEntity
 from core.domains.board.enum.post_enum import PostLikeStateEnum, PostStatusEnum
-
-Base = declarative_base()
-
-
-post_category = Table(
-    "post_category",
-    Base.metadata,
-    Column("post_id", BigInteger, ForeignKey("posts.id")),
-    Column("category_id", SmallInteger, ForeignKey(CategoryModel.id)),
-)
 
 
 class PostModel(db.Model):
@@ -61,7 +49,13 @@ class PostModel(db.Model):
     price_per_unit = Column(Integer)
     status = Column(String(20), default=PostStatusEnum.SELLING, nullable=False)
 
-    category = relationship("CategoryModel", secondary=post_category, backref="post")
+    categories = relationship(
+        "CategoryModel",
+        secondary="post_category",
+        primaryjoin="PostModel.id==PostCategoryModel.post_id",
+        secondaryjoin="CategoryModel.id == PostCategoryModel.category_id",
+        backref="post",
+    )
     user = relationship("UserModel", backref="post")
     region_group = relationship(
         "RegionGroupModel", backref=backref("post", uselist=False)
@@ -81,7 +75,6 @@ class PostModel(db.Model):
             is_blocked=self.is_blocked,
             report_count=self.report_count,
             read_count=self.read_count,
-            category=self.category,
             last_user_action=self.last_user_action,
             last_user_action_at=self.last_user_action_at,
             last_admin_action=self.last_admin_action,
@@ -97,6 +90,9 @@ class PostModel(db.Model):
             post_like_state=self.post_like_state[0].state
             if self.post_like_state
             else PostLikeStateEnum.DEFAULT.value,
+            categories=[category.name for category in self.categories]
+            if self.categories
+            else [],
         )
 
     def to_post_list_entity(self) -> PostListEntity:
@@ -117,7 +113,6 @@ class PostModel(db.Model):
             is_blocked=self.is_blocked,
             report_count=self.report_count,
             read_count=self.read_count,
-            category=self.category,
             last_user_action=self.last_user_action,
             last_user_action_at=self.last_user_action_at,
             last_admin_action=self.last_admin_action,
@@ -133,4 +128,7 @@ class PostModel(db.Model):
             price_per_unit=self.price_per_unit,
             status=self.status,
             post_like_count=self.post_like_count.count if self.post_like_count else 0,
+            categories=[category.name for category in self.categories]
+            if self.categories
+            else [],
         )

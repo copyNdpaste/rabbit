@@ -12,6 +12,8 @@ from tests.seeder.factory import (
     RegionGroupFactory,
     PostLikeStateFactory,
     PostLikeCountFactory,
+    CategoryFactory,
+    PostCategoryFactory,
 )
 from tests.seeder.factory.data_service_factory import NormalUserFactory
 
@@ -25,6 +27,8 @@ MODEL_FACTORIES = [
     ArticleFactory,
     PostLikeStateFactory,
     PostLikeCountFactory,
+    CategoryFactory,
+    PostCategoryFactory,
 ]
 
 
@@ -64,3 +68,18 @@ def like_post(session):
         LikePostUseCase().execute(dto=dto)
 
     return _like_post
+
+
+@pytest.fixture
+def create_post_categories(session, category_factory):
+    def _create_post_categories(name_list: list):
+        category_list = []
+        for name in name_list:
+            c = category_factory(name=name)
+            category_list.append(c)
+        session.add_all(category_list)
+        session.commit()
+
+        return category_list
+
+    return _create_post_categories
