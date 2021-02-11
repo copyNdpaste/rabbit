@@ -15,7 +15,7 @@ from app.extensions.utils.time_helper import get_server_timestamp
 from app.persistence.model.region_group_model import RegionGroupModel
 from app.persistence.model.user_model import UserModel
 from core.domains.board.entity.post_entity import PostEntity, PostListEntity
-from core.domains.board.enum.post_enum import PostLikeStateEnum
+from core.domains.board.enum.post_enum import PostLikeStateEnum, PostStatusEnum
 
 
 class PostModel(db.Model):
@@ -47,7 +47,7 @@ class PostModel(db.Model):
     amount = Column(SmallInteger, default=0)
     unit = Column(String(5))
     price_per_unit = Column(Integer)
-    status = Column(String(20), default="selling", nullable=False)
+    status = Column(String(20), default=PostStatusEnum.SELLING, nullable=False)
 
     user = relationship("UserModel", backref="post")
     region_group = relationship(

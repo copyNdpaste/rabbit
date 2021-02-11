@@ -35,7 +35,7 @@ def test_create_post(session, normal_user_factory):
         amount=10,
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
-        status=PostStatusEnum.SALE.value,
+        status=PostStatusEnum.SELLING.value,
     )
 
     post_entity = BoardRepository().create_post(dto=dto)
@@ -64,7 +64,7 @@ def test_update_post(session, normal_user_factory, post_factory):
         amount=10,
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
-        status=PostStatusEnum.SALE.value,
+        status=PostStatusEnum.SELLING.value,
     )
 
     post_entity = BoardRepository().update_post(dto=dto)

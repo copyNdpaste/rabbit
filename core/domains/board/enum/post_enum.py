@@ -20,7 +20,7 @@ class PostUnitEnum(Enum):
 
 
 class PostStatusEnum(Enum):
-    SALE = "sale"  # 판매중
+    SELLING = "selling"  # 판매중
     RESERVATION = "reservation"  # 예약중
     COMPLETED = "completed"  # 거래완료
 

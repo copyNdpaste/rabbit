@@ -34,7 +34,7 @@ def test_when_create_post_then_success(
         amount=10,
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
-        status=PostStatusEnum.SALE.value,
+        status=PostStatusEnum.SELLING.value,
     )
 
     with test_request_context:
@@ -80,7 +80,7 @@ def test_when_update_post_then_success(
         amount=10,
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
-        status=PostStatusEnum.SALE.value,
+        status=PostStatusEnum.SELLING.value,
     )
 
     with test_request_context:

@@ -47,7 +47,7 @@ def test_when_create_post_then_success(session, normal_user_factory):
         amount=10,
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
-        status=PostStatusEnum.SALE.value,
+        status=PostStatusEnum.SELLING.value,
     )
 
     post_entity = CreatePostUseCase().execute(dto=dto).value
@@ -77,7 +77,7 @@ def test_when_update_post_then_success(session, normal_user_factory, article_fac
         amount=10,
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
-        status=PostStatusEnum.SALE.value,
+        status=PostStatusEnum.SELLING.value,
     )
 
     post_entity = UpdatePostUseCase().execute(dto=dto).value
@@ -110,7 +110,7 @@ def test_when_not_owner_update_post_then_fail(
         amount=10,
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
-        status=PostStatusEnum.SALE.value,
+        status=PostStatusEnum.SELLING.value,
     )
 
     result = UpdatePostUseCase().execute(dto=dto).value

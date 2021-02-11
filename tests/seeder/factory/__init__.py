@@ -82,7 +82,7 @@ class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
     amount = 0
     unit = PostUnitEnum.UNIT.value
     price_per_unit = 10000
-    status = PostStatusEnum.SALE.value
+    status = PostStatusEnum.SELLING.value
 
     @factory.post_generation
     def Article(obj, create, extracted, **kwargs):
