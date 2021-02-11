@@ -1,3 +1,4 @@
+import pytest
 from flask import url_for
 from flask_jwt_extended import create_access_token
 
@@ -345,3 +346,57 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     data = response.get_json()["data"]
     assert data["post_list"][0]["post_like_count"] == 1
     assert data["post_list"][1]["post_like_count"] == 2
+
+
+@pytest.mark.parametrize(
+    "input_status, result_count",
+    [(PostStatusEnum.SELLING.value, 2), (PostStatusEnum.COMPLETED.value, 1)],
+)
+def test_when_get_post_list_by_status_then_success(
+    input_status,
+    result_count,
+    session,
+    normal_user_factory,
+    make_header,
+    post_factory,
+    like_post,
+    test_request_context,
+    client,
+):
+    """
+    post list 조회 시 판매중, 거래완료 상태에 따라 응답
+    """
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    post1 = post_factory(
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+    )
+    post2 = post_factory(
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+        status=input_status,
+    )
+
+    session.add_all([post1, post2])
+    session.commit()
+
+    access_token = create_access_token(identity=user.id)
+    authorization = "Bearer " + access_token
+    headers = make_header(authorization=authorization)
+    dct = dict(region_group_id=user.region.region_group.id)
+
+    with test_request_context:
+        response = client.get(
+            url_for("api/rabbit.get_post_list_view"), json=dct, headers=headers
+        )
+
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert len(data["post_list"]) == result_count

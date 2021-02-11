@@ -1,3 +1,5 @@
+import pytest
+
 from core.domains.board.dto.post_dto import (
     CreatePostDto,
     UpdatePostDto,
@@ -485,3 +487,39 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     assert len(post_list) == 2
     assert post_list[0].post_like_count == 1
     assert post_list[1].post_like_count == 2
+
+
+@pytest.mark.parametrize(
+    "input_status, result_count",
+    [(PostStatusEnum.SELLING.value, 2), (PostStatusEnum.COMPLETED.value, 1)],
+)
+def test_when_get_post_list_by_status_then_success(
+    input_status, result_count, session, normal_user_factory, post_factory
+):
+    """
+    post list 조회 시 판매중, 거래완료 상태에 따라 응답
+    """
+    user = normal_user_factory.build(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    region_group_id = user.region.region_group_id
+
+    post1 = post_factory(
+        Article=True, region_group_id=region_group_id, user_id=user.id,
+    )
+    post2 = post_factory(
+        Article=True,
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=input_status,
+    )
+
+    session.add_all([post1, post2])
+    session.commit()
+
+    dto = GetPostListDto(region_group_id=user.region.region_group_id)
+
+    post_list = GetPostListUseCase().execute(dto=dto).value
+
+    assert len(post_list) == result_count

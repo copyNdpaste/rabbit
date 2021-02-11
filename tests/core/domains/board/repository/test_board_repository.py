@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import pytest
+
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.enum.post_enum import (
     PostCategoryEnum,
@@ -518,3 +520,37 @@ def test_create_post_like_count(session, normal_user_factory, post_factory):
 
     post_like_count = BoardRepository().create_post_like_count(post_id=post.id)
     assert post_like_count.count == PostLikeCountEnum.DEFAULT.value
+
+
+@pytest.mark.parametrize(
+    "input_status, result_count",
+    [(PostStatusEnum.SELLING.value, 2), (PostStatusEnum.COMPLETED.value, 1)],
+)
+def test_get_post_list_by_status(
+    input_status, result_count, session, normal_user_factory, post_factory
+):
+    """
+    post list 조회 시 판매중, 거래완료 상태에 따라 응답
+    """
+    user = normal_user_factory.build(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    region_group_id = user.region.region_group_id
+
+    post1 = post_factory(
+        Article=True, region_group_id=region_group_id, user_id=user.id,
+    )
+    post2 = post_factory(
+        Article=True,
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=input_status,
+    )
+
+    session.add_all([post1, post2])
+    session.commit()
+
+    post_list = BoardRepository().get_post_list(region_group_id=region_group_id)
+
+    assert len(post_list) == result_count

@@ -11,7 +11,11 @@ from core.domains.board.entity.like_entity import (
     PostLikeCountEntity,
 )
 from core.domains.board.entity.post_entity import PostEntity
-from core.domains.board.enum.post_enum import PostLimitEnum, PostLikeStateEnum
+from core.domains.board.enum.post_enum import (
+    PostLimitEnum,
+    PostLikeStateEnum,
+    PostStatusEnum,
+)
 
 
 class BoardRepository:
@@ -99,8 +103,10 @@ class BoardRepository:
         previous_post_id: int = None,
         title: str = "",
         category: int = 0,
+        status: str = PostStatusEnum.SELLING.value,
     ) -> Optional[List[Union[PostEntity, list]]]:
         """
+        :param status: post 판매 상태
         :param region_group_id: 유저가 속한 동네 식별자
         :param previous_post_id: 유저가 바로 직전 조회한 post id
         :param title: 게시글 제목
@@ -118,6 +124,9 @@ class BoardRepository:
         previous_post_id_filter = []
         if previous_post_id:
             previous_post_id_filter.append(PostModel.id > previous_post_id)
+        status_filter = []
+        if status:
+            status_filter.append(PostModel.status == status)
         try:
             post_list = (
                 session.query(PostModel)
@@ -128,6 +137,7 @@ class BoardRepository:
                     *category_filter,
                     *search_filter,
                     *previous_post_id_filter,
+                    *status_filter,
                 )
                 .order_by(PostModel.id.desc())
                 .limit(PostLimitEnum.LIMIT.value)
