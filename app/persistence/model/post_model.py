@@ -7,15 +7,28 @@ from sqlalchemy import (
     ForeignKey,
     Boolean,
     SmallInteger,
+    Table,
 )
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
+from app.persistence.model.category_model import CategoryModel
 from app.persistence.model.region_group_model import RegionGroupModel
 from app.persistence.model.user_model import UserModel
 from core.domains.board.entity.post_entity import PostEntity, PostListEntity
 from core.domains.board.enum.post_enum import PostLikeStateEnum, PostStatusEnum
+
+Base = declarative_base()
+
+
+post_category = Table(
+    "post_category",
+    Base.metadata,
+    Column("post_id", BigInteger, ForeignKey("posts.id")),
+    Column("category_id", SmallInteger, ForeignKey(CategoryModel.id)),
+)
 
 
 class PostModel(db.Model):
@@ -37,7 +50,6 @@ class PostModel(db.Model):
     is_blocked = Column(Boolean, nullable=False, default=False)
     report_count = Column(Integer, default=0)
     read_count = Column(Integer, default=0)
-    category = Column(Integer, nullable=False)
     last_user_action = Column(String(20), nullable=False, default="default")
     last_user_action_at = Column(DateTime, nullable=True)
     last_admin_action = Column(String(20), nullable=False, default="default")
@@ -49,6 +61,7 @@ class PostModel(db.Model):
     price_per_unit = Column(Integer)
     status = Column(String(20), default=PostStatusEnum.SELLING, nullable=False)
 
+    category = relationship("CategoryModel", secondary=post_category, backref="post")
     user = relationship("UserModel", backref="post")
     region_group = relationship(
         "RegionGroupModel", backref=backref("post", uselist=False)
