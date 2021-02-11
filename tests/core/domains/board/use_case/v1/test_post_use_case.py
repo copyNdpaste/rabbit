@@ -27,10 +27,12 @@ from core.use_case_output import FailureType
 from tests.seeder.factory import PostFactory
 
 
-def test_when_create_post_then_success(session, normal_user_factory):
+def test_when_create_post_then_success(session, normal_user_factory, create_categories):
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
+
+    categories = create_categories(PostCategoryEnum.get_list())
 
     dto = CreatePostDto(
         user_id=user.id,
@@ -49,6 +51,7 @@ def test_when_create_post_then_success(session, normal_user_factory):
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
         status=PostStatusEnum.SELLING.value,
+        category_ids=[categories[0].id],
     )
 
     post_entity = CreatePostUseCase().execute(dto=dto).value
@@ -153,7 +156,7 @@ def test_when_not_owner_delete_post_then_fail(
 
 
 def test_when_get_post_list_then_success(
-    session, normal_user_factory, post_factory, create_post_categories
+    session, normal_user_factory, post_factory, create_categories
 ):
     """
     post list 조회 시 region에 맞는 관련 table 목록 가져옴.
@@ -162,17 +165,17 @@ def test_when_get_post_list_then_success(
     session.add(user)
     session.commit()
 
-    category_list = create_post_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_list())
 
     post1 = post_factory(
         Article=True,
-        Categories=category_list,
+        Categories=categories,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
     )
     post2 = post_factory(
         Article=True,
-        Categories=category_list,
+        Categories=categories,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
     )
@@ -182,13 +185,13 @@ def test_when_get_post_list_then_success(
     session.commit()
     post3 = post_factory(
         Article=True,
-        Categories=category_list,
+        Categories=categories,
         region_group_id=user2.region.region_group.id,
         user_id=user2.id,
     )
     post4 = post_factory(
         Article=True,
-        Categories=category_list,
+        Categories=categories,
         region_group_id=user2.region.region_group.id,
         user_id=user2.id,
     )
@@ -197,8 +200,7 @@ def test_when_get_post_list_then_success(
     session.commit()
 
     dto = GetPostListDto(
-        region_group_id=user.region.region_group.id,
-        categories=[PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value],
+        region_group_id=user.region.region_group.id, category_ids=[categories[0].id],
     )
     post_list = GetPostListUseCase().execute(dto=dto).value
 
@@ -207,19 +209,25 @@ def test_when_get_post_list_then_success(
         post.region_group_name = user.region.region_group.name
 
 
-def test_when_get_empty_post_list_then_not_found(session, normal_user_factory):
+def test_when_get_empty_post_list_then_not_found(
+    session, normal_user_factory, create_categories
+):
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
 
-    dto = GetPostListDto(region_group_id=user.region.region_group.id)
+    categories = create_categories(PostCategoryEnum.get_list())
+
+    dto = GetPostListDto(
+        region_group_id=user.region.region_group.id, category_ids=[categories[0].id]
+    )
     result = GetPostListUseCase().execute(dto=dto).value
 
     assert result["type"] == FailureType.NOT_FOUND_ERROR
 
 
 def test_when_get_post_list_pagination_then_success(
-    session, normal_user_factory, create_post_categories
+    session, normal_user_factory, create_categories
 ):
     """
     post list 조회 시 페이지네이션
@@ -228,12 +236,12 @@ def test_when_get_post_list_pagination_then_success(
     session.add(user)
     session.commit()
 
-    post_categories = create_post_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_list())
 
     post_list = PostFactory.create_batch(
         size=11,
         Article=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
     )
@@ -243,7 +251,7 @@ def test_when_get_post_list_pagination_then_success(
     dto = GetPostListDto(
         region_group_id=user.region.region_group.id,
         previous_post_id=10,
-        categories=[PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value],
+        category_ids=[categories[0].id],
     )
     post_list = GetPostListUseCase().execute(dto=dto).value
 
@@ -252,7 +260,7 @@ def test_when_get_post_list_pagination_then_success(
 
 
 def test_when_deleted_or_blocked_post_then_except(
-    session, normal_user_factory, post_factory, create_post_categories
+    session, normal_user_factory, post_factory, create_categories
 ):
     """
     post list 조회 시 삭제, 차단된 게시글 제외
@@ -261,24 +269,24 @@ def test_when_deleted_or_blocked_post_then_except(
     session.add(user)
     session.commit()
 
-    post_categories = create_post_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_list())
 
     post = post_factory(
         Article=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
     )
     deleted_post = post_factory(
         Article=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
         is_deleted=True,
     )
     blocked_post = post_factory(
         Article=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
         is_blocked=True,
@@ -288,8 +296,7 @@ def test_when_deleted_or_blocked_post_then_except(
     session.commit()
 
     dto = GetPostListDto(
-        region_group_id=user.region.region_group.id,
-        categories=[PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value],
+        region_group_id=user.region.region_group.id, category_ids=[categories[0].id],
     )
     post_list = GetPostListUseCase().execute(dto=dto).value
 
@@ -330,7 +337,7 @@ def test_when_get_not_exist_post_then_not_found(session):
 
 
 def test_when_search_post_list_then_success(
-    session, normal_user_factory, post_factory, create_post_categories
+    session, normal_user_factory, post_factory, create_categories
 ):
     """
     post 검색. user1 post 2개, user2 post 2개, user3 post 1개, 다른 지역 user4 post 1개
@@ -342,41 +349,41 @@ def test_when_search_post_list_then_success(
 
     region_group_id = user_list[0].region.region_group_id
 
-    post_categories = create_post_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_list())
 
     post1 = post_factory(
         Article=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=region_group_id,
         user_id=user_list[0].id,
     )
     post2 = post_factory(
         Article=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=region_group_id,
         user_id=user_list[0].id,
     )
     post3 = post_factory(
         Article=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=region_group_id,
         user_id=user_list[1].id,
     )
     post4 = post_factory(
         Article=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=region_group_id,
         user_id=user_list[1].id,
     )
     post5 = post_factory(
         Article=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=region_group_id,
         user_id=user_list[2].id,
     )
     post6 = post_factory(
         Article=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=user_list[3].region.region_group_id,
         user_id=user_list[3].id,
     )
@@ -387,7 +394,7 @@ def test_when_search_post_list_then_success(
     dto = GetPostListDto(
         region_group_id=region_group_id,
         title=post1.title[2:6],
-        categories=[PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value],
+        category_ids=[categories[0].id],
     )
 
     post_list = GetPostListUseCase().execute(dto=dto).value
@@ -459,7 +466,7 @@ def test_when_post_like_then_update_post_like_state(
 
 
 def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
-    session, normal_user_factory, post_factory, like_post, create_post_categories
+    session, normal_user_factory, post_factory, like_post, create_categories
 ):
     """
     post list 조회 시 찜 개수 포함, 찜 상태 제외
@@ -472,19 +479,19 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     session.add_all([user1, user2])
     session.commit()
 
-    post_categories = create_post_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_list())
 
     post1 = post_factory(
         Article=True,
         PostLikeCount=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=user1.region.region_group.id,
         user_id=user1.id,
     )
     post2 = post_factory(
         Article=True,
         PostLikeCount=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=user1.region.region_group.id,
         user_id=user1.id,
     )
@@ -498,8 +505,7 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     like_post(user_id=user2.id, post_id=post2.id)
 
     dto = GetPostListDto(
-        region_group_id=user1.region.region_group.id,
-        categories=[PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value],
+        region_group_id=user1.region.region_group.id, category_ids=[categories[0].id],
     )
     post_list = GetPostListUseCase().execute(dto=dto).value
 
@@ -518,7 +524,7 @@ def test_when_get_post_list_by_status_then_success(
     session,
     normal_user_factory,
     post_factory,
-    create_post_categories,
+    create_categories,
 ):
     """
     post list 조회 시 판매중, 거래완료 상태에 따라 응답
@@ -529,17 +535,17 @@ def test_when_get_post_list_by_status_then_success(
 
     region_group_id = user.region.region_group_id
 
-    post_categories = create_post_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_list())
 
     post1 = post_factory(
         Article=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=region_group_id,
         user_id=user.id,
     )
     post2 = post_factory(
         Article=True,
-        Categories=post_categories,
+        Categories=categories,
         region_group_id=region_group_id,
         user_id=user.id,
         status=input_status,
@@ -549,13 +555,9 @@ def test_when_get_post_list_by_status_then_success(
     session.commit()
 
     dto = GetPostListDto(
-        region_group_id=user.region.region_group_id,
-        categories=[PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value],
+        region_group_id=user.region.region_group_id, category_ids=[categories[0].id],
     )
 
     post_list = GetPostListUseCase().execute(dto=dto).value
 
     assert len(post_list) == result_count
-
-
-# TODO : category 응답 확인

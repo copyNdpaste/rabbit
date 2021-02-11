@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import BaseModel, ValidationError, StrictInt, StrictStr
 
 from core.domains.board.dto.post_dto import (
@@ -21,7 +23,7 @@ class CreatePostSchema(BaseModel):
     is_blocked: bool
     report_count: StrictInt
     read_count: StrictInt
-    category: StrictInt
+    category_ids: List[int]
     amount: StrictInt
     unit: StrictStr
     price_per_unit: StrictInt
@@ -41,7 +43,7 @@ class CreatePostRequest:
         is_blocked,
         report_count,
         read_count,
-        category,
+        category_ids,
         amount,
         unit,
         price_per_unit,
@@ -57,7 +59,7 @@ class CreatePostRequest:
         self.is_blocked = is_blocked
         self.report_count = report_count
         self.read_count = read_count
-        self.category = category
+        self.category_ids = category_ids
         self.amount = amount
         self.unit = unit
         self.price_per_unit = price_per_unit
@@ -76,7 +78,7 @@ class CreatePostRequest:
                 is_blocked=self.is_blocked,
                 report_count=self.report_count,
                 read_count=self.read_count,
-                category=self.category,
+                category_ids=self.category_ids,
                 amount=self.amount,
                 unit=self.unit,
                 price_per_unit=self.price_per_unit,
@@ -99,7 +101,7 @@ class CreatePostRequest:
             is_blocked=self.is_blocked,
             report_count=self.report_count,
             read_count=self.read_count,
-            category=self.category,
+            category_ids=self.category_ids,
             amount=self.amount,
             unit=self.unit,
             price_per_unit=self.price_per_unit,
@@ -112,7 +114,7 @@ class GetPostListSchema(BaseModel):
     previous_post_id: StrictInt = None
     title: StrictStr = None
     type: StrictStr = None
-    category: StrictInt = None
+    category_ids: List[str]
 
 
 class GetPostListRequest:
@@ -122,13 +124,13 @@ class GetPostListRequest:
         previous_post_id=None,
         title=None,
         type=None,
-        category=None,
+        category_ids=None,
     ):
         self.region_group_id = region_group_id
         self.previous_post_id = previous_post_id
         self.title = title
         self.type = type
-        self.category = category
+        self.category_ids = category_ids
 
     def validate_request_and_make_dto(self):
         try:
@@ -137,7 +139,7 @@ class GetPostListRequest:
                 previous_post_id=self.previous_post_id,
                 title=self.title,
                 type=self.type,
-                category=self.category,
+                category_ids=self.category_ids,
             )
             return self.to_dto()
         except ValidationError as e:
@@ -150,7 +152,7 @@ class GetPostListRequest:
             previous_post_id=self.previous_post_id,
             title=self.title,
             type=self.type,
-            category=self.category,
+            category_ids=self.category_ids,
         )
 
 
@@ -182,7 +184,7 @@ class UpdatePostSchema(BaseModel):
     region_group_id: StrictInt
     type: StrictStr
     is_comment_disabled: bool
-    category: StrictInt
+    category_ids: List[str]
     amount: StrictInt
     unit: StrictStr
     price_per_unit: StrictInt
@@ -199,7 +201,7 @@ class UpdatePostRequest:
         region_group_id,
         type,
         is_comment_disabled,
-        category,
+        category_ids,
         amount,
         unit,
         price_per_unit,
@@ -212,7 +214,7 @@ class UpdatePostRequest:
         self.region_group_id = region_group_id
         self.type = type
         self.is_comment_disabled = is_comment_disabled
-        self.category = category
+        self.category_ids = category_ids
         self.amount = amount
         self.unit = unit
         self.price_per_unit = price_per_unit
@@ -228,7 +230,7 @@ class UpdatePostRequest:
                 region_group_id=self.region_group_id,
                 type=self.type,
                 is_comment_disabled=self.is_comment_disabled,
-                category=self.category,
+                category_ids=self.category_ids,
                 amount=self.amount,
                 unit=self.unit,
                 price_per_unit=self.price_per_unit,
@@ -248,7 +250,7 @@ class UpdatePostRequest:
             region_group_id=self.region_group_id,
             type=self.type,
             is_comment_disabled=self.is_comment_disabled,
-            category=self.category,
+            category_ids=self.category_ids,
             amount=self.amount,
             unit=self.unit,
             price_per_unit=self.price_per_unit,

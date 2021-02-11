@@ -24,8 +24,8 @@ post:
       type: integer
     read_count:
       type: integer
-    category:
-      type: integer
+    categories:
+      type: array
     last_user_action:
       type: string
     last_user_action_at:

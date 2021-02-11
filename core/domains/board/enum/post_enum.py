@@ -6,10 +6,10 @@ class PostLimitEnum(Enum):
 
 
 class PostCategoryEnum(Enum):
-    DIVIDING_FOOD_INGREDIENT = "dividing_food_ingredient"  # 식자재 나누기
-    DIVIDING_NECESSITIES = "dividing_necessities"  # 생필품 나누기
-    LOST_MISSING = "lost_missing"  # 분실/실종
-    USED_TRADING = "used_trading"  # 중고거래
+    DIVIDING_FOOD_INGREDIENT = "dividing_food_ingredient"  # 식자재 나누기. id 1
+    DIVIDING_NECESSITIES = "dividing_necessities"  # 생필품 나누기. id 2
+    LOST_MISSING = "lost_missing"  # 분실/실종. id 3
+    USED_TRADING = "used_trading"  # 중고거래. id 4
 
     @staticmethod
     def get_list():

@@ -7,15 +7,24 @@ from core.domains.board.enum.post_enum import (
     PostStatusEnum,
     PostLikeStateEnum,
     PostLikeCountEnum,
+    PostCategoryEnum,
 )
 
 
 def test_when_create_post_then_success(
-    client, session, test_request_context, jwt_manager, make_header, normal_user_factory
+    client,
+    session,
+    test_request_context,
+    jwt_manager,
+    make_header,
+    normal_user_factory,
+    create_categories,
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
+
+    categories = create_categories(PostCategoryEnum.get_list())
 
     access_token = create_access_token(identity=user.id)
     authorization = "Bearer " + access_token
@@ -31,11 +40,11 @@ def test_when_create_post_then_success(
         is_blocked=False,
         report_count=0,
         read_count=0,
-        category=0,
         amount=10,
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
         status=PostStatusEnum.SELLING.value,
+        category_ids=[categories[0].id],
     )
 
     with test_request_context:
@@ -57,6 +66,7 @@ def test_when_update_post_then_success(
     make_header,
     normal_user_factory,
     article_factory,
+    create_categories,
 ):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
     session.add(user)
@@ -65,6 +75,8 @@ def test_when_update_post_then_success(
     article = article_factory(post_id=user.post[0].id)
     session.add(article)
     session.commit()
+
+    categories = create_categories(PostCategoryEnum.get_list())
 
     access_token = create_access_token(identity=user.id)
     authorization = "Bearer " + access_token
@@ -77,11 +89,11 @@ def test_when_update_post_then_success(
         region_group_id=1,
         type="article",
         is_comment_disabled=True,
-        category=0,
         amount=10,
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
         status=PostStatusEnum.SELLING.value,
+        category_ids=[categories[0].id],
     )
 
     with test_request_context:
@@ -135,25 +147,41 @@ def test_when_get_post_list_then_success(
     make_header,
     normal_user_factory,
     post_factory,
+    create_categories,
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
+
+    categories = create_categories(PostCategoryEnum.get_list())
+
     post1 = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+        Article=True,
+        Categories=categories,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
     post2 = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+        Article=True,
+        Categories=categories,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
 
     user2 = normal_user_factory(Region=True, UserProfile=True)
     session.add(user2)
     session.commit()
     post3 = post_factory(
-        Article=True, region_group_id=user2.region.region_group.id, user_id=user2.id
+        Article=True,
+        Categories=categories,
+        region_group_id=user2.region.region_group.id,
+        user_id=user2.id,
     )
     post4 = post_factory(
-        Article=True, region_group_id=user2.region.region_group.id, user_id=user2.id
+        Article=True,
+        Categories=categories,
+        region_group_id=user2.region.region_group.id,
+        user_id=user2.id,
     )
 
     session.add_all([post1, post2, post3, post4])
@@ -162,7 +190,9 @@ def test_when_get_post_list_then_success(
     access_token = create_access_token(identity=user.id)
     authorization = "Bearer " + access_token
     headers = make_header(authorization=authorization)
-    dct = dict(region_group_id=user.region.region_group.id)
+    dct = dict(
+        region_group_id=user.region.region_group.id, category_ids=[categories[0].id],
+    )
 
     with test_request_context:
         response = client.get(
@@ -219,6 +249,7 @@ def test_when_search_post_list_then_success(
     make_header,
     test_request_context,
     client,
+    create_categories,
 ):
     """
     post 검색
@@ -229,7 +260,14 @@ def test_when_search_post_list_then_success(
 
     region_group_id = user.region.region_group_id
 
-    post = post_factory(Article=True, region_group_id=region_group_id, user_id=user.id,)
+    categories = create_categories(PostCategoryEnum.get_list())
+
+    post = post_factory(
+        Article=True,
+        Categories=categories,
+        region_group_id=region_group_id,
+        user_id=user.id,
+    )
 
     session.add(post)
     session.commit()
@@ -238,7 +276,11 @@ def test_when_search_post_list_then_success(
     authorization = "Bearer " + access_token
     headers = make_header(authorization=authorization)
 
-    dct = dict(region_group_id=region_group_id, title=post.title[2:6])
+    dct = dict(
+        region_group_id=region_group_id,
+        title=post.title[2:6],
+        category_ids=[categories[0].id],
+    )
 
     with test_request_context:
         response = client.get(
@@ -299,6 +341,7 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     like_post,
     test_request_context,
     client,
+    create_categories,
 ):
     """
     post list 조회 시 찜 개수 포함, 찜 상태 제외
@@ -311,15 +354,19 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     session.add_all([user1, user2])
     session.commit()
 
+    categories = create_categories(PostCategoryEnum.get_list())
+
     post1 = post_factory(
         Article=True,
         PostLikeCount=True,
+        Categories=categories,
         region_group_id=user1.region.region_group.id,
         user_id=user1.id,
     )
     post2 = post_factory(
         Article=True,
         PostLikeCount=True,
+        Categories=categories,
         region_group_id=user1.region.region_group.id,
         user_id=user1.id,
     )
@@ -335,7 +382,9 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     access_token = create_access_token(identity=user1.id)
     authorization = "Bearer " + access_token
     headers = make_header(authorization=authorization)
-    dct = dict(region_group_id=user1.region.region_group.id)
+    dct = dict(
+        region_group_id=user1.region.region_group.id, category_ids=[categories[0].id],
+    )
 
     with test_request_context:
         response = client.get(
@@ -362,6 +411,7 @@ def test_when_get_post_list_by_status_then_success(
     like_post,
     test_request_context,
     client,
+    create_categories,
 ):
     """
     post list 조회 시 판매중, 거래완료 상태에 따라 응답
@@ -370,15 +420,19 @@ def test_when_get_post_list_by_status_then_success(
     session.add(user)
     session.commit()
 
+    categories = create_categories(PostCategoryEnum.get_list())
+
     post1 = post_factory(
         Article=True,
         PostLikeCount=True,
+        Categories=categories,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
     )
     post2 = post_factory(
         Article=True,
         PostLikeCount=True,
+        Categories=categories,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
         status=input_status,
@@ -390,7 +444,9 @@ def test_when_get_post_list_by_status_then_success(
     access_token = create_access_token(identity=user.id)
     authorization = "Bearer " + access_token
     headers = make_header(authorization=authorization)
-    dct = dict(region_group_id=user.region.region_group.id)
+    dct = dict(
+        region_group_id=user.region.region_group.id, category_ids=[categories[0].id],
+    )
 
     with test_request_context:
         response = client.get(

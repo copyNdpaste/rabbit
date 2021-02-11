@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -16,6 +18,7 @@ class CreatePostDto(BaseModel):
     unit: str
     price_per_unit: int
     status: str
+    category_ids: List[int]
 
 
 class GetPostListDto(BaseModel):
@@ -23,7 +26,7 @@ class GetPostListDto(BaseModel):
     previous_post_id: int = None
     title: str = None
     type: str = None
-    categories: list = []
+    category_ids: List[int]
 
 
 class GetPostDto(BaseModel):

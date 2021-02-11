@@ -17,8 +17,8 @@ requestBody:
             type: string
           type:
             type: string
-          category:
-            type: integer
+          categories:
+            type: array
 responses:
   '200':
     description: A post object list

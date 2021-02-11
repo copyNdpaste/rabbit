@@ -45,11 +45,24 @@ class BoardRepository:
             session.add(article)
             session.commit()
 
+            self.create_categories(post_id=post.id, dto=dto)
+
             return post.to_entity()
         except Exception as e:
             # TODO : log e 필요
             session.rollback()
             return None
+
+    def create_categories(self, post_id: int, dto: CreatePostDto):
+        post_categories = []
+
+        for category_id in dto.category_ids:
+            post_categories.append(
+                PostCategoryModel(post_id=post_id, category_id=category_id)
+            )
+
+        session.add_all(post_categories)
+        session.commit()
 
     def _get_post(self, post_id) -> PostEntity:
         return session.query(PostModel).filter_by(id=post_id).first().to_entity()
@@ -102,19 +115,22 @@ class BoardRepository:
         region_group_id: int,
         previous_post_id: int = None,
         title: str = "",
-        categories: list = PostCategoryEnum.get_list(),
+        category_ids: list = [],
         status: str = PostStatusEnum.SELLING.value,
     ) -> Optional[List[Union[PostEntity, list]]]:
         """
+        :param category_ids: 상품 카테고리
         :param status: post 판매 상태
         :param region_group_id: 유저가 속한 동네 식별자
         :param previous_post_id: 유저가 바로 직전 조회한 post id
         :param title: 게시글 제목
-        :param categories: 상품 카테고리
         :return: post list
         1. 동일 지역의 post 가져오기, deleted, blocked 제외
         2. title like 검색, 선택된 type, category 등에 맞게 응답
         """
+
+        if not category_ids:
+            category_ids = self.get_category_ids()
 
         search_filter = []
         if title:
@@ -136,13 +152,13 @@ class BoardRepository:
             )
 
             query_list = []
-            for category in categories:
+            for category_id in category_ids:
                 q = query
                 query_list.append(
                     q.filter(
                         PostModel.id == PostCategoryModel.post_id,
                         CategoryModel.id == PostCategoryModel.category_id,
-                        CategoryModel.name == category,
+                        CategoryModel.id == category_id,
                     )
                 )
 
@@ -245,3 +261,10 @@ class BoardRepository:
             # TODO : log
             session.rollback()
             return None
+
+    def get_category_ids(self) -> list:
+        category_ids = (
+            session.query(CategoryModel).with_entities(CategoryModel.id).all()
+        )
+
+        return [category_id[0] for category_id in category_ids]
