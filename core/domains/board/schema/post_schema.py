@@ -28,6 +28,8 @@ class PostResponseBaseSchema(BaseModel):
     created_at: datetime
     updated_at: datetime
     user: UserEntity
+    post_like_count: StrictInt
+    post_like_state: Optional[StrictStr] = None
 
 
 class PostResponseSchema(BaseModel):

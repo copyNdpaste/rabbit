@@ -7,6 +7,7 @@ from core.domains.board.dto.post_dto import (
     GetPostListDto,
     GetPostDto,
 )
+from core.domains.board.dto.post_like_dto import LikePostDto
 
 
 class CreatePostSchema(BaseModel):
@@ -275,3 +276,25 @@ class DeletePostRequest:
 
     def to_dto(self) -> DeletePostDto:
         return DeletePostDto(post_id=self.post_id, user_id=self.user_id)
+
+
+class LikePostSchema(BaseModel):
+    post_id: StrictInt
+    user_id: StrictInt
+
+
+class LikePostRequest:
+    def __init__(self, post_id, user_id):
+        self.post_id = post_id
+        self.user_id = user_id
+
+    def validate_request_and_make_dto(self):
+        try:
+            LikePostSchema(post_id=self.post_id, user_id=self.user_id)
+            return self.to_dto()
+        except ValidationError as e:
+            print(e)
+            return False
+
+    def to_dto(self) -> LikePostDto:
+        return LikePostDto(post_id=self.post_id, user_id=self.user_id)

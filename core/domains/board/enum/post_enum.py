@@ -23,3 +23,15 @@ class PostStatusEnum(Enum):
     SALE = "sale"  # 판매중
     RESERVATION = "reservation"  # 예약중
     COMPLETED = "completed"  # 거래완료
+
+
+class PostLikeStateEnum(Enum):
+    LIKE = "like"
+    UNLIKE = "unlike"
+    DEFAULT = "default"
+
+
+class PostLikeCountEnum(Enum):
+    DEFAULT = 0
+    UP = 1
+    DOWN = -1

@@ -5,6 +5,8 @@ from core.domains.board.enum.post_enum import (
     PostCategoryEnum,
     PostUnitEnum,
     PostStatusEnum,
+    PostLikeStateEnum,
+    PostLikeCountEnum,
 )
 from core.domains.board.repository.board_repository import BoardRepository
 from core.domains.user.entity.user_entity import UserEntity
@@ -379,3 +381,140 @@ def test_search_post_list_with_category(session, normal_user_factory, post_facto
         assert post.region_group_id == region_group_id
         assert post.category == PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value
     assert len(post_list) == 2
+
+
+def test_create_post_like_state(session, normal_user_factory, post_factory):
+    # 최초 찜하기
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+
+    post_like_state = BoardRepository().create_post_like_state(
+        user_id=user.id, post_id=post.id
+    )
+
+    assert post_like_state.post_id == post.id
+    assert post_like_state.user_id == user.id
+    assert post_like_state.state == PostLikeStateEnum.LIKE.value
+
+
+def test_like_post(session, normal_user_factory, post_factory, post_like_state_factory):
+    # 최초 아닌 찜하기
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+    post_like_state = post_like_state_factory(user_id=user.id, post_id=post.id)
+    session.add(post_like_state)
+    session.commit()
+
+    post_like_state = BoardRepository().update_post_like_state(
+        user_id=user.id, post_id=post.id, state=PostLikeStateEnum.LIKE.value
+    )
+
+    assert post_like_state.post_id == post.id
+    assert post_like_state.user_id == user.id
+    assert post_like_state.state == PostLikeStateEnum.LIKE.value
+
+
+def test_unlike_post_like(
+    session, normal_user_factory, post_factory, post_like_state_factory
+):
+    # 찜취소
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+    post_like_state = post_like_state_factory(user_id=user.id, post_id=post.id)
+    session.add(post_like_state)
+    session.commit()
+
+    post_like_state = BoardRepository().update_post_like_state(
+        user_id=user.id, post_id=post.id, state=PostLikeStateEnum.UNLIKE.value
+    )
+
+    assert post_like_state.post_id == post.id
+    assert post_like_state.user_id == user.id
+    assert post_like_state.state == PostLikeStateEnum.UNLIKE.value
+
+
+def test_when_like_post_then_up_post_like_count(
+    session, normal_user_factory, post_factory
+):
+    # 찜하면 count + 1
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+
+    post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
+    assert post_like_count.count == PostLikeCountEnum.DEFAULT.value
+
+    is_post_like_counted = BoardRepository().update_post_like_count(
+        post_id=post.id, count=PostLikeCountEnum.UP.value
+    )
+    post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
+    assert post_like_count.count == PostLikeCountEnum.UP.value
+    assert is_post_like_counted == True
+
+
+def test_when_unlike_post_then_down_post_like_count(
+    session, normal_user_factory, post_factory
+):
+    # 찜취소하면 count - 1
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True,
+        PostLikeCount=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
+        PostLikeCount__count=PostLikeCountEnum.UP.value,
+    )
+    session.add(post)
+    session.commit()
+
+    post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
+    assert post_like_count.count == PostLikeCountEnum.UP.value
+
+    is_post_like_counted = BoardRepository().update_post_like_count(
+        post_id=post.id, count=PostLikeCountEnum.DOWN.value
+    )
+    post_like_count = BoardRepository().get_post_like_count(post_id=post.id)
+    assert post_like_count.count == PostLikeCountEnum.DEFAULT.value
+    assert is_post_like_counted == True
+
+
+def test_create_post_like_count(session, normal_user_factory, post_factory):
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+    post = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id,
+    )
+    session.add(post)
+    session.commit()
+
+    post_like_count = BoardRepository().create_post_like_count(post_id=post.id)
+    assert post_like_count.count == PostLikeCountEnum.DEFAULT.value

@@ -8,10 +8,14 @@ from app.persistence.model.post_model import PostModel
 from app.persistence.model.region_group_model import RegionGroupModel
 from app.persistence.model.region_model import RegionModel
 from app.persistence.model.user_model import UserModel
-
-# factory에 사용해야 하는 Model을 가져온다
 from app.persistence.model.user_profile_model import UserProfileModel
-from core.domains.board.enum.post_enum import PostUnitEnum, PostStatusEnum
+from app.persistence.model.post_like_state_model import PostLikeStateModel
+from app.persistence.model.post_like_count_model import PostLikeCountModel
+from core.domains.board.enum.post_enum import (
+    PostUnitEnum,
+    PostStatusEnum,
+    PostLikeStateEnum,
+)
 
 faker = FakerFactory.create(locale="ko_KR")
 
@@ -42,6 +46,23 @@ class UserProfileFactory(factory.alchemy.SQLAlchemyModelFactory):
     path = "uploads/"
 
 
+class PostLikeCountFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = PostLikeCountModel
+
+    post_id = 1
+    count = 0
+
+
+class PostLikeStateFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = PostLikeStateModel
+
+    post_id = 1
+    user_id = 1
+    state = PostLikeStateEnum.LIKE.value
+
+
 class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = PostModel
@@ -67,6 +88,11 @@ class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
     def Article(obj, create, extracted, **kwargs):
         if extracted:
             ArticleFactory(post=obj, **kwargs)
+
+    @factory.post_generation
+    def PostLikeCount(obj, create, extracted, **kwargs):
+        if extracted:
+            PostLikeCountFactory(post=obj, **kwargs)
 
 
 class ArticleFactory(factory.alchemy.SQLAlchemyModelFactory):
