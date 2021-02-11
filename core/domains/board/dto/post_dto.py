@@ -23,6 +23,7 @@ class GetPostListDto(BaseModel):
     previous_post_id: int = None
     title: str = None
     type: str = None
+    categories: list = []
 
 
 class GetPostDto(BaseModel):

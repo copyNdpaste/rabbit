@@ -145,13 +145,16 @@ class BoardRepository:
                         CategoryModel.name == category,
                     )
                 )
-            query = query_list[0].union(*query_list[1:])
 
-            post_list = (
-                query.order_by(PostModel.id.desc())
-                .limit(PostLimitEnum.LIMIT.value)
-                .all()
-            )
+            post_list = []
+            if query_list:
+                query = query_list[0].union(*query_list[1:])
+
+                post_list = (
+                    query.order_by(PostModel.id.desc())
+                    .limit(PostLimitEnum.LIMIT.value)
+                    .all()
+                )
 
             return [post.to_post_list_entity() for post in post_list]
         except Exception as e:
