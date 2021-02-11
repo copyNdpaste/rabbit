@@ -26,6 +26,8 @@ post:
       type: integer
     categories:
       type: array
+      items:
+        type: integer
     last_user_action:
       type: string
     last_user_action_at:
