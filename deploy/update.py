@@ -228,7 +228,7 @@ class ECSCompose:
 
     @property
     def compose_file_dir(self) -> str:
-        return str(BASE_DIR / "deploy" / f"{self.service}.yml")
+        return str(BASE_DIR / "deploy" / f"docker-compose-{self.service}.yml")
 
     def create_compose_file(self, server_address: str, version: int) -> str:
         print("-----> server_address : ", server_address)
