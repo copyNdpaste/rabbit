@@ -91,7 +91,7 @@ class ECSCompose:
             BASE_DIR
             / "deploy"
             / f"{env}"
-            / f"docker-compose-ecs-{self.service_type}-{env}.yml"
+            / f"docker-compose-ecs-{self.service_type}-{env}.tmpl.yml"
         )
         print("@@@@@@@@@@ ", file_dir)
         f = open(file_dir, "r")
