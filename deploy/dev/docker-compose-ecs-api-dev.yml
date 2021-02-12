@@ -1,7 +1,6 @@
-version: '3'
+version: "3"
 services:
   rabbit-api-dev:
     image: __ECR_ADDRESS__
     ports:
-      - '0:5000'
-    entrypoint: /usr/local/bin/poetry
+    - "0:5000"
