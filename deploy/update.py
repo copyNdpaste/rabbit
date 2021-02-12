@@ -93,6 +93,7 @@ class ECSCompose:
             / f"{env}"
             / f"docker-compose-ecs-{self.service_type}-{env}.yml"
         )
+        print("@@@@@@@@@@ ", file_dir)
         f = open(file_dir, "r")
         return f.read()
 
@@ -236,6 +237,7 @@ class ECSCompose:
             "__ECR_ADDRESS__", f"{server_address}/{self.image}:{version}"
         )
         f = open(self.compose_file_dir, "w")
+        print("333333 : \n", template)
         f.write(template)
         f.close()
         self.debug_log(template)
