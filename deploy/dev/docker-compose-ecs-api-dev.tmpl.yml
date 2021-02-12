@@ -1,8 +1,17 @@
 version: "3"
 services:
-  rabbit-api-dev:
+  slink-api-dev:
     image: __ECR_ADDRESS__
     ports:
       - "0:5000"
-    entrypoint: /usr/local/bin/poetry
+    entrypoint: /usr/local/bin/pipenv
     command: "run newrelic-admin run-program gunicorn -w 1 --threads 2 -k gevent -b :5000 --access-logfile - --error-logfile - expression.wsgi:application"
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: glam/slink-api-dev-logs
+        awslogs-region: ap-northeast-2
+        awslogs-stream-prefix: glam/slink-api-dev-logs
+        awslogs-create-group: "true"
+    environment:
+      # environment
