@@ -56,7 +56,7 @@ class ECSCompose:
             return "rabbit-api-dev"
 
         if env == "prod":
-            return "bium/rabbit-api-prod"
+            return "bium/rabbit-app-prod"
 
     @property
     def cluster(self) -> str:
@@ -65,7 +65,7 @@ class ECSCompose:
             return "rabbit-cluster"
 
         if env == "prod":
-            return "rabbit-prod-cluster"
+            return "rabbit-cluster"
 
     @property
     def service_type(self) -> str:
@@ -91,9 +91,8 @@ class ECSCompose:
             BASE_DIR
             / "deploy"
             / f"{env}"
-            / f"docker-compose-ecs-{self.service_type}-{env}.tmpl.yml"
+            / f"docker-compose-ecs-{self.service_type}-{env}.yml"
         )
-        print("@@@@@@@@@@ ", file_dir)
         f = open(file_dir, "r")
         return f.read()
 
@@ -118,12 +117,8 @@ class ECSCompose:
     def call_command(self) -> list:
         env = self.environment
         service_type = self.service_type
-        print("======> env : ", env)
-        print("======> cluster : ", self.cluster)
-        print("======> service : ", self.service)
-        print("======> ecs-params : ", self.params)
         if env == "dev" or (env == "prod" and service_type == "worker"):
-            list = [
+            return [
                 "ecs-cli",
                 "compose",
                 "--cluster",
@@ -140,28 +135,25 @@ class ECSCompose:
                 "--timeout",
                 "10",
             ]
-            print("~~~~~~~~~~~~~> env ", list)
-            return list
         elif env == "prod" and service_type == "api":
-            list = [
+            return [
                 "ecs-cli",
                 "compose",
                 "--cluster",
                 self.cluster,
                 "--project-name",
-                f"bium-{self.service}",
+                f"rabbit-{self.service}",
                 "--file",
                 self.compose_file_dir,
                 "--ecs-params",
                 self.params,
                 "create",
             ]
-            print("~~~~~~~~~~~~~> prod ", list)
-            return list
 
     @property
     def ssm_parameter_name(self) -> str:
         env = self.environment
+        print("ssm_parameter_name -->", {self.service})
         if env == "dev":
             return f"/bium/{self.service}"
 
@@ -170,9 +162,6 @@ class ECSCompose:
 
     def get_ssm_parameters(self) -> str:
         client = boto3.client("ssm")
-        print("--------> ", client)
-        print("--------> ", self.ssm_parameter_name)
-
         resp = client.get_parameter(Name=self.ssm_parameter_name)
         parameter = resp.get("Parameter")
         if not parameter:
@@ -232,16 +221,13 @@ class ECSCompose:
 
     @property
     def compose_file_dir(self) -> str:
-        return str(BASE_DIR / "deploy" / f"docker-compose-{self.service}.yml")
+        return str(BASE_DIR / "deploy" / f"{self.service}.yml")
 
     def create_compose_file(self, server_address: str, version: int) -> str:
-        print("-----> server_address : ", server_address)
-        print("-----> image : ", self.image)
         template = self.template.replace(
             "__ECR_ADDRESS__", f"{server_address}/{self.image}:{version}"
         )
         f = open(self.compose_file_dir, "w")
-        print("333333 : \n", template)
         f.write(template)
         f.close()
         self.debug_log(template)
