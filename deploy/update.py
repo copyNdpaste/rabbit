@@ -87,16 +87,11 @@ class ECSCompose:
     @property
     def template(self) -> str:
         env = self.environment
-        # file_dir = (
-        #     BASE_DIR
-        #     / "deploy"
-        #     / f"{env}"
-        #     / f"docker-compose-ecs-{self.service_type}-{env}.yml"
-        # )
         file_dir = (
             BASE_DIR
             / "deploy"
-            / "rabbit-api-dev.yml"
+            / f"{env}"
+            / f"docker-compose-ecs-{self.service_type}-{env}.yml"
         )
         f = open(file_dir, "r")
         return f.read()
@@ -158,7 +153,6 @@ class ECSCompose:
     @property
     def ssm_parameter_name(self) -> str:
         env = self.environment
-        print("ssm_parameter_name -->", {self.service})
         if env == "dev":
             return f"/bium/{self.service}"
 
@@ -229,16 +223,12 @@ class ECSCompose:
         return str(BASE_DIR / "deploy" / f"{self.service}.yml")
 
     def create_compose_file(self, server_address: str, version: int) -> str:
-        # template = self.template.replace(
-        #     "__ECR_ADDRESS__", f"{server_address}/{self.image}:{version}"
-        # )
-        # f = open(self.compose_file_dir, "w")
-        template = self.template
-        print("------------")
-        print(template)
-        print("------------")
-        # f.write(template)
-        # f.close()
+        template = self.template.replace(
+            "__ECR_ADDRESS__", f"{server_address}/{self.image}:{version}"
+        )
+        f = open(self.compose_file_dir, "w")
+        f.write(template)
+        f.close()
         self.debug_log(template)
 
     def call(self) -> tuple:
@@ -251,8 +241,10 @@ class ECSCompose:
 
         line = popen.stdout.readline().decode("utf8")
         count = 0
+        print("@@@@@@@@@@@@@ ", len(line))
         while line:
             count = count + 1
+            print("self.environment ---->", self.environment)
             print(count, " line ----> ", line)
             if (
                 "has begun draining connections on 1 tasks" in line
