@@ -140,41 +140,102 @@ class BoardRepository:
         status_filter = []
         if status:
             status_filter.append(PostModel.status == status)
+
         try:
-            query = session.query(PostModel).filter(
-                PostModel.region_group_id == region_group_id,
-                PostModel.is_blocked == False,
-                PostModel.is_deleted == False,
-                *search_filter,
-                *previous_post_id_filter,
-                *status_filter,
+            # query = session.query(PostModel).filter(
+            #     PostModel.region_group_id == region_group_id,
+            #     PostModel.is_blocked == False,
+            #     PostModel.is_deleted == False,
+            #     *search_filter,
+            #     *previous_post_id_filter,
+            #     *status_filter,
+            # )
+            #
+            # query_list = []
+            # for category_id in category_ids:
+            #     q = query
+            #     query_list.append(
+            #         q.filter(
+            #             PostModel.id == PostCategoryModel.post_id,
+            #             CategoryModel.id == PostCategoryModel.category_id,
+            #             CategoryModel.id == category_id,
+            #         )
+            #     )
+            #
+            # post_list = []
+            # if query_list:
+            #     query = query_list[0].union(*query_list[1:])
+            #
+            #     post_list = (
+            #         query.order_by(PostModel.id.desc())
+            #         .limit(PostLimitEnum.LIMIT.value)
+            #         .all()
+            #     )
+            post_list = self._get_post_list(
+                region_group_id=region_group_id,
+                search_filter=search_filter,
+                previous_post_id_filter=previous_post_id_filter,
+                status_filter=status_filter,
+                category_ids=category_ids,
             )
 
-            query_list = []
-            for category_id in category_ids:
-                q = query
-                query_list.append(
-                    q.filter(
-                        PostModel.id == PostCategoryModel.post_id,
-                        CategoryModel.id == PostCategoryModel.category_id,
-                        CategoryModel.id == category_id,
-                    )
-                )
-
-            post_list = []
-            if query_list:
-                query = query_list[0].union(*query_list[1:])
-
-                post_list = (
-                    query.order_by(PostModel.id.desc())
-                    .limit(PostLimitEnum.LIMIT.value)
-                    .all()
+            # 판매중 post 10개 못채우면 거래완료 status의 post 가져오기
+            post_list_len = len(post_list)
+            if post_list_len < PostLimitEnum.LIMIT.value:
+                limit = PostLimitEnum.LIMIT.value - post_list_len
+                status_filter = [PostModel.status == PostStatusEnum.COMPLETED]
+                post_list += self._get_post_list(
+                    region_group_id=region_group_id,
+                    search_filter=search_filter,
+                    previous_post_id_filter=previous_post_id_filter,
+                    status_filter=status_filter,
+                    category_ids=category_ids,
                 )
 
             return [post.to_post_list_entity() for post in post_list]
         except Exception as e:
             # TODO : log 추가
             pass
+
+    def _get_post_list(
+        self,
+        region_group_id: int,
+        search_filter: list,
+        previous_post_id_filter: list,
+        status_filter: list,
+        category_ids: list,
+    ) -> list:
+        query = session.query(PostModel).filter(
+            PostModel.region_group_id == region_group_id,
+            PostModel.is_blocked == False,
+            PostModel.is_deleted == False,
+            *search_filter,
+            *previous_post_id_filter,
+            *status_filter,
+        )
+
+        query_list = []
+        for category_id in category_ids:
+            q = query
+            query_list.append(
+                q.filter(
+                    PostModel.id == PostCategoryModel.post_id,
+                    CategoryModel.id == PostCategoryModel.category_id,
+                    CategoryModel.id == category_id,
+                )
+            )
+
+        post_list = []
+        if query_list:
+            query = query_list[0].union(*query_list[1:])
+
+            post_list = (
+                query.order_by(PostModel.id.desc())
+                .limit(PostLimitEnum.LIMIT.value)
+                .all()
+            )
+
+        return post_list
 
     def get_post(self, post_id: int) -> Optional[PostEntity]:
         post = session.query(PostModel).filter_by(id=post_id).first()

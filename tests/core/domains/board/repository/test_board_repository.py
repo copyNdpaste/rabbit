@@ -616,3 +616,37 @@ def test_get_post_list_by_category(
     )
 
     assert len(post_list) == result_count
+
+
+# TODO:
+def test_get_post_list_with_variety_status(
+    session, normal_user_factory, post_factory, create_categories,
+):
+    """
+    판매중->거래완료 순으로 조회, 판매중 post가 10개 미만이면 부족한만큼 거래완료 post 채우기
+    """
+    user = normal_user_factory.build(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = user.region.region_group_id
+
+    post_list = PostFactory.create_batch(
+        size=10,
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+
+    session.add_all(post_list)
+    session.commit()
+
+    post_list = BoardRepository().get_post_list(
+        region_group_id=region_group_id, category_ids=[categories[0].id]
+    )
+
+    assert len(post_list) == 10
