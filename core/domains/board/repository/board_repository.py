@@ -16,7 +16,6 @@ from core.domains.board.enum.post_enum import (
     PostLimitEnum,
     PostLikeStateEnum,
     PostStatusEnum,
-    PostCategoryEnum,
 )
 
 
@@ -45,7 +44,7 @@ class BoardRepository:
             session.add(article)
             session.commit()
 
-            self.create_categories(post_id=post.id, dto=dto)
+            self.create_post_categories(post_id=post.id, dto=dto)
 
             return post.to_entity()
         except Exception as e:
@@ -53,7 +52,7 @@ class BoardRepository:
             session.rollback()
             return None
 
-    def create_categories(self, post_id: int, dto: CreatePostDto):
+    def create_post_categories(self, post_id: int, dto: CreatePostDto):
         post_categories = []
 
         for category_id in dto.category_ids:
@@ -115,7 +114,7 @@ class BoardRepository:
         region_group_id: int,
         previous_post_id: int = None,
         title: str = "",
-        category_ids: list = [],
+        category_ids: list = None,
         status: str = PostStatusEnum.SELLING.value,
     ) -> Optional[List[Union[PostEntity, list]]]:
         """
