@@ -1,8 +1,8 @@
-version: "3.8"
+version: "3"
 services:
   rabbit-api-dev:
     image: __ECR_ADDRESS__
     ports:
-    - "0:5000"
+    - "5000:5000"
     command:
     - "run gunicorn --timeout 30 -w 2 --threads 2 -k gevent -b :5000 --access-logfile - --error-logfile - application:app"

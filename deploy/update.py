@@ -228,6 +228,9 @@ class ECSCompose:
             "__ECR_ADDRESS__", f"{server_address}/{self.image}:{version}"
         )
         f = open(self.compose_file_dir, "w")
+        print("------------")
+        print(template)
+        print("------------")
         f.write(template)
         f.close()
         self.debug_log(template)
