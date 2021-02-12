@@ -4,5 +4,5 @@ services:
     image: __ECR_ADDRESS__
     ports:
       - "0:5000"
-    entrypoint: /usr/local/bin/poetry
+    entrypoint: "/usr/local/bin/poetry"
     command: "run gunicorn -w 2 -b :5000 --access-logfile - --error-logfile - application:app"
