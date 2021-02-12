@@ -1,0 +1,12 @@
+region:
+  properties:
+    id:
+      type: integer
+    region_group_id:
+      type: integer
+    name:
+      type: string
+    created_at:
+      type: string
+    updated_at:
+      type: string
