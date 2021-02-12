@@ -4,7 +4,7 @@ services:
     image: __ECR_ADDRESS__
     ports:
       - "0:5000"
-    entrypoint: /usr/local/bin/pipenv
+    entrypoint: /usr/local/bin/poetry
     command: "run newrelic-admin run-program gunicorn -w 1 --threads 2 -k gevent -b :5000 --access-logfile - --error-logfile - expression.wsgi:application"
     logging:
       driver: awslogs
