@@ -191,7 +191,9 @@ def test_when_get_post_list_then_success(
     authorization = "Bearer " + access_token
     headers = make_header(authorization=authorization)
     dct = dict(
-        region_group_id=user.region.region_group.id, category_ids=[categories[0].id],
+        region_group_id=user.region.region_group.id,
+        category_ids=[categories[0].id],
+        status=PostStatusEnum.SELLING.value,
     )
 
     with test_request_context:
@@ -280,6 +282,7 @@ def test_when_search_post_list_then_success(
         region_group_id=region_group_id,
         title=post.title[2:6],
         category_ids=[categories[0].id],
+        status=PostStatusEnum.SELLING.value,
     )
 
     with test_request_context:
@@ -383,7 +386,9 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     authorization = "Bearer " + access_token
     headers = make_header(authorization=authorization)
     dct = dict(
-        region_group_id=user1.region.region_group.id, category_ids=[categories[0].id],
+        region_group_id=user1.region.region_group.id,
+        category_ids=[categories[0].id],
+        status=PostStatusEnum.SELLING.value,
     )
 
     with test_request_context:

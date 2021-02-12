@@ -114,7 +114,7 @@ class GetPostListSchema(BaseModel):
     previous_post_id: StrictInt = None
     title: StrictStr = None
     type: StrictStr = None
-    category_ids: List[str]
+    category_ids: List[int]
     status: str
 
 
@@ -189,7 +189,7 @@ class UpdatePostSchema(BaseModel):
     region_group_id: StrictInt
     type: StrictStr
     is_comment_disabled: bool
-    category_ids: List[str]
+    category_ids: List[int]
     amount: StrictInt
     unit: StrictStr
     price_per_unit: StrictInt
