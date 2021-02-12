@@ -15,4 +15,4 @@ services:
         awslogs-stream-prefix: bium/rabbit-api-dev-logs
         awslogs-create-group: "true"
     environment:
-    # Environment
+      # Environment
