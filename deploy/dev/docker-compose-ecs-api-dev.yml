@@ -14,5 +14,5 @@ services:
         awslogs-region: ap-northeast-2
         awslogs-stream-prefix: bium/rabbit-api-dev-logs
         awslogs-create-group: "true"
-    environment:
-      # Environment
+    # environment:
+    # Environment
