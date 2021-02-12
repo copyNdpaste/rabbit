@@ -563,7 +563,9 @@ def test_get_post_list_by_status(
     session.add_all([post1, post2])
     session.commit()
 
-    post_list = BoardRepository().get_post_list(region_group_id=region_group_id)
+    post_list = BoardRepository().get_post_list(
+        region_group_id=region_group_id, status=input_status
+    )
 
     assert len(post_list) == result_count
 

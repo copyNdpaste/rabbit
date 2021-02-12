@@ -445,7 +445,9 @@ def test_when_get_post_list_by_status_then_success(
     authorization = "Bearer " + access_token
     headers = make_header(authorization=authorization)
     dct = dict(
-        region_group_id=user.region.region_group.id, category_ids=[categories[0].id],
+        region_group_id=user.region.region_group.id,
+        category_ids=[categories[0].id],
+        status=input_status,
     )
 
     with test_request_context:

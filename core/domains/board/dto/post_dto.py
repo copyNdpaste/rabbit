@@ -27,6 +27,7 @@ class GetPostListDto(BaseModel):
     title: str = None
     type: str = None
     category_ids: List[int]
+    status: str = None
 
 
 class GetPostDto(BaseModel):

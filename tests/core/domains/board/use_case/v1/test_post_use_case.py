@@ -516,7 +516,7 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
 
 @pytest.mark.parametrize(
     "input_status, result_count",
-    [(PostStatusEnum.SELLING.value, 2), (PostStatusEnum.COMPLETED.value, 1)],
+    [(PostStatusEnum.COMPLETED.value, 1)],  # (PostStatusEnum.SELLING.value, 2),
 )
 def test_when_get_post_list_by_status_then_success(
     input_status,
@@ -555,7 +555,9 @@ def test_when_get_post_list_by_status_then_success(
     session.commit()
 
     dto = GetPostListDto(
-        region_group_id=user.region.region_group_id, category_ids=[categories[0].id],
+        region_group_id=user.region.region_group_id,
+        category_ids=[categories[0].id],
+        status=input_status,
     )
 
     post_list = GetPostListUseCase().execute(dto=dto).value

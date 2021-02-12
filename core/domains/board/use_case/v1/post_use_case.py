@@ -80,6 +80,7 @@ class GetPostListUseCase(PostBaseUseCase):
             previous_post_id=dto.previous_post_id,
             title=dto.title,
             category_ids=dto.category_ids,
+            status=dto.status,
         )
         if not post_list:
             return UseCaseFailureOutput(FailureType.NOT_FOUND_ERROR)

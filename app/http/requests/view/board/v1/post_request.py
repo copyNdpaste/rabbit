@@ -115,6 +115,7 @@ class GetPostListSchema(BaseModel):
     title: StrictStr = None
     type: StrictStr = None
     category_ids: List[str]
+    status: str
 
 
 class GetPostListRequest:
@@ -125,12 +126,14 @@ class GetPostListRequest:
         title=None,
         type=None,
         category_ids=None,
+        status=None,
     ):
         self.region_group_id = region_group_id
         self.previous_post_id = previous_post_id
         self.title = title
         self.type = type
         self.category_ids = category_ids
+        self.status = status
 
     def validate_request_and_make_dto(self):
         try:
@@ -140,6 +143,7 @@ class GetPostListRequest:
                 title=self.title,
                 type=self.type,
                 category_ids=self.category_ids,
+                status=self.status,
             )
             return self.to_dto()
         except ValidationError as e:
@@ -153,6 +157,7 @@ class GetPostListRequest:
             title=self.title,
             type=self.type,
             category_ids=self.category_ids,
+            status=self.status,
         )
 
 

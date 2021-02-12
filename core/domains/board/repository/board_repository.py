@@ -115,7 +115,7 @@ class BoardRepository:
         previous_post_id: int = None,
         title: str = "",
         category_ids: list = None,
-        status: str = PostStatusEnum.SELLING.value,
+        status: str = None,
     ) -> Optional[List[Union[PostEntity, list]]]:
         """
         :param category_ids: 상품 카테고리
@@ -177,19 +177,21 @@ class BoardRepository:
                 previous_post_id_filter=previous_post_id_filter,
                 status_filter=status_filter,
                 category_ids=category_ids,
+                limit=PostLimitEnum.LIMIT.value,
             )
 
-            # 판매중 post 10개 못채우면 거래완료 status의 post 가져오기
+            # 전체 status 조회인데 판매중 post 10개 못채우면 거래완료 status의 post 포함하기
             post_list_len = len(post_list)
-            if post_list_len < PostLimitEnum.LIMIT.value:
+            if post_list_len < PostLimitEnum.LIMIT.value and not status:
                 limit = PostLimitEnum.LIMIT.value - post_list_len
-                status_filter = [PostModel.status == PostStatusEnum.COMPLETED]
+                status_filter = [PostModel.status == PostStatusEnum.COMPLETED.value]
                 post_list += self._get_post_list(
                     region_group_id=region_group_id,
                     search_filter=search_filter,
                     previous_post_id_filter=previous_post_id_filter,
                     status_filter=status_filter,
                     category_ids=category_ids,
+                    limit=limit,
                 )
 
             return [post.to_post_list_entity() for post in post_list]
@@ -204,6 +206,7 @@ class BoardRepository:
         previous_post_id_filter: list,
         status_filter: list,
         category_ids: list,
+        limit: int,
     ) -> list:
         query = session.query(PostModel).filter(
             PostModel.region_group_id == region_group_id,
@@ -229,11 +232,7 @@ class BoardRepository:
         if query_list:
             query = query_list[0].union(*query_list[1:])
 
-            post_list = (
-                query.order_by(PostModel.id.desc())
-                .limit(PostLimitEnum.LIMIT.value)
-                .all()
-            )
+            post_list = query.order_by(PostModel.id.desc()).limit(limit).all()
 
         return post_list
 
