@@ -1,7 +1,7 @@
 version: "3"
 services:
   rabbit-api-dev:
-    image: __ECR_ADDRESS__
+    image: 384944374478.dkr.ecr.ap-northeast-2.amazonaws.com/rabbit-api-dev:13
     ports:
       - "0:5000"
     entrypoint: /usr/local/bin/poetry
