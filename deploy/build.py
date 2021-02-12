@@ -37,7 +37,7 @@ def intify(l: list):
 
 
 # constants
-IMAGE_NAME = "bium-rabbit"
+IMAGE_NAME = "rabbit-api-dev"
 BASE_DIR = Path(__file__).absolute().parent.parent
 AVAILABLE_ENVIRONMENT = ["dev", "prod"]
 
