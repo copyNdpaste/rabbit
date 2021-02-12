@@ -241,7 +241,10 @@ class ECSCompose:
         )
 
         line = popen.stdout.readline().decode("utf8")
+        count = 0
         while line:
+            count = count + 1
+            print(count, " line ----> ", line)
             if (
                 "has begun draining connections on 1 tasks" in line
                 and self.environment == "dev"
