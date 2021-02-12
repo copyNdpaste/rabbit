@@ -62,10 +62,10 @@ class ECSCompose:
     def cluster(self) -> str:
         env = self.environment
         if env == "dev":
-            return "rabbit-cluster"
+            return "rabbit-dev-cluster"
 
         if env == "prod":
-            return "rabbit-cluster"
+            return "rabbit-prod-cluster"
 
     @property
     def service_type(self) -> str:
