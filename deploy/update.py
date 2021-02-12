@@ -87,11 +87,16 @@ class ECSCompose:
     @property
     def template(self) -> str:
         env = self.environment
+        # file_dir = (
+        #     BASE_DIR
+        #     / "deploy"
+        #     / f"{env}"
+        #     / f"docker-compose-ecs-{self.service_type}-{env}.yml"
+        # )
         file_dir = (
             BASE_DIR
             / "deploy"
-            / f"{env}"
-            / f"docker-compose-ecs-{self.service_type}-{env}.yml"
+            / "rabbit-api-dev.yml"
         )
         f = open(file_dir, "r")
         return f.read()
@@ -224,15 +229,16 @@ class ECSCompose:
         return str(BASE_DIR / "deploy" / f"{self.service}.yml")
 
     def create_compose_file(self, server_address: str, version: int) -> str:
-        template = self.template.replace(
-            "__ECR_ADDRESS__", f"{server_address}/{self.image}:{version}"
-        )
-        f = open(self.compose_file_dir, "w")
+        # template = self.template.replace(
+        #     "__ECR_ADDRESS__", f"{server_address}/{self.image}:{version}"
+        # )
+        # f = open(self.compose_file_dir, "w")
+        template = self.template
         print("------------")
         print(template)
         print("------------")
-        f.write(template)
-        f.close()
+        # f.write(template)
+        # f.close()
         self.debug_log(template)
 
     def call(self) -> tuple:
