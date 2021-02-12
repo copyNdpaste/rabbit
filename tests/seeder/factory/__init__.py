@@ -69,6 +69,7 @@ class CategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = CategoryModel
 
+    id = 1
     name = PostCategoryEnum.DIVIDING_FOOD_INGREDIENT
 
 

@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytest
 
+from app.persistence.model.category_model import CategoryModel
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.enum.post_enum import (
     PostCategoryEnum,
@@ -20,7 +21,7 @@ def test_create_post(session, normal_user_factory, create_categories):
     session.add(user)
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     dto = CreatePostDto(
         user_id=user.id,
@@ -116,7 +117,7 @@ def test_get_post_list(session, normal_user_factory, post_factory, create_catego
     session.add(user)
     session.commit()
 
-    categories = create_categories(name_list=PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post1 = post_factory(
         Article=True,
@@ -177,7 +178,7 @@ def test_get_post_list_pagination(session, normal_user_factory, create_categorie
     session.add(user)
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post_list = PostFactory.create_batch(
         size=11,
@@ -331,7 +332,7 @@ def test_search_post_list(
 
     region_group_id = user_list[0].region.region_group_id
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post1 = post_factory(
         Article=True,
@@ -543,7 +544,7 @@ def test_get_post_list_by_status(
 
     region_group_id = user.region.region_group_id
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post1 = post_factory(
         Article=True,
@@ -568,7 +569,7 @@ def test_get_post_list_by_status(
 
 
 @pytest.mark.parametrize(
-    "input_categories, result_count",
+    "input_category_ids, result_count",
     [
         ([PostCategoryEnum.DIVIDING_FOOD_INGREDIENT.value], 1),
         ([PostCategoryEnum.USED_TRADING.value], 2),
@@ -576,7 +577,7 @@ def test_get_post_list_by_status(
     ],
 )
 def test_get_post_list_by_category(
-    input_categories,
+    input_category_ids,
     result_count,
     session,
     normal_user_factory,
@@ -590,13 +591,7 @@ def test_get_post_list_by_category(
     session.add(user)
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
-
-    category_ids = []
-    for input_category in input_categories:
-        for category in categories:
-            if input_category == category.name:
-                category_ids.append(category.id)
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     region_group_id = user.region.region_group_id
 
@@ -617,16 +612,7 @@ def test_get_post_list_by_category(
     session.commit()
 
     post_list = BoardRepository().get_post_list(
-        region_group_id=region_group_id, category_ids=category_ids
+        region_group_id=region_group_id, category_ids=input_category_ids
     )
 
     assert len(post_list) == result_count
-
-
-def test_get_category_ids(session, create_categories):
-    create_categories(PostCategoryEnum.get_list())
-
-    category_ids = BoardRepository().get_category_ids()
-
-    for category_id in category_ids:
-        assert isinstance(category_id, int)

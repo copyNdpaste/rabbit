@@ -24,7 +24,7 @@ def test_when_create_post_then_success(
     session.add(user)
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     access_token = create_access_token(identity=user.id)
     authorization = "Bearer " + access_token
@@ -76,7 +76,7 @@ def test_when_update_post_then_success(
     session.add(article)
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     access_token = create_access_token(identity=user.id)
     authorization = "Bearer " + access_token
@@ -153,7 +153,7 @@ def test_when_get_post_list_then_success(
     session.add(user)
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post1 = post_factory(
         Article=True,
@@ -260,7 +260,7 @@ def test_when_search_post_list_then_success(
 
     region_group_id = user.region.region_group_id
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post = post_factory(
         Article=True,
@@ -354,7 +354,7 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     session.add_all([user1, user2])
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post1 = post_factory(
         Article=True,
@@ -420,7 +420,7 @@ def test_when_get_post_list_by_status_then_success(
     session.add(user)
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post1 = post_factory(
         Article=True,

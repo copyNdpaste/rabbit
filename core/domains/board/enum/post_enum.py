@@ -6,14 +6,17 @@ class PostLimitEnum(Enum):
 
 
 class PostCategoryEnum(Enum):
-    DIVIDING_FOOD_INGREDIENT = "dividing_food_ingredient"  # 식자재 나누기. id 1
-    DIVIDING_NECESSITIES = "dividing_necessities"  # 생필품 나누기. id 2
-    LOST_MISSING = "lost_missing"  # 분실/실종. id 3
-    USED_TRADING = "used_trading"  # 중고거래. id 4
+    DIVIDING_FOOD_INGREDIENT = 1  # 식자재 나누기. id 1
+    DIVIDING_NECESSITIES = 2  # 생필품 나누기. id 2
+    LOST_MISSING = 3  # 분실/실종. id 3
+    USED_TRADING = 4  # 중고거래. id 4
 
     @staticmethod
-    def get_list():
-        return list(map(lambda c: c.value, PostCategoryEnum))
+    def get_dict():
+        dct = {}
+        for e in PostCategoryEnum:
+            dct[e.value] = e.name.lower()
+        return dct
 
 
 class PostUnitEnum(Enum):

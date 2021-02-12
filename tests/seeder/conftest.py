@@ -72,10 +72,10 @@ def like_post(session):
 
 @pytest.fixture
 def create_categories(session, category_factory):
-    def _create_categories(name_list: list):
+    def _create_categories(category_dict: dict):
         categories = []
-        for name in name_list:
-            c = category_factory(name=name)
+        for k, v in category_dict.items():
+            c = category_factory(id=k, name=v)
             categories.append(c)
         session.add_all(categories)
         session.commit()

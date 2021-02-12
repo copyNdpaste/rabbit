@@ -32,7 +32,7 @@ def test_when_create_post_then_success(session, normal_user_factory, create_cate
     session.add(user)
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     dto = CreatePostDto(
         user_id=user.id,
@@ -165,7 +165,7 @@ def test_when_get_post_list_then_success(
     session.add(user)
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post1 = post_factory(
         Article=True,
@@ -216,7 +216,7 @@ def test_when_get_empty_post_list_then_not_found(
     session.add(user)
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     dto = GetPostListDto(
         region_group_id=user.region.region_group.id, category_ids=[categories[0].id]
@@ -236,7 +236,7 @@ def test_when_get_post_list_pagination_then_success(
     session.add(user)
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post_list = PostFactory.create_batch(
         size=11,
@@ -269,7 +269,7 @@ def test_when_deleted_or_blocked_post_then_except(
     session.add(user)
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post = post_factory(
         Article=True,
@@ -349,7 +349,7 @@ def test_when_search_post_list_then_success(
 
     region_group_id = user_list[0].region.region_group_id
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post1 = post_factory(
         Article=True,
@@ -479,7 +479,7 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     session.add_all([user1, user2])
     session.commit()
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post1 = post_factory(
         Article=True,
@@ -535,7 +535,7 @@ def test_when_get_post_list_by_status_then_success(
 
     region_group_id = user.region.region_group_id
 
-    categories = create_categories(PostCategoryEnum.get_list())
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post1 = post_factory(
         Article=True,
