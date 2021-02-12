@@ -32,7 +32,7 @@ class BlueGreenDeploy:
                         "Properties": {
                             "TaskDefinition": "__TASK_DEFINITION__",
                             "LoadBalancerInfo": {
-                                "ContainerName": "rabbit-container",
+                                "ContainerName": "rabbit-api-prod",
                                 "ContainerPort": 5000,
                             },
                         },
