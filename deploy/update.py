@@ -123,7 +123,7 @@ class ECSCompose:
         print("======> service : ", self.service)
         print("======> ecs-params : ", self.params)
         if env == "dev" or (env == "prod" and service_type == "worker"):
-            return [
+            list = [
                 "ecs-cli",
                 "compose",
                 "--cluster",
@@ -140,8 +140,10 @@ class ECSCompose:
                 "--timeout",
                 "10",
             ]
+            print("~~~~~~~~~~~~~> env ", list)
+            return list
         elif env == "prod" and service_type == "api":
-            return [
+            list = [
                 "ecs-cli",
                 "compose",
                 "--cluster",
@@ -154,6 +156,8 @@ class ECSCompose:
                 self.params,
                 "create",
             ]
+            print("~~~~~~~~~~~~~> prod ", list)
+            return list
 
     @property
     def ssm_parameter_name(self) -> str:
