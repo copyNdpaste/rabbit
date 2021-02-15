@@ -133,7 +133,7 @@ class ECSCompose:
                 "up",
                 "--force-deployment",
                 "--timeout",
-                "3",
+                "10",
             ]
         elif env == "prod" and service_type == "api":
             return [
