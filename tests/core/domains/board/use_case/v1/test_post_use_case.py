@@ -515,10 +515,14 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
 
 
 @pytest.mark.parametrize(
-    "input_status, result_count",
-    [(PostStatusEnum.COMPLETED.value, 1)],  # (PostStatusEnum.SELLING.value, 2),
+    "post_status, input_status, result_count",
+    [
+        (PostStatusEnum.SELLING.value, PostStatusEnum.ALL.value, 2),
+        (PostStatusEnum.COMPLETED.value, PostStatusEnum.EXCLUDE_COMPLETED.value, 1),
+    ],
 )
-def test_when_get_post_list_by_status_then_success(
+def test_when_get_post_list_by_status(
+    post_status,
     input_status,
     result_count,
     session,
@@ -548,14 +552,14 @@ def test_when_get_post_list_by_status_then_success(
         Categories=categories,
         region_group_id=region_group_id,
         user_id=user.id,
-        status=input_status,
+        status=post_status,
     )
 
     session.add_all([post1, post2])
     session.commit()
 
     dto = GetPostListDto(
-        region_group_id=user.region.region_group_id,
+        region_group_id=region_group_id,
         category_ids=[categories[0].id],
         status=input_status,
     )
@@ -563,3 +567,56 @@ def test_when_get_post_list_by_status_then_success(
     post_list = GetPostListUseCase().execute(dto=dto).value
 
     assert len(post_list) == result_count
+
+
+def test_when_get_post_list_order_by_desc_then_success(
+    session, normal_user_factory, create_categories, post_factory
+):
+    """
+    판매중, 거래완료 최신순으로 조회
+    """
+    user = normal_user_factory.build(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = user.region.region_group_id
+
+    post1 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    post2 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=PostStatusEnum.COMPLETED.value,
+    )
+    post3 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=PostStatusEnum.COMPLETED.value,
+    )
+
+    session.add_all([post1, post2, post3])
+    session.commit()
+
+    dto = GetPostListDto(
+        region_group_id=user.region.region_group_id,
+        category_ids=[categories[0].id],
+        status=PostStatusEnum.ALL.value,
+    )
+
+    post_list = GetPostListUseCase().execute(dto=dto).value
+
+    assert len(post_list) == 3
+    assert post_list[0].id == 3
+    assert post_list[1].id == 2
+    assert post_list[2].id == 1

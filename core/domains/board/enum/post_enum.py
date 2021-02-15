@@ -29,6 +29,8 @@ class PostStatusEnum(Enum):
     SELLING = "selling"  # 판매중
     RESERVATION = "reservation"  # 예약중
     COMPLETED = "completed"  # 거래완료
+    EXCLUDE_COMPLETED = "exclude_completed"  # 거래완료 안보기
+    ALL = "all"  # 판매중, 예약중, 거래완료 보기
 
 
 class PostLikeStateEnum(Enum):

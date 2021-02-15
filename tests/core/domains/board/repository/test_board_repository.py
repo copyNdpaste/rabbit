@@ -10,6 +10,7 @@ from core.domains.board.enum.post_enum import (
     PostStatusEnum,
     PostLikeStateEnum,
     PostLikeCountEnum,
+    PostLimitEnum,
 )
 from core.domains.board.repository.board_repository import BoardRepository
 from core.domains.user.entity.user_entity import UserEntity
@@ -524,10 +525,14 @@ def test_create_post_like_count(session, normal_user_factory, post_factory):
 
 
 @pytest.mark.parametrize(
-    "input_status, result_count",
-    [(PostStatusEnum.SELLING.value, 2), (PostStatusEnum.COMPLETED.value, 1)],
+    "post_status, input_status, result_count",
+    [
+        (PostStatusEnum.SELLING.value, PostStatusEnum.ALL.value, 2),
+        (PostStatusEnum.COMPLETED.value, PostStatusEnum.EXCLUDE_COMPLETED.value, 1),
+    ],
 )
 def test_get_post_list_by_status(
+    post_status,
     input_status,
     result_count,
     session,
@@ -557,7 +562,7 @@ def test_get_post_list_by_status(
         Categories=categories,
         region_group_id=region_group_id,
         user_id=user.id,
-        status=input_status,
+        status=post_status,
     )
 
     session.add_all([post1, post2])
@@ -620,12 +625,11 @@ def test_get_post_list_by_category(
     assert len(post_list) == result_count
 
 
-# TODO:
-def test_get_post_list_with_variety_status(
-    session, normal_user_factory, post_factory, create_categories,
+def test_get_post_list_order_by_desc(
+    session, normal_user_factory, create_categories, post_factory
 ):
     """
-    판매중->거래완료 순으로 조회, 판매중 post가 10개 미만이면 부족한만큼 거래완료 post 채우기
+    판매중, 거래완료 최신순으로 조회
     """
     user = normal_user_factory.build(Region=True, UserProfile=True)
     session.add(user)
@@ -635,20 +639,38 @@ def test_get_post_list_with_variety_status(
 
     region_group_id = user.region.region_group_id
 
-    post_list = PostFactory.create_batch(
-        size=10,
+    post1 = post_factory(
         Article=True,
         Categories=[categories[0]],
         region_group_id=region_group_id,
         user_id=user.id,
         status=PostStatusEnum.SELLING.value,
     )
+    post2 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=PostStatusEnum.COMPLETED.value,
+    )
+    post3 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=PostStatusEnum.COMPLETED.value,
+    )
 
-    session.add_all(post_list)
+    session.add_all([post1, post2, post3])
     session.commit()
 
     post_list = BoardRepository().get_post_list(
-        region_group_id=region_group_id, category_ids=[categories[0].id]
+        region_group_id=region_group_id,
+        category_ids=[categories[0].id],
+        status=PostStatusEnum.ALL.value,
     )
 
-    assert len(post_list) == 10
+    assert len(post_list) == 3
+    assert post_list[0].id == 3
+    assert post_list[1].id == 2
+    assert post_list[2].id == 1

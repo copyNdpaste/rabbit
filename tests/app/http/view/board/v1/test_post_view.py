@@ -9,6 +9,7 @@ from core.domains.board.enum.post_enum import (
     PostLikeCountEnum,
     PostCategoryEnum,
 )
+from tests.seeder.factory import PostFactory
 
 
 def test_when_create_post_then_success(
@@ -403,20 +404,24 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
 
 
 @pytest.mark.parametrize(
-    "input_status, result_count",
-    [(PostStatusEnum.SELLING.value, 2), (PostStatusEnum.COMPLETED.value, 1)],
+    "post_status, input_status, result_count",
+    [
+        (PostStatusEnum.SELLING.value, PostStatusEnum.ALL.value, 2),
+        (PostStatusEnum.COMPLETED.value, PostStatusEnum.EXCLUDE_COMPLETED.value, 1),
+    ],
 )
 def test_when_get_post_list_by_status_then_success(
+    post_status,
     input_status,
     result_count,
     session,
     normal_user_factory,
     make_header,
-    post_factory,
     like_post,
     test_request_context,
     client,
     create_categories,
+    post_factory,
 ):
     """
     post list 조회 시 판매중, 거래완료 상태에 따라 응답
@@ -427,20 +432,20 @@ def test_when_get_post_list_by_status_then_success(
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
+    region_group_id = user.region.region_group_id
+
     post1 = post_factory(
         Article=True,
-        PostLikeCount=True,
         Categories=categories,
-        region_group_id=user.region.region_group.id,
+        region_group_id=region_group_id,
         user_id=user.id,
     )
     post2 = post_factory(
         Article=True,
-        PostLikeCount=True,
         Categories=categories,
-        region_group_id=user.region.region_group.id,
+        region_group_id=region_group_id,
         user_id=user.id,
-        status=input_status,
+        status=post_status,
     )
 
     session.add_all([post1, post2])
@@ -463,3 +468,70 @@ def test_when_get_post_list_by_status_then_success(
     assert response.status_code == 200
     data = response.get_json()["data"]
     assert len(data["post_list"]) == result_count
+
+
+def test_when_get_post_list_order_by_desc_then_success(
+    session,
+    normal_user_factory,
+    create_categories,
+    post_factory,
+    make_header,
+    test_request_context,
+    client,
+):
+    """
+    판매중, 거래완료 최신순으로 조회
+    """
+    user = normal_user_factory.build(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = user.region.region_group_id
+
+    post1 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    post2 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=PostStatusEnum.COMPLETED.value,
+    )
+    post3 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=PostStatusEnum.COMPLETED.value,
+    )
+
+    session.add_all([post1, post2, post3])
+    session.commit()
+
+    access_token = create_access_token(identity=user.id)
+    authorization = "Bearer " + access_token
+    headers = make_header(authorization=authorization)
+    dct = dict(
+        region_group_id=user.region.region_group.id,
+        category_ids=[categories[0].id],
+        status=PostStatusEnum.ALL.value,
+    )
+
+    with test_request_context:
+        response = client.get(
+            url_for("api/rabbit.get_post_list_view"), json=dct, headers=headers
+        )
+
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert len(data["post_list"]) == 3
+    assert data["post_list"][0]["id"] == 3
+    assert data["post_list"][1]["id"] == 2
+    assert data["post_list"][2]["id"] == 1
