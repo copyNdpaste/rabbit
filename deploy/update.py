@@ -142,7 +142,7 @@ class ECSCompose:
                 "--cluster",
                 self.cluster,
                 "--project-name",
-                f"rabbit-{self.service}",
+                self.service,
                 "--file",
                 self.compose_file_dir,
                 "--ecs-params",
