@@ -9,9 +9,8 @@ import boto3
 
 class BlueGreenDeploy:
     """
-
-    Currently this class only works for slink-api-prod.
-    It does not work for slink-cron-prod or slink-consumer-prod
+    Currently this class only works for rabbit-api-prod.
+    It does not work for rabbit-cron-prod or rabbit-consumer-prod
     """
 
     @property
@@ -44,7 +43,7 @@ class BlueGreenDeploy:
 
     def get_latest_task(self) -> str:
         response = self.ecs_client.list_task_definitions(
-            familyPrefix="rabbit-task-definition", status="ACTIVE", sort="DESC"
+            familyPrefix="bium-rabbit-api-prod", status="ACTIVE", sort="DESC"
         )
         arns = response.get("taskDefinitionArns", [])
         return arns[0]
@@ -60,8 +59,8 @@ class BlueGreenDeploy:
 
     def create_deployment(self, app_spec_content: str) -> None:
         deploy_result = self.code_deploy_client.create_deployment(
-            applicationName="AppECS-rabbit-cluster-rabbit-api-dev",
-            deploymentGroupName="DgpECS-rabbit-cluster-rabbit-api-dev",
+            applicationName="AppECS-bium-prod-cluster-rabbit-api-prod",
+            deploymentGroupName="DgpECS-bium-prod-cluster-rabbit-api-prod",
             deploymentConfigName="CodeDeployDefault.ECSAllAtOnce",
             revision={
                 "revisionType": "AppSpecContent",
