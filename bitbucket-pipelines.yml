@@ -16,7 +16,7 @@ pipelines:
         services:
           - postgres
     - step:
-        name: 'Build & Push to bium/rabbit-api-prod'
+        name: 'Build & Push to bium/rabbit-api-prod '
         image: 'python:3.8.2'
         trigger: manual
         script:
