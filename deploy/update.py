@@ -241,7 +241,6 @@ class ECSCompose:
 
         line = popen.stdout.readline().decode("utf8")
         count = 0
-        print("@@@@@@@@@@@@@ ", len(line))
         while line:
             count = count + 1
             print("self.environment ---->", self.environment)
