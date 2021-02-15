@@ -56,13 +56,13 @@ class ECSCompose:
             return "rabbit-api-dev"
 
         if env == "prod":
-            return "bium/rabbit-api-prod"
+            return "bium/rabbit-app-prod"
 
     @property
     def cluster(self) -> str:
         env = self.environment
         if env == "dev":
-            return "rabbit-cluster"
+            return "rabbit-dev-cluster"
 
         if env == "prod":
             return "rabbit-prod-cluster"
@@ -117,10 +117,6 @@ class ECSCompose:
     def call_command(self) -> list:
         env = self.environment
         service_type = self.service_type
-        print("======> env : ", env)
-        print("======> cluster : ", self.cluster)
-        print("======> service : ", self.service)
-        print("======> ecs-params : ", self.params)
         if env == "dev" or (env == "prod" and service_type == "worker"):
             return [
                 "ecs-cli",
@@ -146,7 +142,7 @@ class ECSCompose:
                 "--cluster",
                 self.cluster,
                 "--project-name",
-                f"bium-{self.service}",
+                f"rabbit-{self.service}",
                 "--file",
                 self.compose_file_dir,
                 "--ecs-params",
@@ -165,9 +161,6 @@ class ECSCompose:
 
     def get_ssm_parameters(self) -> str:
         client = boto3.client("ssm")
-        print("--------> ", client)
-        print("--------> ", self.ssm_parameter_name)
-
         resp = client.get_parameter(Name=self.ssm_parameter_name)
         parameter = resp.get("Parameter")
         if not parameter:
@@ -230,8 +223,6 @@ class ECSCompose:
         return str(BASE_DIR / "deploy" / f"{self.service}.yml")
 
     def create_compose_file(self, server_address: str, version: int) -> str:
-        print("-----> server_address : ", server_address)
-        print("-----> image : ", self.image)
         template = self.template.replace(
             "__ECR_ADDRESS__", f"{server_address}/{self.image}:{version}"
         )
