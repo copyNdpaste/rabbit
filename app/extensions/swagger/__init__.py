@@ -36,11 +36,11 @@ def swagger_config():
                 "servers": [
                     {"url": "http://localhost:5000/", "description": "local server"},
                     {
-                        "url": "https://development-server.com",
+                        "url": "https://www.l-bium.com/rabbit/",
                         "description": "development server",
                     },
                     {
-                        "url": "https://production-server.com",
+                        "url": "https://www.l-bium.com/rabbit/",
                         "description": "production server",
                     },
                 ],

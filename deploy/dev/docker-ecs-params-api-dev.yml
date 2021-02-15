@@ -1,0 +1,10 @@
+version: 1
+task_definition:
+  task_execution_role: ecsTaskExecutionRole
+  task_size:
+    cpu_limit: 450
+    mem_limit: 0.4GB
+  services:
+    rabbit-api-dev:
+      cpu_shares: 300
+      mem_limit: 0.3GB
