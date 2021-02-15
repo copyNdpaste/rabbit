@@ -243,7 +243,6 @@ class ECSCompose:
         count = 0
         while line:
             count = count + 1
-            print("self.environment ---->", self.environment)
             print(count, " line ----> ", line)
             if (
                 "has begun draining connections on 1 tasks" in line
