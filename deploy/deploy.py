@@ -9,6 +9,7 @@ import boto3
 
 class BlueGreenDeploy:
     """
+
     Currently this class only works for slink-api-prod.
     It does not work for slink-cron-prod or slink-consumer-prod
     """
