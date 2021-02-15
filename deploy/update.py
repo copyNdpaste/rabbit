@@ -56,7 +56,7 @@ class ECSCompose:
             return "rabbit-api-dev"
 
         if env == "prod":
-            return "bium/rabbit-app-prod"
+            return "bium/rabbit-api-prod"
 
     @property
     def cluster(self) -> str:
