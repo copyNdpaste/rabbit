@@ -1,0 +1,18 @@
+version: "3"
+services:
+  panther-api-prod:
+    image: __ECR_ADDRESS__
+    ports:
+      - "0:5000"
+    entrypoint: /usr/local/bin/poetry
+    command: "run gunicorn --timeout 30 -w 2 --threads 2 -k gevent -b :5000 --access-logfile - --error-logfile - application:app"
+    logging:
+      driver: awslogs
+      options:
+        # FIX : Change log group
+        awslogs-group: bium/rabbit-api-prod-logs
+        awslogs-region: ap-northeast-2
+        awslogs-stream-prefix: bium/rabbit-api-prod-logs
+        awslogs-create-group: "true"
+    environment:
+    # Environment
