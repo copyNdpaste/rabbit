@@ -28,7 +28,7 @@ requestBody:
               type: integer
 responses:
   '200':
-    description: A post object
+    description: update post
     content:
       application/json:
         schema:

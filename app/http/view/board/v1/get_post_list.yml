@@ -23,7 +23,7 @@ requestBody:
               type: integer
 responses:
   '200':
-    description: A post object list
+    description: get post list
     content:
       application/json:
         schema:
