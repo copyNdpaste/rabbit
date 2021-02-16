@@ -47,7 +47,7 @@ class PostModel(db.Model):
     amount = Column(SmallInteger, default=0)
     unit = Column(String(5))
     price_per_unit = Column(Integer)
-    status = Column(String(20), default=PostStatusEnum.SELLING, nullable=False)
+    status = Column(String(20), default=PostStatusEnum.SELLING.value, nullable=False)
 
     categories = relationship(
         "CategoryModel",
