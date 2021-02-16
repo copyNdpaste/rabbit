@@ -109,6 +109,7 @@ class BoardRepository:
             session.query(PostModel).filter_by(id=post_id).exists()
         ).scalar()
 
+    # TODO: parameter 너무 많아지면 dto 사용 고려
     def get_post_list(
         self,
         region_group_id: int,
@@ -147,6 +148,7 @@ class BoardRepository:
             status_filter.append([PostModel.status == PostStatusEnum.COMPLETED.value])
 
         try:
+            # TODO:코드 메서드로 분리해서 호출
             # status에 따라 판매중 or 판매중 + 거래 완료 선택
             if len(status_filter) >= 2:
                 query_list = []
@@ -197,43 +199,6 @@ class BoardRepository:
         except Exception as e:
             # TODO : log 추가
             pass
-
-    def _get_post_list(
-        self,
-        region_group_id: int,
-        search_filter: list,
-        previous_post_id_filter: list,
-        status_filter: list,
-        category_ids: list,
-        limit: int,
-    ) -> list:
-        query = session.query(PostModel).filter(
-            PostModel.region_group_id == region_group_id,
-            PostModel.is_blocked == False,
-            PostModel.is_deleted == False,
-            *search_filter,
-            *previous_post_id_filter,
-            *status_filter,
-        )
-
-        query_list = []
-        for category_id in category_ids:
-            q = query
-            query_list.append(
-                q.filter(
-                    PostModel.id == PostCategoryModel.post_id,
-                    CategoryModel.id == PostCategoryModel.category_id,
-                    CategoryModel.id == category_id,
-                )
-            )
-
-        post_list = []
-        if query_list:
-            query = query_list[0].union(*query_list[1:])
-
-            post_list = query.order_by(PostModel.id.desc()).limit(limit).all()
-
-        return post_list
 
     def get_post(self, post_id: int) -> Optional[PostEntity]:
         post = session.query(PostModel).filter_by(id=post_id).first()
