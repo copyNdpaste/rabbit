@@ -9,6 +9,7 @@ import boto3
 
 class BlueGreenDeploy:
     """
+
     Currently this class only works for slink-api-prod.
     It does not work for slink-cron-prod or slink-consumer-prod
     """
@@ -32,7 +33,7 @@ class BlueGreenDeploy:
                         "Properties": {
                             "TaskDefinition": "__TASK_DEFINITION__",
                             "LoadBalancerInfo": {
-                                "ContainerName": "rabbit-container",
+                                "ContainerName": "rabbit-api-prod",
                                 "ContainerPort": 5000,
                             },
                         },
