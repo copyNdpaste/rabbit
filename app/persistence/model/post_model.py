@@ -52,8 +52,8 @@ class PostModel(db.Model):
     categories = relationship(
         "CategoryModel",
         secondary="post_category",
-        primaryjoin="PostModel.id==PostCategoryModel.post_id",
-        secondaryjoin="CategoryModel.id == PostCategoryModel.category_id",
+        primaryjoin="PostModel.id == PostCategoryModel.post_id",
+        secondaryjoin="PostCategoryModel.category_id == CategoryModel.id",
         backref="post",
     )
     user = relationship("UserModel", backref="post")
