@@ -1,5 +1,6 @@
 from typing import List, Optional, Union
 from app.extensions.database import session
+from app.extensions.utils.query_helper import RawQueryHelper
 from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.category_model import CategoryModel
 from app.persistence.model.post_category_model import PostCategoryModel
@@ -140,19 +141,19 @@ class BoardRepository:
         if previous_post_id:
             previous_post_id_filter.append(PostModel.id > previous_post_id)
 
-        status_filter = []
+        status_filters = []
         if status == PostStatusEnum.EXCLUDE_COMPLETED.value:  # 거래 완료 글 안보기
-            status_filter.append(PostModel.status == PostStatusEnum.SELLING.value)
+            status_filters.append(PostModel.status == PostStatusEnum.SELLING.value)
         elif status == PostStatusEnum.ALL.value:  # 판매중, 거래 완료 글 보기
-            status_filter.append([PostModel.status == PostStatusEnum.SELLING.value])
-            status_filter.append([PostModel.status == PostStatusEnum.COMPLETED.value])
+            status_filters.append([PostModel.status == PostStatusEnum.SELLING.value])
+            status_filters.append([PostModel.status == PostStatusEnum.COMPLETED.value])
 
         try:
             # TODO:코드 메서드로 분리해서 호출
             # status에 따라 판매중 or 판매중 + 거래 완료 선택
-            if len(status_filter) >= 2:
+            if len(status_filters) >= 2:
                 query_list = []
-                for sf in status_filter:
+                for status_filter in status_filters:
                     query_list.append(
                         session.query(PostModel).filter(
                             PostModel.region_group_id == region_group_id,
@@ -160,7 +161,7 @@ class BoardRepository:
                             PostModel.is_deleted == False,
                             *search_filter,
                             *previous_post_id_filter,
-                            *sf,
+                            *status_filter,
                         )
                     )
                 query = query_list[0].union(*query_list[1:])
@@ -171,7 +172,7 @@ class BoardRepository:
                     PostModel.is_deleted == False,
                     *search_filter,
                     *previous_post_id_filter,
-                    *status_filter,
+                    *status_filters,
                 )
 
             query_list = []
