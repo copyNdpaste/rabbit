@@ -43,7 +43,7 @@ class BlueGreenDeploy:
 
     def get_latest_task(self) -> str:
         response = self.ecs_client.list_task_definitions(
-            familyPrefix="bium-rabbit-api-prod", status="ACTIVE", sort="DESC"
+            familyPrefix="rabbit-api-prod", status="ACTIVE", sort="DESC"
         )
         arns = response.get("taskDefinitionArns", [])
         return arns[0]
@@ -51,6 +51,8 @@ class BlueGreenDeploy:
     def create_appspec_content(self, task_definition: str) -> str:
         app_spec_str = json.dumps(self.base_appspec)
         final_app_spec = app_spec_str.replace("__TASK_DEFINITION__", task_definition)
+        print("----> ", app_spec_str)
+        print("----> ", final_app_spec)
         encoded_app_spec = final_app_spec.encode()
         return {
             "content": final_app_spec,
@@ -59,8 +61,8 @@ class BlueGreenDeploy:
 
     def create_deployment(self, app_spec_content: str) -> None:
         deploy_result = self.code_deploy_client.create_deployment(
-            applicationName="AppECS-bium-prod-cluster-rabbit-api-prod",
-            deploymentGroupName="DgpECS-bium-prod-cluster-rabbit-api-prod",
+            applicationName="AppECS-rabbit-prod-cluster-rabbit-api-prod",
+            deploymentGroupName="DgpECS-rabbit-prod-cluster-rabbit-api-prod",
             deploymentConfigName="CodeDeployDefault.ECSAllAtOnce",
             revision={
                 "revisionType": "AppSpecContent",

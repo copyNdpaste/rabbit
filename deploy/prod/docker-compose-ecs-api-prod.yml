@@ -1,6 +1,6 @@
 version: "3"
 services:
-  panther-api-prod:
+  rabbit-api-prod:
     image: __ECR_ADDRESS__
     ports:
       - "5000:5000"
