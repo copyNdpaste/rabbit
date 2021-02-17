@@ -30,19 +30,22 @@ class TestConfig(Config):
 
 
 class DevelopmentConfig(Config):
-    os.environ["FLASK_ENV"] = "development"
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DEV_DATABASE_URL") or "sqlite:///:memory:"
+    SERVICE_NAME = "rabbit"
+    os.environ["FLASK_ENV"] = "development"
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DEV_DATABASE_URL")
 
 
 class ProductionConfig(Config):
+    SERVICE_NAME = "rabbit"
     os.environ["FLASK_ENV"] = "production"
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
 
 
 config = dict(
     default=LocalConfig,
     local=LocalConfig,
     testing=TestConfig,
-    dev=DevelopmentConfig,
-    prod=ProductionConfig,
+    development=DevelopmentConfig,
+    production=ProductionConfig,
 )
