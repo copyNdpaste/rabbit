@@ -12,7 +12,7 @@ class Config:
 
 
 class LocalConfig(Config):
-    os.environ["FLASK_CONFIG"] = "local"
+    os.environ["FLASK_ENV"] = "local"
     SQLALCHEMY_ECHO = True
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = (
@@ -32,13 +32,13 @@ class TestConfig(Config):
 class DevelopmentConfig(Config):
     DEBUG = True
     SERVICE_NAME = "rabbit"
-    os.environ["FLASK_CONFIG"] = "development"
+    os.environ["FLASK_ENV"] = "development"
     SQLALCHEMY_DATABASE_URI = os.environ.get("DEV_DATABASE_URL")
 
 
 class ProductionConfig(Config):
     SERVICE_NAME = "rabbit"
-    os.environ["FLASK_CONFIG"] = "production"
+    os.environ["FLASK_ENV"] = "production"
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
 
 

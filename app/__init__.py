@@ -51,8 +51,10 @@ def create_app(
         os.environ.get("FLASK_CONFIG") is not None
         and os.environ.get("FLASK_CONFIG") is not config_name
     ):
+        print("111")
         config_name = os.environ.get("FLASK_CONFIG")
 
+    print("@@@@ ", config_name)
     init_config(app, config_name, settings)
 
     with app.app_context():
@@ -62,7 +64,6 @@ def create_app(
         init_extensions(app)
 
     print("test --> ", os.environ.get("FLASK_CONFIG"))
-    print("\n💌💌💌Flask Config is '{}'".format(os.environ.get("FLASK_CONFIG")))
     print("\n💌💌💌Flask Config is '{}'".format(config_name))
 
     return app
