@@ -88,7 +88,7 @@ pipelines:
           caches:
             - docker
       - step:
-          name: 'Create TaskDefinition for glam/rabbit-api-prod'
+          name: 'Create TaskDefinition for bium/rabbit-api-prod'
           image: 'python:3.8.2'
           trigger: manual
           script:
