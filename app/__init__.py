@@ -61,6 +61,7 @@ def create_app(
         init_provider()
         init_extensions(app)
 
-    print("\n💌💌💌Flask Config is '{}'".format(config_name))
+    print("test --> ", os.environ.get("FLASK_CONFIG"))
+    print("\n💌💌💌Flask Config is '{}'".format(os.environ.get("FLASK_CONFIG")))
 
     return app
