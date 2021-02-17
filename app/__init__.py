@@ -63,5 +63,6 @@ def create_app(
 
     print("test --> ", os.environ.get("FLASK_CONFIG"))
     print("\n💌💌💌Flask Config is '{}'".format(os.environ.get("FLASK_CONFIG")))
+    print("\n💌💌💌Flask Config is '{}'".format(config_name))
 
     return app
