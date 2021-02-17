@@ -51,8 +51,6 @@ class BlueGreenDeploy:
     def create_appspec_content(self, task_definition: str) -> str:
         app_spec_str = json.dumps(self.base_appspec)
         final_app_spec = app_spec_str.replace("__TASK_DEFINITION__", task_definition)
-        print("----> ", app_spec_str)
-        print("----> ", final_app_spec)
         encoded_app_spec = final_app_spec.encode()
         return {
             "content": final_app_spec,
