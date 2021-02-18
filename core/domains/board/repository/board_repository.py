@@ -139,7 +139,7 @@ class BoardRepository:
 
         previous_post_id_filter = []
         if previous_post_id:
-            previous_post_id_filter.append(PostModel.id > previous_post_id)
+            previous_post_id_filter.append(PostModel.id < previous_post_id)
 
         status_filters = []
         if status == PostStatusEnum.EXCLUDE_COMPLETED.value:  # 거래 완료 글 안보기
@@ -292,3 +292,18 @@ class BoardRepository:
         )
 
         return [category_id[0] for category_id in category_ids]
+
+    def get_selling_post_list(self, user_id: int, previous_post_id: int = None) -> list:
+        previous_post_id_filter = []
+        if previous_post_id:
+            previous_post_id_filter.append(PostModel.id < previous_post_id)
+
+        post_list = (
+            session.query(PostModel)
+            .filter(PostModel.user_id == user_id, *previous_post_id_filter)
+            .order_by(PostModel.id.desc())
+            .limit(PostLimitEnum.LIMIT.value)
+            .all()
+        )
+
+        return [post.to_entity() for post in post_list]
