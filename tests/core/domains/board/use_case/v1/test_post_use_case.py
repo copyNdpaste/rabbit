@@ -6,7 +6,7 @@ from core.domains.board.dto.post_dto import (
     DeletePostDto,
     GetPostListDto,
     GetPostDto,
-    GetSellingPostDto,
+    GetSellingPostListDto,
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
 from core.domains.board.enum.post_enum import (
@@ -24,7 +24,7 @@ from core.domains.board.use_case.v1.post_use_case import (
     GetPostListUseCase,
     GetPostUseCase,
     LikePostUseCase,
-    GetSellingPostList,
+    GetSellingPostListUseCase,
 )
 from core.use_case_output import FailureType
 from tests.seeder.factory import PostFactory
@@ -665,8 +665,8 @@ def test_get_selling_post_list(
     session.add_all([post1, post2])
     session.commit()
 
-    dto = GetSellingPostDto(user_id=input_user_id)
+    dto = GetSellingPostListDto(user_id=input_user_id)
 
-    selling_post_list = GetSellingPostList().execute(dto=dto).value
+    selling_post_list = GetSellingPostListUseCase().execute(dto=dto).value
 
     assert len(selling_post_list) == post_count_result

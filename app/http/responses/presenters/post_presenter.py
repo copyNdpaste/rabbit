@@ -37,18 +37,21 @@ class PostListPresenter:
     def transform(self, output: Union[UseCaseSuccessOutput, UseCaseFailureOutput]):
         if isinstance(output, UseCaseSuccessOutput):
             value = output.value
-            try:
-                schema = PostListResponseSchema(post_list=value)
-            except ValidationError as e:
-                print(e)
-                return failure_response(
-                    UseCaseFailureOutput(
-                        type=FailureType.SYSTEM_ERROR,
-                        message="response schema validation error",
+            if value:
+                try:
+                    schema = PostListResponseSchema(post_list=value)
+                except ValidationError as e:
+                    print(e)
+                    return failure_response(
+                        UseCaseFailureOutput(
+                            type=FailureType.SYSTEM_ERROR,
+                            message="response schema validation error",
+                        )
                     )
-                )
             result = {
-                "data": schema.dict(exclude_unset={"post_like_state"}),
+                "data": schema.dict(exclude_unset={"post_like_state"})
+                if value
+                else {"post_list": []},
                 "meta": output.meta,
             }
             return success_response(result=result)

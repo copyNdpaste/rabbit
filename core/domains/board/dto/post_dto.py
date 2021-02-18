@@ -53,6 +53,6 @@ class DeletePostDto(BaseModel):
     user_id: int
 
 
-class GetSellingPostDto(BaseModel):
+class GetSellingPostListDto(BaseModel):
     user_id: int
     previous_post_id: int = None

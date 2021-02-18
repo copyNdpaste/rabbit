@@ -9,6 +9,7 @@ from app.http.requests.view.board.v1.post_request import (
     GetPostListRequest,
     GetPostRequest,
     LikePostRequest,
+    GetSellingPostListRequest,
 )
 from app.http.responses import failure_response
 from app.http.responses.presenters.post_presenter import (
@@ -24,6 +25,7 @@ from core.domains.board.use_case.v1.post_use_case import (
     GetPostListUseCase,
     GetPostUseCase,
     LikePostUseCase,
+    GetSellingPostListUseCase,
 )
 from core.use_case_output import FailureType, UseCaseFailureOutput
 
@@ -114,3 +116,19 @@ def like_post_view(post_id):
         )
 
     return PostPresenter().transform(LikePostUseCase().execute(dto=dto))
+
+
+@api.route("/board/v1/posts/selling", methods=["GET"])
+@jwt_required
+@auth_required
+@swag_from("get_selling_post_list.yml", methods=["GET"])
+def get_selling_post_list_view():
+    dto = GetSellingPostListRequest(
+        user_id=current_user.id, previous_post_id=request.args.get("previous_post_id"),
+    ).validate_request_and_make_dto()
+    if not dto:
+        return failure_response(
+            UseCaseFailureOutput(type=FailureType.INVALID_REQUEST_ERROR)
+        )
+
+    return PostListPresenter().transform(GetSellingPostListUseCase().execute(dto=dto))

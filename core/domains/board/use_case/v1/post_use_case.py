@@ -9,7 +9,7 @@ from core.domains.board.dto.post_dto import (
     DeletePostDto,
     GetPostListDto,
     GetPostDto,
-    GetSellingPostDto,
+    GetSellingPostListDto,
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
 from core.domains.board.enum import PostTopicEnum
@@ -232,8 +232,8 @@ class LikePostUseCase(PostBaseUseCase):
         )
 
 
-class GetSellingPostList(PostBaseUseCase):
-    def execute(self, dto: GetSellingPostDto):
+class GetSellingPostListUseCase(PostBaseUseCase):
+    def execute(self, dto: GetSellingPostListDto):
         user = self._get_user(dto.user_id)
         if not user:
             return UseCaseFailureOutput(type=FailureType.NOT_FOUND_ERROR)

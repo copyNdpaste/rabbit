@@ -535,3 +535,61 @@ def test_when_get_post_list_order_by_desc_then_success(
     assert data["post_list"][0]["id"] == 3
     assert data["post_list"][1]["id"] == 2
     assert data["post_list"][2]["id"] == 1
+
+
+@pytest.mark.parametrize("post_count_result, input_user_id", [(2, 1), (0, 2)])
+def test_get_selling_post_list(
+    post_count_result,
+    input_user_id,
+    session,
+    normal_user_factory,
+    create_categories,
+    post_factory,
+    make_header,
+    test_request_context,
+    client,
+):
+    """
+    판매 목록 조회
+    """
+    user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
+    session.add_all(user_list)
+    session.commit()
+
+    post_owner = user_list[0]
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = post_owner.region.region_group_id
+
+    post1 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=post_owner.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    post2 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=post_owner.id,
+        status=PostStatusEnum.COMPLETED.value,
+    )
+
+    session.add_all([post1, post2])
+    session.commit()
+
+    access_token = create_access_token(identity=input_user_id)
+    authorization = "Bearer " + access_token
+    headers = make_header(authorization=authorization)
+
+    with test_request_context:
+        response = client.get(
+            url_for("api/rabbit.get_selling_post_list_view", user_id=input_user_id),
+            headers=headers,
+        )
+
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert len(data["post_list"]) == post_count_result
