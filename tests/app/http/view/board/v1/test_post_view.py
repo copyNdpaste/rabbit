@@ -583,11 +583,11 @@ def test_get_selling_post_list(
     access_token = create_access_token(identity=input_user_id)
     authorization = "Bearer " + access_token
     headers = make_header(authorization=authorization)
+    dct = dict(user_id=input_user_id)
 
     with test_request_context:
         response = client.get(
-            url_for("api/rabbit.get_selling_post_list_view", user_id=input_user_id),
-            headers=headers,
+            url_for("api/rabbit.get_selling_post_list_view"), json=dct, headers=headers,
         )
 
     assert response.status_code == 200

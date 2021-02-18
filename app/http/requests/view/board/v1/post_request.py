@@ -310,13 +310,13 @@ class LikePostRequest:
 
 
 class GetSellingPostListSchema(BaseModel):
-    user_id: StrictInt
+    user_id: StrictInt = None
     previous_post_id: StrictInt = None
 
 
 class GetSellingPostListRequest:
-    def __init__(self, user_id, previous_post_id=None):
-        self.user_id = user_id
+    def __init__(self, user_id=None, previous_post_id=None):
+        self.user_id = int(user_id) if user_id else None
         self.previous_post_id = int(previous_post_id) if previous_post_id else None
 
     def validate_request_and_make_dto(self):

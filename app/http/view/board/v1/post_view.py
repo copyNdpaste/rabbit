@@ -124,7 +124,7 @@ def like_post_view(post_id):
 @swag_from("get_selling_post_list.yml", methods=["GET"])
 def get_selling_post_list_view():
     dto = GetSellingPostListRequest(
-        user_id=current_user.id, previous_post_id=request.args.get("previous_post_id"),
+        **request.get_json(),
     ).validate_request_and_make_dto()
     if not dto:
         return failure_response(
