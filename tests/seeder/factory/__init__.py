@@ -2,7 +2,6 @@ import factory
 from faker import Factory as FakerFactory
 import uuid
 
-from app.extensions.database import session
 from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.post_model import PostModel
 from app.persistence.model.region_group_model import RegionGroupModel
@@ -11,10 +10,13 @@ from app.persistence.model.user_model import UserModel
 from app.persistence.model.user_profile_model import UserProfileModel
 from app.persistence.model.post_like_state_model import PostLikeStateModel
 from app.persistence.model.post_like_count_model import PostLikeCountModel
+from app.persistence.model.post_category_model import PostCategoryModel
+from app.persistence.model.category_model import CategoryModel
 from core.domains.board.enum.post_enum import (
     PostUnitEnum,
     PostStatusEnum,
     PostLikeStateEnum,
+    PostCategoryEnum,
 )
 
 faker = FakerFactory.create(locale="ko_KR")
@@ -63,6 +65,14 @@ class PostLikeStateFactory(factory.alchemy.SQLAlchemyModelFactory):
     state = PostLikeStateEnum.LIKE.value
 
 
+class CategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = CategoryModel
+
+    id = 1
+    name = PostCategoryEnum.DIVIDING_FOOD_INGREDIENT
+
+
 class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = PostModel
@@ -75,14 +85,13 @@ class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
     is_blocked = False
     report_count = 0
     read_count = 0
-    category = 0
     last_user_action = "default"
     last_admin_action = "default"
     user_id = 1
     amount = 0
     unit = PostUnitEnum.UNIT.value
     price_per_unit = 10000
-    status = PostStatusEnum.SALE.value
+    status = PostStatusEnum.SELLING.value
 
     @factory.post_generation
     def Article(obj, create, extracted, **kwargs):
@@ -93,6 +102,20 @@ class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
     def PostLikeCount(obj, create, extracted, **kwargs):
         if extracted:
             PostLikeCountFactory(post=obj, **kwargs)
+
+    @factory.post_generation
+    def Categories(obj, create, extracted, **kwargs):
+        if extracted:
+            for category in extracted:
+                obj.categories.append(category)
+
+
+class PostCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = PostCategoryModel
+
+    post_id = 1
+    category_id = 1
 
 
 class ArticleFactory(factory.alchemy.SQLAlchemyModelFactory):

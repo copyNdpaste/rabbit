@@ -5,12 +5,18 @@ class PostLimitEnum(Enum):
     LIMIT = 10
 
 
-# TODO : value integer -> string
 class PostCategoryEnum(Enum):
-    DIVIDING_FOOD_INGREDIENT = 1  # 식자재 나누기
-    DIVIDING_NECESSITIES = 2  # 생필품 나누기
-    LOST_MISSING = 3  # 분실/실종
-    USED_TRADING = 4  # 중고거래
+    DIVIDING_FOOD_INGREDIENT = 1  # 식자재 나누기. id 1
+    DIVIDING_NECESSITIES = 2  # 생필품 나누기. id 2
+    LOST_MISSING = 3  # 분실/실종. id 3
+    USED_TRADING = 4  # 중고거래. id 4
+
+    @staticmethod
+    def get_dict():
+        dct = {}
+        for e in PostCategoryEnum:
+            dct[e.value] = e.name.lower()
+        return dct
 
 
 class PostUnitEnum(Enum):
@@ -20,9 +26,11 @@ class PostUnitEnum(Enum):
 
 
 class PostStatusEnum(Enum):
-    SALE = "sale"  # 판매중
+    SELLING = "selling"  # 판매중
     RESERVATION = "reservation"  # 예약중
     COMPLETED = "completed"  # 거래완료
+    EXCLUDE_COMPLETED = "exclude_completed"  # 거래완료 안보기
+    ALL = "all"  # 판매중, 예약중, 거래완료 보기
 
 
 class PostLikeStateEnum(Enum):

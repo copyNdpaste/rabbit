@@ -11,7 +11,7 @@ parameters:
       type: int
 responses:
   '200':
-    description: A post object
+    description: like post
     content:
       application/json:
         schema:

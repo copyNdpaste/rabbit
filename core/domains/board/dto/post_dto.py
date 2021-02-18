@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -12,11 +14,11 @@ class CreatePostDto(BaseModel):
     is_blocked: bool
     report_count: int
     read_count: int
-    category: int
     amount: int
     unit: str
     price_per_unit: int
     status: str
+    category_ids: List[int]
 
 
 class GetPostListDto(BaseModel):
@@ -24,7 +26,8 @@ class GetPostListDto(BaseModel):
     previous_post_id: int = None
     title: str = None
     type: str = None
-    category: int = None
+    category_ids: List[int]
+    status: str = None
 
 
 class GetPostDto(BaseModel):
@@ -39,7 +42,6 @@ class UpdatePostDto(BaseModel):
     region_group_id: int
     type: str
     is_comment_disabled: bool
-    category: int
     amount: int
     unit: str
     price_per_unit: int

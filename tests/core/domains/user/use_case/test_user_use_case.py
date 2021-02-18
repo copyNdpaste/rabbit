@@ -22,24 +22,15 @@ def test_when_get_user_then_success(session, normal_user_factory):
     assert user_entity.id == user.id
 
 
-def test_when_get_user_with_relations_then_success(session, normal_user_factory):
+def test_when_get_user_with_relations_then_success(
+    session, normal_user_factory, post_factory
+):
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
 
-    post = PostModel(
-        user_id=user.id,
-        title="떡볶이 나눠 먹어요",
-        region_group_id=1,
-        type="article",
-        is_comment_disabled=True,
-        is_deleted=False,
-        is_blocked=False,
-        report_count=0,
-        read_count=0,
-        category=0,
-        last_user_action="default",
-        last_admin_action="default",
+    post = post_factory(
+        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
     )
     session.add(post)
     session.commit()

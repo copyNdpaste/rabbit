@@ -79,7 +79,8 @@ class GetPostListUseCase(PostBaseUseCase):
             region_group_id=dto.region_group_id,
             previous_post_id=dto.previous_post_id,
             title=dto.title,
-            category=dto.category,
+            category_ids=dto.category_ids,
+            status=dto.status,
         )
         if not post_list:
             return UseCaseFailureOutput(FailureType.NOT_FOUND_ERROR)

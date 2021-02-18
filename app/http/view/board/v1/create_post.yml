@@ -30,11 +30,13 @@ requestBody:
             type: integer
           read_count:
             type: integer
-          category:
-            type: integer
+          category_ids:
+            type: array
+            items:
+              type: integer
 responses:
   '200':
-    description: A post object
+    description: create post
     content:
       application/json:
         schema:

@@ -17,11 +17,13 @@ requestBody:
             type: string
           type:
             type: string
-          category:
-            type: integer
+          category_ids:
+            type: array
+            items:
+              type: integer
 responses:
   '200':
-    description: A post object list
+    description: get post list
     content:
       application/json:
         schema:

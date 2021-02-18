@@ -20,7 +20,7 @@ class PostResponseBaseSchema(BaseModel):
     is_blocked: bool
     report_count: StrictInt
     read_count: StrictInt
-    category: StrictInt
+    categories: List[str]
     last_user_action: StrictStr
     last_user_action_at: Optional[datetime]
     last_admin_action: StrictStr

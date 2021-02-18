@@ -1,7 +1,9 @@
 from typing import List, Optional, Union
-
 from app.extensions.database import session
+from app.extensions.utils.query_helper import RawQueryHelper
 from app.persistence.model.article_model import ArticleModel
+from app.persistence.model.category_model import CategoryModel
+from app.persistence.model.post_category_model import PostCategoryModel
 from app.persistence.model.post_like_count_model import PostLikeCountModel
 from app.persistence.model.post_like_state_model import PostLikeStateModel
 from app.persistence.model.post_model import PostModel
@@ -11,7 +13,11 @@ from core.domains.board.entity.like_entity import (
     PostLikeCountEntity,
 )
 from core.domains.board.entity.post_entity import PostEntity
-from core.domains.board.enum.post_enum import PostLimitEnum, PostLikeStateEnum
+from core.domains.board.enum.post_enum import (
+    PostLimitEnum,
+    PostLikeStateEnum,
+    PostStatusEnum,
+)
 
 
 class BoardRepository:
@@ -27,7 +33,6 @@ class BoardRepository:
                 is_blocked=dto.is_blocked,
                 report_count=dto.report_count,
                 read_count=dto.read_count,
-                category=dto.category,
                 amount=dto.amount,
                 unit=dto.unit,
                 price_per_unit=dto.price_per_unit,
@@ -40,11 +45,24 @@ class BoardRepository:
             session.add(article)
             session.commit()
 
+            self.create_post_categories(post_id=post.id, dto=dto)
+
             return post.to_entity()
         except Exception as e:
             # TODO : log e 필요
             session.rollback()
             return None
+
+    def create_post_categories(self, post_id: int, dto: CreatePostDto):
+        post_categories = []
+
+        for category_id in dto.category_ids:
+            post_categories.append(
+                PostCategoryModel(post_id=post_id, category_id=category_id)
+            )
+
+        session.add_all(post_categories)
+        session.commit()
 
     def _get_post(self, post_id) -> PostEntity:
         return session.query(PostModel).filter_by(id=post_id).first().to_entity()
@@ -60,7 +78,6 @@ class BoardRepository:
                         "region_group_id": dto.region_group_id,
                         "type": dto.type,
                         "is_comment_disabled": dto.is_comment_disabled,
-                        "category": dto.category,
                     }
                 )
             )
@@ -93,46 +110,91 @@ class BoardRepository:
             session.query(PostModel).filter_by(id=post_id).exists()
         ).scalar()
 
+    # TODO: parameter 너무 많아지면 dto 사용 고려
     def get_post_list(
         self,
         region_group_id: int,
         previous_post_id: int = None,
         title: str = "",
-        category: int = 0,
+        category_ids: list = None,
+        status: str = None,
     ) -> Optional[List[Union[PostEntity, list]]]:
         """
+        :param category_ids: 상품 카테고리
+        :param status: post 판매 상태
         :param region_group_id: 유저가 속한 동네 식별자
         :param previous_post_id: 유저가 바로 직전 조회한 post id
         :param title: 게시글 제목
-        :param category: 상품 카테고리
         :return: post list
         1. 동일 지역의 post 가져오기, deleted, blocked 제외
         2. title like 검색, 선택된 type, category 등에 맞게 응답
         """
-        category_filter = []
-        if category:
-            category_filter.append(PostModel.category == category)
+
+        if not category_ids:
+            category_ids = self.get_category_ids()
+
         search_filter = []
         if title:
             search_filter.append(PostModel.title.like(f"%{title}%"))
+
         previous_post_id_filter = []
         if previous_post_id:
             previous_post_id_filter.append(PostModel.id > previous_post_id)
+
+        status_filters = []
+        if status == PostStatusEnum.EXCLUDE_COMPLETED.value:  # 거래 완료 글 안보기
+            status_filters.append(PostModel.status == PostStatusEnum.SELLING.value)
+        elif status == PostStatusEnum.ALL.value:  # 판매중, 거래 완료 글 보기
+            status_filters.append([PostModel.status == PostStatusEnum.SELLING.value])
+            status_filters.append([PostModel.status == PostStatusEnum.COMPLETED.value])
+
         try:
-            post_list = (
-                session.query(PostModel)
-                .filter(
+            # TODO:코드 메서드로 분리해서 호출
+            # status에 따라 판매중 or 판매중 + 거래 완료 선택
+            if len(status_filters) >= 2:
+                query_list = []
+                for status_filter in status_filters:
+                    query_list.append(
+                        session.query(PostModel).filter(
+                            PostModel.region_group_id == region_group_id,
+                            PostModel.is_blocked == False,
+                            PostModel.is_deleted == False,
+                            *search_filter,
+                            *previous_post_id_filter,
+                            *status_filter,
+                        )
+                    )
+                query = query_list[0].union(*query_list[1:])
+            else:
+                query = session.query(PostModel).filter(
                     PostModel.region_group_id == region_group_id,
                     PostModel.is_blocked == False,
                     PostModel.is_deleted == False,
-                    *category_filter,
                     *search_filter,
                     *previous_post_id_filter,
+                    *status_filters,
                 )
-                .order_by(PostModel.id.desc())
-                .limit(PostLimitEnum.LIMIT.value)
-                .all()
-            )
+
+            query_list = []
+            for category_id in category_ids:
+                q = query
+                query_list.append(
+                    q.filter(
+                        PostModel.id == PostCategoryModel.post_id,
+                        PostCategoryModel.category_id == CategoryModel.id,
+                        CategoryModel.id == category_id,
+                    )
+                )
+
+            post_list = []
+            if query_list:
+                query = query_list[0].union(*query_list[1:])
+
+                post_list = (
+                    query.order_by(PostModel.id.desc())
+                    .limit(PostLimitEnum.LIMIT.value)
+                    .all()
+                )
 
             return [post.to_post_list_entity() for post in post_list]
         except Exception as e:
@@ -223,3 +285,10 @@ class BoardRepository:
             # TODO : log
             session.rollback()
             return None
+
+    def get_category_ids(self) -> list:
+        category_ids = (
+            session.query(CategoryModel).with_entities(CategoryModel.id).all()
+        )
+
+        return [category_id[0] for category_id in category_ids]

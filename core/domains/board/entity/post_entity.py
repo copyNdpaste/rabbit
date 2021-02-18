@@ -21,7 +21,6 @@ class PostEntity(BaseModel):
     is_blocked: bool
     report_count: int
     read_count: int
-    category: int
     last_user_action: Optional[str] = None
     last_user_action_at: Optional[datetime] = None
     last_admin_action: Optional[str] = None
@@ -35,6 +34,7 @@ class PostEntity(BaseModel):
     status: str
     post_like_count: int = 0
     post_like_state: str = PostLikeStateEnum.DEFAULT.value
+    categories: list = []
 
 
 class PostListEntity(BaseModel):
@@ -51,7 +51,6 @@ class PostListEntity(BaseModel):
     is_blocked: bool
     report_count: int
     read_count: int
-    category: int
     last_user_action: Optional[str] = None
     last_user_action_at: Optional[datetime] = None
     last_admin_action: Optional[str] = None
@@ -65,3 +64,4 @@ class PostListEntity(BaseModel):
     price_per_unit: int
     status: str
     post_like_count: int = 0
+    categories: list = []
