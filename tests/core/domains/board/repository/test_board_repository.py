@@ -676,12 +676,9 @@ def test_get_post_list_order_by_desc(
     assert post_list[2].id == 1
 
 
-@pytest.mark.parametrize(
-    "post_count_result, post_owner_id, input_user_id", [(2, 1, 1), (0, 1, 0)]
-)
+@pytest.mark.parametrize("post_count_result, input_user_id", [(2, 1), (0, 0)])
 def test_get_selling_post_list(
     post_count_result,
-    post_owner_id,
     input_user_id,
     session,
     normal_user_factory,
@@ -691,26 +688,28 @@ def test_get_selling_post_list(
     """
     판매 목록 조회
     """
-    user = normal_user_factory.build(id=post_owner_id, Region=True, UserProfile=True)
-    session.add(user)
+    user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
+    session.add_all(user_list)
     session.commit()
+
+    post_owner = user_list[0]
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
-    region_group_id = user.region.region_group_id
+    region_group_id = post_owner.region.region_group_id
 
     post1 = post_factory(
         Article=True,
         Categories=[categories[0]],
         region_group_id=region_group_id,
-        user_id=user.id,
+        user_id=post_owner.id,
         status=PostStatusEnum.SELLING.value,
     )
     post2 = post_factory(
         Article=True,
         Categories=[categories[0]],
         region_group_id=region_group_id,
-        user_id=user.id,
+        user_id=post_owner.id,
         status=PostStatusEnum.COMPLETED.value,
     )
 
