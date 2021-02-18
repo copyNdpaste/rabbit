@@ -15,7 +15,7 @@ ENV APP_DIR /server
 RUN mkdir ${APP_DIR}
 
 # setuptools : 파이썬에서는 setuptools 패키지를 활용해 프로젝트의 테스트, 빌드, 배포 과정을 쉽게 관리할 수 있도록 도와준다.
-RUN pip install --upgrade pip setuptools wheel
+RUN pip install --upgrade pip setuptools
 RUN pip install --no-cache-dir cryptography==2.1.4
 RUN pip install poetry
 
