@@ -14,6 +14,7 @@ from core.domains.board.enum.post_enum import (
     PostStatusEnum,
     PostLikeCountEnum,
     PostLikeStateEnum,
+    PostLimitEnum,
 )
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
@@ -250,7 +251,7 @@ def test_when_get_post_list_pagination_then_success(
 
     dto = GetPostListDto(
         region_group_id=user.region.region_group.id,
-        previous_post_id=10,
+        previous_post_id=len(post_list) % PostLimitEnum.LIMIT.value + 1,
         category_ids=[categories[0].id],
     )
     post_list = GetPostListUseCase().execute(dto=dto).value

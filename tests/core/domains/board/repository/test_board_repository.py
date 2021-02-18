@@ -193,7 +193,7 @@ def test_get_post_list_pagination(session, normal_user_factory, create_categorie
 
     post_list = BoardRepository().get_post_list(
         region_group_id=user.region.region_group.id,
-        previous_post_id=len(post_list) - PostLimitEnum.LIMIT.value + 1,
+        previous_post_id=len(post_list) % PostLimitEnum.LIMIT.value + 1,
         category_ids=[categories[0].id],
     )
 
@@ -749,7 +749,7 @@ def test_get_selling_post_list_pagination(
     session.commit()
 
     selling_post_list = BoardRepository().get_selling_post_list(
-        user_id=user.id, previous_post_id=2
+        user_id=user.id, previous_post_id=len(post_list) % PostLimitEnum.LIMIT.value + 1
     )
 
     assert len(selling_post_list) == 1
