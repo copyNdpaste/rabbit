@@ -321,15 +321,10 @@ class GetSellingPostListRequest:
 
     def validate_request_and_make_dto(self):
         try:
-            GetSellingPostListSchema(
+            schema = GetSellingPostListSchema(
                 user_id=self.user_id, previous_post_id=self.previous_post_id
-            )
-            return self.to_dto()
+            ).dict()
+            return GetSellingPostListDto(**schema)
         except ValidationError as e:
             print(e)
             return False
-
-    def to_dto(self) -> GetSellingPostListDto:
-        return GetSellingPostListDto(
-            user_id=self.user_id, previous_post_id=self.previous_post_id
-        )
