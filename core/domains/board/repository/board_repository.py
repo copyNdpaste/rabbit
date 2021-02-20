@@ -307,3 +307,19 @@ class BoardRepository:
         )
 
         return [post.to_entity() for post in post_list]
+
+    def get_like_post_list(self, user_id: int, previous_post_id: int = None) -> list:
+        previous_post_id_filter = []
+        if previous_post_id:
+            previous_post_id_filter.append(PostModel.id < previous_post_id)
+
+        post_list = (
+            session.query(PostModel)
+            .join(PostLikeStateModel)
+            .filter(*previous_post_id_filter, PostLikeStateModel.user_id == user_id)
+            .order_by(PostModel.id.desc())
+            .limit(PostLimitEnum.LIMIT.value)
+            .all()
+        )
+
+        return [post.to_entity() for post in post_list]
