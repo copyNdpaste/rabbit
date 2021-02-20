@@ -30,6 +30,10 @@ class PostResponseBaseSchema(BaseModel):
     user: UserEntity
     post_like_count: StrictInt
     post_like_state: Optional[StrictStr] = None
+    amount: int
+    unit: str
+    price_per_unit: int
+    status: str
 
 
 class PostResponseSchema(BaseModel):

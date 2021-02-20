@@ -6,6 +6,7 @@ from core.domains.board.dto.post_dto import (
     DeletePostDto,
     GetPostListDto,
     GetPostDto,
+    GetSellingPostListDto,
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
 from core.domains.board.enum.post_enum import (
@@ -14,6 +15,7 @@ from core.domains.board.enum.post_enum import (
     PostStatusEnum,
     PostLikeCountEnum,
     PostLikeStateEnum,
+    PostLimitEnum,
 )
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
@@ -22,6 +24,7 @@ from core.domains.board.use_case.v1.post_use_case import (
     GetPostListUseCase,
     GetPostUseCase,
     LikePostUseCase,
+    GetSellingPostListUseCase,
 )
 from core.use_case_output import FailureType
 from tests.seeder.factory import PostFactory
@@ -209,7 +212,7 @@ def test_when_get_post_list_then_success(
         post.region_group_name = user.region.region_group.name
 
 
-def test_when_get_empty_post_list_then_not_found(
+def test_when_get_empty_post_list_then_empty_list(
     session, normal_user_factory, create_categories
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
@@ -223,7 +226,7 @@ def test_when_get_empty_post_list_then_not_found(
     )
     result = GetPostListUseCase().execute(dto=dto).value
 
-    assert result["type"] == FailureType.NOT_FOUND_ERROR
+    assert result == []
 
 
 def test_when_get_post_list_pagination_then_success(
@@ -250,7 +253,7 @@ def test_when_get_post_list_pagination_then_success(
 
     dto = GetPostListDto(
         region_group_id=user.region.region_group.id,
-        previous_post_id=10,
+        previous_post_id=len(post_list) % PostLimitEnum.LIMIT.value + 1,
         category_ids=[categories[0].id],
     )
     post_list = GetPostListUseCase().execute(dto=dto).value
@@ -620,3 +623,50 @@ def test_when_get_post_list_order_by_desc_then_success(
     assert post_list[0].id == 3
     assert post_list[1].id == 2
     assert post_list[2].id == 1
+
+
+@pytest.mark.parametrize("post_count_result, input_user_id", [(2, 1), (0, 2)])
+def test_get_selling_post_list(
+    post_count_result,
+    input_user_id,
+    session,
+    normal_user_factory,
+    create_categories,
+    post_factory,
+):
+    """
+    판매 목록 조회
+    """
+    user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
+    session.add_all(user_list)
+    session.commit()
+
+    post_owner = user_list[0]
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = post_owner.region.region_group_id
+
+    post1 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=post_owner.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    post2 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=post_owner.id,
+        status=PostStatusEnum.COMPLETED.value,
+    )
+
+    session.add_all([post1, post2])
+    session.commit()
+
+    dto = GetSellingPostListDto(user_id=input_user_id)
+
+    selling_post_list = GetSellingPostListUseCase().execute(dto=dto).value
+
+    assert len(selling_post_list) == post_count_result

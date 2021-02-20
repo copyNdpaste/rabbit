@@ -193,7 +193,7 @@ def test_get_post_list_pagination(session, normal_user_factory, create_categorie
 
     post_list = BoardRepository().get_post_list(
         region_group_id=user.region.region_group.id,
-        previous_post_id=10,
+        previous_post_id=len(post_list) % PostLimitEnum.LIMIT.value + 1,
         category_ids=[categories[0].id],
     )
 
@@ -674,3 +674,82 @@ def test_get_post_list_order_by_desc(
     assert post_list[0].id == 3
     assert post_list[1].id == 2
     assert post_list[2].id == 1
+
+
+@pytest.mark.parametrize("post_count_result, input_user_id", [(2, 1), (0, 0)])
+def test_get_selling_post_list(
+    post_count_result,
+    input_user_id,
+    session,
+    normal_user_factory,
+    create_categories,
+    post_factory,
+):
+    """
+    판매 목록 조회
+    """
+    user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
+    session.add_all(user_list)
+    session.commit()
+
+    post_owner = user_list[0]
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = post_owner.region.region_group_id
+
+    post1 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=post_owner.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    post2 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=post_owner.id,
+        status=PostStatusEnum.COMPLETED.value,
+    )
+
+    session.add_all([post1, post2])
+    session.commit()
+
+    selling_post_list = BoardRepository().get_selling_post_list(user_id=input_user_id)
+
+    assert len(selling_post_list) == post_count_result
+
+
+def test_get_selling_post_list_pagination(
+    session, normal_user_factory, create_categories, post_factory,
+):
+    """
+    판매 목록 조회 페이지네이션
+    """
+    user = normal_user_factory.build(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = user.region.region_group_id
+
+    post_list = post_factory.build_batch(
+        size=11,
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+
+    session.add_all(post_list)
+    session.commit()
+
+    selling_post_list = BoardRepository().get_selling_post_list(
+        user_id=user.id, previous_post_id=len(post_list) % PostLimitEnum.LIMIT.value + 1
+    )
+
+    assert len(selling_post_list) == 1
+    assert selling_post_list[0].id == post_list[0].id

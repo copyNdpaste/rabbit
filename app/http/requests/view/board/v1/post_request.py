@@ -8,6 +8,7 @@ from core.domains.board.dto.post_dto import (
     DeletePostDto,
     GetPostListDto,
     GetPostDto,
+    GetSellingPostListDto,
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
 
@@ -30,6 +31,7 @@ class CreatePostSchema(BaseModel):
     status: StrictStr
 
 
+# TODO : pydantic 활용해서 request 스키마 검증, dto 생성 간소화
 class CreatePostRequest:
     def __init__(
         self,
@@ -305,3 +307,24 @@ class LikePostRequest:
 
     def to_dto(self) -> LikePostDto:
         return LikePostDto(post_id=self.post_id, user_id=self.user_id)
+
+
+class GetSellingPostListSchema(BaseModel):
+    user_id: StrictInt = None
+    previous_post_id: StrictInt = None
+
+
+class GetSellingPostListRequest:
+    def __init__(self, user_id=None, previous_post_id=None):
+        self.user_id = int(user_id) if user_id else None
+        self.previous_post_id = int(previous_post_id) if previous_post_id else None
+
+    def validate_request_and_make_dto(self):
+        try:
+            schema = GetSellingPostListSchema(
+                user_id=self.user_id, previous_post_id=self.previous_post_id
+            ).dict()
+            return GetSellingPostListDto(**schema)
+        except ValidationError as e:
+            print(e)
+            return False

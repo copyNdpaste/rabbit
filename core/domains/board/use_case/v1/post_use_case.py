@@ -9,6 +9,7 @@ from core.domains.board.dto.post_dto import (
     DeletePostDto,
     GetPostListDto,
     GetPostDto,
+    GetSellingPostListDto,
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
 from core.domains.board.enum import PostTopicEnum
@@ -82,11 +83,12 @@ class GetPostListUseCase(PostBaseUseCase):
             category_ids=dto.category_ids,
             status=dto.status,
         )
-        if not post_list:
-            return UseCaseFailureOutput(FailureType.NOT_FOUND_ERROR)
 
         return UseCaseSuccessOutput(
-            value=post_list, meta=self._make_cursor(last_post_id=post_list[-1].id)
+            value=post_list,
+            meta=self._make_cursor(
+                last_post_id=post_list[-1].id if post_list else None
+            ),
         )
 
     def _get_region_group(self, id: int):
@@ -227,4 +229,22 @@ class LikePostUseCase(PostBaseUseCase):
         to_be_up_or_down_count = self._get_to_be_up_or_down_count(state=state)
         return self._board_repo.update_post_like_count(
             post_id=dto.post_id, count=to_be_up_or_down_count
+        )
+
+
+class GetSellingPostListUseCase(PostBaseUseCase):
+    def execute(self, dto: GetSellingPostListDto):
+        user = self._get_user(dto.user_id)
+        if not user:
+            return UseCaseFailureOutput(type=FailureType.NOT_FOUND_ERROR)
+
+        selling_post_list = self._board_repo.get_selling_post_list(
+            user_id=dto.user_id, previous_post_id=dto.previous_post_id
+        )
+
+        return UseCaseSuccessOutput(
+            value=selling_post_list,
+            meta=self._make_cursor(
+                last_post_id=selling_post_list[-1].id if selling_post_list else None
+            ),
         )
