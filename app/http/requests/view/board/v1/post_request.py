@@ -9,6 +9,7 @@ from core.domains.board.dto.post_dto import (
     GetPostListDto,
     GetPostDto,
     GetSellingPostListDto,
+    GetLikePostListDto,
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
 
@@ -325,6 +326,27 @@ class GetSellingPostListRequest:
                 user_id=self.user_id, previous_post_id=self.previous_post_id
             ).dict()
             return GetSellingPostListDto(**schema)
+        except ValidationError as e:
+            print(e)
+            return False
+
+
+class GetLikePostListSchema(BaseModel):
+    user_id: StrictInt = None
+    previous_post_id: StrictInt = None
+
+
+class GetLikePostListRequest:
+    def __init__(self, user_id=None, previous_post_id=None):
+        self.user_id = int(user_id) if user_id else None
+        self.previous_post_id = int(previous_post_id) if previous_post_id else None
+
+    def validate_request_and_make_dto(self):
+        try:
+            schema = GetLikePostListSchema(
+                user_id=self.user_id, previous_post_id=self.previous_post_id
+            ).dict()
+            return GetLikePostListDto(**schema)
         except ValidationError as e:
             print(e)
             return False

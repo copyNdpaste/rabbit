@@ -10,6 +10,7 @@ from core.domains.board.dto.post_dto import (
     GetPostListDto,
     GetPostDto,
     GetSellingPostListDto,
+    GetLikePostListDto,
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
 from core.domains.board.enum import PostTopicEnum
@@ -246,5 +247,23 @@ class GetSellingPostListUseCase(PostBaseUseCase):
             value=selling_post_list,
             meta=self._make_cursor(
                 last_post_id=selling_post_list[-1].id if selling_post_list else None
+            ),
+        )
+
+
+class GetLikePostListUseCase(PostBaseUseCase):
+    def execute(self, dto: GetLikePostListDto):
+        user = self._get_user(dto.user_id)
+        if not user:
+            return UseCaseFailureOutput(type=FailureType.NOT_FOUND_ERROR)
+
+        like_post_list = self._board_repo.get_like_post_list(
+            user_id=dto.user_id, previous_post_id=dto.previous_post_id
+        )
+
+        return UseCaseSuccessOutput(
+            value=like_post_list,
+            meta=self._make_cursor(
+                last_post_id=like_post_list[-1].id if like_post_list else None
             ),
         )
