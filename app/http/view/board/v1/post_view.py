@@ -118,7 +118,7 @@ def like_post_view(post_id):
     return PostPresenter().transform(LikePostUseCase().execute(dto=dto))
 
 
-@api.route("/board/v1/posts/selling", methods=["GET"])
+@api.route("/board/v1/posts/selling-list", methods=["GET"])
 @jwt_required
 @auth_required
 @swag_from("get_selling_post_list.yml", methods=["GET"])
