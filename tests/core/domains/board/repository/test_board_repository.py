@@ -1,11 +1,7 @@
 import uuid
-from datetime import datetime
-from io import BytesIO
-
 import pytest
-from werkzeug.datastructures import FileStorage
-
-from app.extensions.utils.enum.aws_enum import S3PathEnum, S3BucketEnum
+from datetime import datetime
+from app.extensions.utils.enum.aws_enum import S3PathEnum
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.enum.attachment_enum import AttachmentEnum
 from core.domains.board.enum.post_enum import (
@@ -892,19 +888,11 @@ def test_get_like_post_list_pagination_success(
 
 
 def test_create_attachment(session, post_factory):
-    # s3_stub.add_response(
-    #     "head_object",
-    #     expected_params={"Bucket": S3BucketEnum.LUDICER_BUCKET.value},
-    #     service_response={},
-    # )
-
     post = post_factory()
 
     session.add(post)
     session.commit()
 
-    # file = (BytesIO(b"my file contents"), "file_name.jpg")
-    # file = FileStorage(stream=BytesIO(b"hi"), filename="hi.jpg")
     attachment = BoardRepository().create_attachment(
         post_id=post.id,
         type=AttachmentEnum.PICTURE.value,

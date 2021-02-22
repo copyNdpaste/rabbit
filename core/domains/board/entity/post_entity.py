@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 
@@ -36,7 +36,7 @@ class PostEntity(BaseModel):
     post_like_count: int = 0
     post_like_state: str = PostLikeStateEnum.DEFAULT.value
     categories: list = []
-    attachment: AttachmentEntity
+    attachment: List[Optional[AttachmentEntity]] = None
 
 
 class PostListEntity(BaseModel):
@@ -67,4 +67,4 @@ class PostListEntity(BaseModel):
     status: str
     post_like_count: int = 0
     categories: list = []
-    attachment: AttachmentEntity
+    attachment: List[Optional[AttachmentEntity]] = None
