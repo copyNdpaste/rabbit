@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from core.domains.board.entity.attachment_entiry import AttachmentEntity
 from core.domains.board.enum.post_enum import PostLikeStateEnum
 from core.domains.user.entity.user_entity import UserEntity
 from core.domains.user.entity.user_profile_entity import UserProfileEntity
@@ -35,6 +36,7 @@ class PostEntity(BaseModel):
     post_like_count: int = 0
     post_like_state: str = PostLikeStateEnum.DEFAULT.value
     categories: list = []
+    attachment: AttachmentEntity
 
 
 class PostListEntity(BaseModel):
@@ -65,3 +67,4 @@ class PostListEntity(BaseModel):
     status: str
     post_like_count: int = 0
     categories: list = []
+    attachment: AttachmentEntity

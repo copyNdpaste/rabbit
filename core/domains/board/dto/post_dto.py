@@ -19,6 +19,8 @@ class CreatePostDto(BaseModel):
     price_per_unit: int
     status: str
     category_ids: List[int]
+    type: str
+    file: str
 
 
 class GetPostListDto(BaseModel):

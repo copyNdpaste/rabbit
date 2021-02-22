@@ -1,13 +1,17 @@
 from typing import List, Optional, Union
+from uuid import UUID
+
 from app.extensions.database import session
 from app.extensions.utils.query_helper import RawQueryHelper
 from app.persistence.model.article_model import ArticleModel
+from app.persistence.model.attachment_model import AttachmentModel
 from app.persistence.model.category_model import CategoryModel
 from app.persistence.model.post_category_model import PostCategoryModel
 from app.persistence.model.post_like_count_model import PostLikeCountModel
 from app.persistence.model.post_like_state_model import PostLikeStateModel
 from app.persistence.model.post_model import PostModel
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
+from core.domains.board.entity.attachment_entiry import AttachmentEntity
 from core.domains.board.entity.like_entity import (
     PostLikeStateEntity,
     PostLikeCountEntity,
@@ -63,6 +67,32 @@ class BoardRepository:
 
         session.add_all(post_categories)
         session.commit()
+
+    def create_attachment(
+        self,
+        post_id: int,
+        type: str,
+        file_name: str,
+        path: str,
+        extension: str,
+        uuid: str,
+    ) -> Optional[AttachmentEntity]:
+        try:
+            attachment = AttachmentModel(
+                post_id=post_id,
+                type=type,
+                file_name=file_name,
+                path=path,
+                extension=extension,
+                uuid=uuid,
+            )
+            session.add(attachment)
+            session.commit()
+            return attachment.to_entity() if attachment else None
+        except Exception as e:
+            session.rollback()
+            # TODO: log
+            return None
 
     def _get_post(self, post_id) -> PostEntity:
         return session.query(PostModel).filter_by(id=post_id).first().to_entity()

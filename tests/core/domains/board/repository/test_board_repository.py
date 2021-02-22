@@ -1,9 +1,13 @@
+import uuid
 from datetime import datetime
+from io import BytesIO
 
 import pytest
+from werkzeug.datastructures import FileStorage
 
-from app.persistence.model.category_model import CategoryModel
+from app.extensions.utils.enum.aws_enum import S3PathEnum, S3BucketEnum
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
+from core.domains.board.enum.attachment_enum import AttachmentEnum
 from core.domains.board.enum.post_enum import (
     PostCategoryEnum,
     PostUnitEnum,
@@ -885,3 +889,29 @@ def test_get_like_post_list_pagination_success(
 
     assert len(like_post_list_result) == 1
     assert like_post_list_result[0].id == liked_post_list[0].id
+
+
+def test_create_attachment(session, post_factory):
+    # s3_stub.add_response(
+    #     "head_object",
+    #     expected_params={"Bucket": S3BucketEnum.LUDICER_BUCKET.value},
+    #     service_response={},
+    # )
+
+    post = post_factory()
+
+    session.add(post)
+    session.commit()
+
+    # file = (BytesIO(b"my file contents"), "file_name.jpg")
+    # file = FileStorage(stream=BytesIO(b"hi"), filename="hi.jpg")
+    attachment = BoardRepository().create_attachment(
+        post_id=post.id,
+        type=AttachmentEnum.PICTURE.value,
+        file_name="hi",
+        path=S3PathEnum.POST_IMGS.value,
+        uuid=str(uuid.uuid4()),
+        extension="jpg",
+    )
+
+    assert attachment.post_id == post.id
