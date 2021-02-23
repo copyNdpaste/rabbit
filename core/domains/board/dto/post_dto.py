@@ -56,3 +56,8 @@ class DeletePostDto(BaseModel):
 class GetSellingPostListDto(BaseModel):
     user_id: int
     previous_post_id: int = None
+
+
+class GetLikePostListDto(BaseModel):
+    user_id: int
+    previous_post_id: int = None

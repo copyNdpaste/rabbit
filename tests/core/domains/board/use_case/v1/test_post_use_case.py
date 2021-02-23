@@ -7,6 +7,7 @@ from core.domains.board.dto.post_dto import (
     GetPostListDto,
     GetPostDto,
     GetSellingPostListDto,
+    GetLikePostListDto,
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
 from core.domains.board.enum.post_enum import (
@@ -25,6 +26,7 @@ from core.domains.board.use_case.v1.post_use_case import (
     GetPostUseCase,
     LikePostUseCase,
     GetSellingPostListUseCase,
+    GetLikePostListUseCase,
 )
 from core.use_case_output import FailureType
 from tests.seeder.factory import PostFactory
@@ -670,3 +672,53 @@ def test_get_selling_post_list(
     selling_post_list = GetSellingPostListUseCase().execute(dto=dto).value
 
     assert len(selling_post_list) == post_count_result
+
+
+def test_get_like_post_list(
+    session,
+    normal_user_factory,
+    create_categories,
+    post_factory,
+    post_like_state_factory,
+):
+    """
+    내가 찜한 게시글, 찜 안한 게시글 생성 후 찜한 게시글만 응답  확인
+    """
+    user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
+    session.add_all(user_list)
+    session.commit()
+
+    user1 = user_list[0]
+    user2 = user_list[1]
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = user1.region.region_group_id
+
+    liked_post = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user1.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    post = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user1.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    session.add(liked_post)
+    session.commit()
+
+    post_like_state = post_like_state_factory(post_id=liked_post.id, user_id=user2.id)
+
+    session.add_all([post, post_like_state])
+    session.commit()
+
+    dto = GetLikePostListDto(user_id=user2.id)
+
+    like_post_list = GetLikePostListUseCase().execute(dto=dto).value
+
+    assert len(like_post_list) == 1

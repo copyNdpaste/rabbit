@@ -753,3 +753,135 @@ def test_get_selling_post_list_pagination(
 
     assert len(selling_post_list) == 1
     assert selling_post_list[0].id == post_list[0].id
+
+
+def test_get_like_post_list_success(
+    session,
+    normal_user_factory,
+    create_categories,
+    post_factory,
+    post_like_state_factory,
+):
+    """
+    내가 찜한 게시글, 찜 안한 게시글 생성 후 찜한 게시글만 응답  확인
+    """
+    user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
+    session.add_all(user_list)
+    session.commit()
+
+    user1 = user_list[0]
+    user2 = user_list[1]
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = user1.region.region_group_id
+
+    liked_post = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user1.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    post = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user1.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    session.add(liked_post)
+    session.commit()
+
+    post_like_state = post_like_state_factory(post_id=liked_post.id, user_id=user2.id)
+
+    session.add_all([post, post_like_state])
+    session.commit()
+
+    like_post_list = BoardRepository().get_like_post_list(user_id=user2.id)
+
+    assert len(like_post_list) == 1
+    assert like_post_list[0].id == liked_post.id
+    assert like_post_list[0].user_id == user1.id
+
+
+def test_get_empty_like_post_list_success(
+    session, normal_user_factory, create_categories, post_factory,
+):
+    """
+    게시글 응답 빈 list 확인
+    """
+    user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
+    session.add_all(user_list)
+    session.commit()
+
+    user1 = user_list[0]
+    user2 = user_list[1]
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = user1.region.region_group_id
+
+    post = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user1.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    session.add(post)
+    session.commit()
+
+    like_post_list = BoardRepository().get_like_post_list(user_id=user2.id)
+
+    assert like_post_list == []
+
+
+def test_get_like_post_list_pagination_success(
+    session,
+    normal_user_factory,
+    create_categories,
+    post_factory,
+    post_like_state_factory,
+):
+    """
+    내가 찜한 게시글 페이지네이션
+    """
+    user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
+    session.add_all(user_list)
+    session.commit()
+
+    user1 = user_list[0]
+    user2 = user_list[1]
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = user1.region.region_group_id
+
+    liked_post_list = post_factory.build_batch(
+        size=11,
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user1.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    session.add_all(liked_post_list)
+    session.commit()
+
+    post_like_state_list = []
+    for liked_post in liked_post_list:
+        post_like_state_list.append(
+            post_like_state_factory(post_id=liked_post.id, user_id=user2.id)
+        )
+
+    session.add_all(post_like_state_list)
+    session.commit()
+
+    like_post_list_result = BoardRepository().get_like_post_list(
+        user_id=user2.id,
+        previous_post_id=len(liked_post_list) % PostLimitEnum.LIMIT.value + 1,
+    )
+
+    assert len(like_post_list_result) == 1
+    assert like_post_list_result[0].id == liked_post_list[0].id
