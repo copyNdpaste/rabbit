@@ -1,7 +1,8 @@
 import pytest
+from unittest.mock import patch
 from flask import url_for
 from flask_jwt_extended import create_access_token
-
+from core.domains.board.enum.attachment_enum import AttachmentEnum
 from core.domains.board.enum.post_enum import (
     PostUnitEnum,
     PostStatusEnum,
@@ -9,10 +10,11 @@ from core.domains.board.enum.post_enum import (
     PostLikeCountEnum,
     PostCategoryEnum,
 )
-from tests.seeder.factory import PostFactory
 
 
+@patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
 def test_when_create_post_then_success(
+    s3_upload_mock,
     client,
     session,
     test_request_context,
@@ -26,6 +28,9 @@ def test_when_create_post_then_success(
     session.commit()
 
     categories = create_categories(PostCategoryEnum.get_dict())
+
+    # 실제 업로드 확인하려면 아래 경로에 이미지 첨부하고 patch 데코레이터 제거한 뒤 실행.
+    file = "C:/project/rabbit/app/extensions/utils/a.jpg"
 
     access_token = create_access_token(identity=user.id)
     authorization = "Bearer " + access_token
@@ -46,6 +51,8 @@ def test_when_create_post_then_success(
         price_per_unit=10000,
         status=PostStatusEnum.SELLING.value,
         category_ids=[categories[0].id],
+        file_type=AttachmentEnum.PICTURE.value,
+        files=[file],
     )
 
     with test_request_context:

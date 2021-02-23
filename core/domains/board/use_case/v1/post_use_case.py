@@ -1,8 +1,12 @@
-from typing import Union, Optional
+import os
+import uuid
+from typing import Union, Optional, Tuple, List
 
 import inject
 
+from app.extensions.utils.enum.aws_enum import S3BucketEnum, S3PathEnum
 from app.extensions.utils.event_observer import send_message, get_event_object
+from app.extensions.utils.image_helper import S3Helper
 from core.domains.board.dto.post_dto import (
     CreatePostDto,
     UpdatePostDto,
@@ -56,11 +60,39 @@ class CreatePostUseCase(PostBaseUseCase):
         if not post:
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
 
+        attachment_list = []
+        for file in dto.files:
+            f, extension = os.path.splitext(file)
+            object_name = S3PathEnum.POST_IMGS.value + str(uuid.uuid4()) + extension
+
+            res = S3Helper.upload(
+                bucket=S3BucketEnum.LUDICER_BUCKET.value,
+                file_name=file,
+                object_name=object_name,
+            )
+
+            if not res:
+                return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
+
+            attachment = self._board_repo.create_attachment(
+                post_id=post.id,
+                type=dto.type,
+                file_name=f,
+                path=S3PathEnum.POST_IMGS.value,
+                extension=extension,
+                uuid=str(uuid.uuid4()),
+            )
+            if not attachment:
+                return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
+            attachment_list.append(attachment)
+
         post_like_count = self._board_repo.create_post_like_count(post_id=post.id)
         if not post_like_count:
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
 
         post.post_like_count = post_like_count.count
+        post.attachment = attachment_list
+
         return UseCaseSuccessOutput(value=post)
 
 

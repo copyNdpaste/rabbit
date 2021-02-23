@@ -34,6 +34,10 @@ requestBody:
             type: array
             items:
               type: integer
+          file_type:
+            type: string
+          files:
+            type: list
 responses:
   '200':
     description: create post

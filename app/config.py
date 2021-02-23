@@ -28,12 +28,17 @@ class TestConfig(Config):
 
     WTF_CSRF_ENABLED = False
 
+    # AWS_ACCESS_KEY = "AKIAVTIDZALHLIYC5U5J"
+    # AWS_SECRET_ACCESS_KEY = "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"
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
     SERVICE_NAME = "rabbit"
     os.environ["FLASK_ENV"] = "development"
     SQLALCHEMY_DATABASE_URI = os.environ.get("DEV_DATABASE_URL")
+    AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
 
 class ProductionConfig(Config):

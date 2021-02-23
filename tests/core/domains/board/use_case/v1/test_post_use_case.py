@@ -1,5 +1,5 @@
 import pytest
-
+from unittest.mock import patch
 from core.domains.board.dto.post_dto import (
     CreatePostDto,
     UpdatePostDto,
@@ -10,6 +10,8 @@ from core.domains.board.dto.post_dto import (
     GetLikePostListDto,
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
+from core.domains.board.entity.attachment_entiry import AttachmentEntity
+from core.domains.board.enum.attachment_enum import AttachmentEnum
 from core.domains.board.enum.post_enum import (
     PostCategoryEnum,
     PostUnitEnum,
@@ -17,6 +19,7 @@ from core.domains.board.enum.post_enum import (
     PostLikeCountEnum,
     PostLikeStateEnum,
     PostLimitEnum,
+    PostTypeEnum,
 )
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
@@ -32,6 +35,7 @@ from core.use_case_output import FailureType
 from tests.seeder.factory import PostFactory
 
 
+@patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
 def test_when_create_post_then_success(session, normal_user_factory, create_categories):
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
@@ -39,12 +43,15 @@ def test_when_create_post_then_success(session, normal_user_factory, create_cate
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
+    # 실제 업로드 확인하려면 아래 경로에 이미지 첨부하고 patch 데코레이터 제거한 뒤 실행.
+    file = "C:/project/rabbit/app/extensions/utils/a.jpg"
+
     dto = CreatePostDto(
         user_id=user.id,
         title="떡볶이 나눠 먹어요",
         body="",
         region_group_id=1,
-        type="article",
+        type=PostTypeEnum.ATTACHMENT.value,
         is_comment_disabled=True,
         is_deleted=False,
         is_blocked=False,
@@ -57,12 +64,15 @@ def test_when_create_post_then_success(session, normal_user_factory, create_cate
         price_per_unit=10000,
         status=PostStatusEnum.SELLING.value,
         category_ids=[categories[0].id],
+        file_type=AttachmentEnum.PICTURE.value,
+        files=[file],
     )
 
     post_entity = CreatePostUseCase().execute(dto=dto).value
 
     assert post_entity.title == dto.title
     assert post_entity.post_like_count == PostLikeCountEnum.DEFAULT.value
+    assert isinstance(post_entity.attachment[0], AttachmentEntity)
 
 
 def test_when_update_post_then_success(session, normal_user_factory, article_factory):

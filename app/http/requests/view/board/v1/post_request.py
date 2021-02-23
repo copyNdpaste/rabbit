@@ -30,6 +30,8 @@ class CreatePostSchema(BaseModel):
     unit: StrictStr
     price_per_unit: StrictInt
     status: StrictStr
+    file_type: StrictStr
+    files: List
 
 
 # TODO : pydantic 활용해서 request 스키마 검증, dto 생성 간소화
@@ -51,6 +53,8 @@ class CreatePostRequest:
         unit,
         price_per_unit,
         status,
+        file_type,
+        files,
     ):
         self.user_id = user_id
         self.title = title
@@ -67,10 +71,12 @@ class CreatePostRequest:
         self.unit = unit
         self.price_per_unit = price_per_unit
         self.status = status
+        self.file_type = file_type
+        self.files = files
 
     def validate_request_and_make_dto(self):
         try:
-            CreatePostSchema(
+            schema = CreatePostSchema(
                 user_id=self.user_id,
                 title=self.title,
                 body=self.body,
@@ -86,30 +92,13 @@ class CreatePostRequest:
                 unit=self.unit,
                 price_per_unit=self.price_per_unit,
                 status=self.status,
-            )
-            return self.to_dto()
+                file_type=self.file_type,
+                files=self.files,
+            ).dict()
+            return CreatePostDto(**schema)
         except ValidationError as e:
             print(e)
             return False
-
-    def to_dto(self) -> CreatePostDto:
-        return CreatePostDto(
-            user_id=self.user_id,
-            title=self.title,
-            body=self.body,
-            region_group_id=self.region_group_id,
-            type=self.type,
-            is_comment_disabled=self.is_comment_disabled,
-            is_deleted=self.is_deleted,
-            is_blocked=self.is_blocked,
-            report_count=self.report_count,
-            read_count=self.read_count,
-            category_ids=self.category_ids,
-            amount=self.amount,
-            unit=self.unit,
-            price_per_unit=self.price_per_unit,
-            status=self.status,
-        )
 
 
 class GetPostListSchema(BaseModel):

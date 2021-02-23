@@ -43,3 +43,8 @@ class PostLikeCountEnum(Enum):
     DEFAULT = 0
     UP = 1
     DOWN = -1
+
+
+class PostTypeEnum(Enum):
+    ARTICLE = "article"
+    ATTACHMENT = "attachment"
