@@ -1,3 +1,4 @@
+import json
 from typing import List
 
 from pydantic import BaseModel, ValidationError, StrictInt, StrictStr
@@ -21,17 +22,13 @@ class CreatePostSchema(BaseModel):
     region_group_id: StrictInt
     type: StrictStr
     is_comment_disabled: bool
-    is_deleted: bool
-    is_blocked: bool
-    report_count: StrictInt
-    read_count: StrictInt
     category_ids: List[int]
     amount: StrictInt
     unit: StrictStr
     price_per_unit: StrictInt
     status: StrictStr
     file_type: StrictStr
-    files: List
+    files: List[str]
 
 
 # TODO : pydantic 활용해서 request 스키마 검증, dto 생성 간소화
@@ -44,10 +41,6 @@ class CreatePostRequest:
         region_group_id,
         type,
         is_comment_disabled,
-        is_deleted,
-        is_blocked,
-        report_count,
-        read_count,
         category_ids,
         amount,
         unit,
@@ -56,23 +49,21 @@ class CreatePostRequest:
         file_type,
         files,
     ):
-        self.user_id = user_id
+        self.user_id = int(user_id) if user_id else None
         self.title = title
         self.body = body
-        self.region_group_id = region_group_id
+        self.region_group_id = int(region_group_id) if region_group_id else None
         self.type = type
-        self.is_comment_disabled = is_comment_disabled
-        self.is_deleted = is_deleted
-        self.is_blocked = is_blocked
-        self.report_count = report_count
-        self.read_count = read_count
-        self.category_ids = category_ids
-        self.amount = amount
+        self.is_comment_disabled = (
+            bool(is_comment_disabled) if is_comment_disabled else False
+        )
+        self.category_ids = json.loads(category_ids) if category_ids else []
+        self.amount = int(amount) if amount else None
         self.unit = unit
-        self.price_per_unit = price_per_unit
+        self.price_per_unit = int(price_per_unit) if price_per_unit else None
         self.status = status
         self.file_type = file_type
-        self.files = files
+        self.files = [file.filename for file in files if files]
 
     def validate_request_and_make_dto(self):
         try:
@@ -83,10 +74,6 @@ class CreatePostRequest:
                 region_group_id=self.region_group_id,
                 type=self.type,
                 is_comment_disabled=self.is_comment_disabled,
-                is_deleted=self.is_deleted,
-                is_blocked=self.is_blocked,
-                report_count=self.report_count,
-                read_count=self.read_count,
                 category_ids=self.category_ids,
                 amount=self.amount,
                 unit=self.unit,

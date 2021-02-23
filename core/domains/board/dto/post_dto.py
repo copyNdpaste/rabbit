@@ -1,5 +1,4 @@
 from typing import List
-
 from pydantic import BaseModel
 
 
@@ -10,17 +9,13 @@ class CreatePostDto(BaseModel):
     region_group_id: int
     type: str
     is_comment_disabled: bool
-    is_deleted: bool
-    is_blocked: bool
-    report_count: int
-    read_count: int
     amount: int
     unit: str
     price_per_unit: int
     status: str
     category_ids: List[int]
     file_type: str = None
-    files: list = None
+    files: List[str] = None
 
 
 class GetPostListDto(BaseModel):

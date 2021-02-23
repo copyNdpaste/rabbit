@@ -1,8 +1,5 @@
 from typing import List, Optional, Union
-from uuid import UUID
-
 from app.extensions.database import session
-from app.extensions.utils.query_helper import RawQueryHelper
 from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.attachment_model import AttachmentModel
 from app.persistence.model.category_model import CategoryModel
@@ -33,10 +30,6 @@ class BoardRepository:
                 region_group_id=dto.region_group_id,
                 type=dto.type,
                 is_comment_disabled=dto.is_comment_disabled,
-                is_deleted=dto.is_deleted,
-                is_blocked=dto.is_blocked,
-                report_count=dto.report_count,
-                read_count=dto.read_count,
                 amount=dto.amount,
                 unit=dto.unit,
                 price_per_unit=dto.price_per_unit,
