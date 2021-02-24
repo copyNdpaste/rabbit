@@ -1,8 +1,6 @@
 import json
 from typing import List
-
 from pydantic import BaseModel, ValidationError, StrictInt, StrictStr
-
 from core.domains.board.dto.post_dto import (
     CreatePostDto,
     UpdatePostDto,
@@ -28,7 +26,7 @@ class CreatePostSchema(BaseModel):
     price_per_unit: StrictInt
     status: StrictStr
     file_type: StrictStr
-    files: List[str]
+    files: List
 
 
 # TODO : pydantic 활용해서 request 스키마 검증, dto 생성 간소화
@@ -55,7 +53,7 @@ class CreatePostRequest:
         self.region_group_id = int(region_group_id) if region_group_id else None
         self.type = type
         self.is_comment_disabled = (
-            bool(is_comment_disabled) if is_comment_disabled else False
+            True if is_comment_disabled and is_comment_disabled == "true" else False
         )
         self.category_ids = json.loads(category_ids) if category_ids else []
         self.amount = int(amount) if amount else None
@@ -63,7 +61,7 @@ class CreatePostRequest:
         self.price_per_unit = int(price_per_unit) if price_per_unit else None
         self.status = status
         self.file_type = file_type
-        self.files = [file.filename for file in files if files]
+        self.files = files
 
     def validate_request_and_make_dto(self):
         try:

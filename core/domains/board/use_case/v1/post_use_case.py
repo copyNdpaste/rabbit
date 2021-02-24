@@ -52,10 +52,9 @@ class CreatePostUseCase(PostBaseUseCase):
     def execute(
         self, dto: CreatePostDto
     ) -> Union[UseCaseSuccessOutput, UseCaseFailureOutput]:
-        # TODO:user 검증 생략을 위한 주석 제거
-        # user = self._get_user(dto.user_id)
-        # if not user:
-        #     return UseCaseFailureOutput(type=FailureType.NOT_FOUND_ERROR)
+        user = self._get_user(dto.user_id)
+        if not user:
+            return UseCaseFailureOutput(type=FailureType.NOT_FOUND_ERROR)
 
         post = self._board_repo.create_post(dto=dto)
         if not post:
@@ -63,8 +62,9 @@ class CreatePostUseCase(PostBaseUseCase):
 
         attachment_list = []
         for file in dto.files:
-            f, extension = os.path.splitext(file)
-            object_name = S3PathEnum.POST_IMGS.value + str(uuid.uuid4()) + extension
+            f, extension = os.path.splitext(file.filename)
+            uuid_ = str(uuid.uuid4())
+            object_name = S3PathEnum.POST_IMGS.value + uuid_ + extension
 
             res = S3Helper.upload(
                 bucket=S3BucketEnum.LUDICER_BUCKET.value,
@@ -81,7 +81,7 @@ class CreatePostUseCase(PostBaseUseCase):
                 file_name=f,
                 path=S3PathEnum.POST_IMGS.value,
                 extension=extension,
-                uuid=str(uuid.uuid4()),
+                uuid=uuid_,
             )
             if not attachment:
                 return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)

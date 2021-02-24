@@ -15,7 +15,7 @@ class CreatePostDto(BaseModel):
     status: str
     category_ids: List[int]
     file_type: str = None
-    files: List[str] = None
+    files: List = []
 
 
 class GetPostListDto(BaseModel):

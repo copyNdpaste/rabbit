@@ -53,7 +53,7 @@ def test_when_create_post_then_success(
         status=PostStatusEnum.SELLING.value,
         category_ids=json.dumps([categories[0].id, categories[1].id]),
         file_type=AttachmentEnum.PICTURE.value,
-        file=[file],
+        files=[file],
     )
 
     with test_request_context:

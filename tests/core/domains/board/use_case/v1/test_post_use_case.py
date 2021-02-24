@@ -1,5 +1,9 @@
+import io
 import pytest
 from unittest.mock import patch
+
+from werkzeug.datastructures import FileStorage
+
 from core.domains.board.dto.post_dto import (
     CreatePostDto,
     UpdatePostDto,
@@ -44,7 +48,11 @@ def test_when_create_post_then_success(session, normal_user_factory, create_cate
     categories = create_categories(PostCategoryEnum.get_dict())
 
     # 실제 업로드 확인하려면 아래 경로에 이미지 첨부하고 patch 데코레이터 제거한 뒤 실행.
-    file = "C:/project/rabbit/app/extensions/utils/a.jpg"
+    file = FileStorage(
+        stream=io.BytesIO(b"aaa"),
+        filename="C:/project/rabbit/app/extensions/utils/a.jpg",
+        content_type="multipart/form-data",
+    )
 
     dto = CreatePostDto(
         user_id=user.id,

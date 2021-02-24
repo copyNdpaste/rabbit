@@ -1,7 +1,6 @@
 import boto3
 from botocore.exceptions import ClientError
 from flask import current_app
-
 from app.extensions.utils.enum.aws_enum import AwsServiceEnum
 
 
@@ -21,10 +20,11 @@ class S3Helper:
         )
 
         try:
-            client.upload_file(
-                Filename=file_name, Bucket=bucket, Key=object_name,
-            )
+            client.put_object(Body=file_name, Bucket=bucket, Key=object_name)
         except ClientError as e:
+            # TODO: log
+            return False
+        except Exception as e:
             # TODO: log
             return False
         return True
