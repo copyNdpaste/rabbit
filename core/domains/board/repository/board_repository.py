@@ -227,6 +227,13 @@ class BoardRepository:
     def get_post(self, post_id: int) -> Optional[PostEntity]:
         post = session.query(PostModel).filter_by(id=post_id).first()
 
+        post_attachment_entities = []
+        if post and post.attachments:
+            for attachment in post.attachments:
+                post_attachment_entities.append(attachment.to_entity())
+
+        post.attachment_list = post_attachment_entities
+
         return post.to_entity() if post else None
 
     def add_read_count(self, post_id: int) -> bool:

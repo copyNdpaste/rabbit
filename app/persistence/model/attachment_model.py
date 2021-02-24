@@ -22,7 +22,7 @@ class AttachmentModel(db.Model):
     created_at = Column(DateTime(), default=get_server_timestamp())
     updated_at = Column(DateTime(), default=get_server_timestamp())
 
-    post = relationship("PostModel", backref="attachment")
+    post = relationship("PostModel", backref="attachments")
 
     def to_entity(self) -> AttachmentEntity:
         return AttachmentEntity(

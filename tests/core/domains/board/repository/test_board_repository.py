@@ -241,10 +241,16 @@ def test_get_post(session, normal_user_factory, post_factory):
     session.add(user)
     session.commit()
     post1 = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+        Article=True,
+        Attachments=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
     post2 = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+        Article=True,
+        Attachments=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
 
     session.add_all([post1, post2])
@@ -261,6 +267,7 @@ def test_get_post(session, normal_user_factory, post_factory):
     assert post_entity.region_group_name == user.post[0].region_group.name
     assert isinstance(post_entity.created_at, datetime)
     assert isinstance(post_entity.user, UserEntity)
+    assert isinstance(post_entity.attachments, list)
 
 
 def test_get_empty_post(session, normal_user_factory):

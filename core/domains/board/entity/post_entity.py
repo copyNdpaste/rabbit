@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import Optional, List
-
 from pydantic import BaseModel
-
 from core.domains.board.entity.attachment_entiry import AttachmentEntity
 from core.domains.board.enum.post_enum import PostLikeStateEnum
 from core.domains.user.entity.user_entity import UserEntity

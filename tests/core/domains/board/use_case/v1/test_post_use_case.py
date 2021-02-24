@@ -331,7 +331,10 @@ def test_when_get_post_then_success(session, normal_user_factory, post_factory):
     session.add(user)
     session.commit()
     post = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+        Article=True,
+        Attachments=True,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
 
     session.add(post)
@@ -343,6 +346,7 @@ def test_when_get_post_then_success(session, normal_user_factory, post_factory):
 
     assert post_entity.id == dto.post_id
     assert post_entity.read_count == 1
+    assert isinstance(post_entity.attachments, list)
 
 
 def test_when_get_not_exist_post_then_not_found(session):

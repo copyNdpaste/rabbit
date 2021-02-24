@@ -156,6 +156,15 @@ class GetPostUseCase(PostBaseUseCase):
             # TODO : 로그
             return UseCaseFailureOutput(FailureType.SYSTEM_ERROR)
         post = self._board_repo.get_post(post_id=dto.post_id)
+
+        attachment_list = []
+        if post and post.attachments:
+            for attachment in post.attachments:
+                attachment_list.append(
+                    attachment.path + attachment.uuid + attachment.extension
+                )
+        post.attachments = attachment_list
+
         return UseCaseSuccessOutput(value=post)
 
 
