@@ -52,9 +52,10 @@ class CreatePostUseCase(PostBaseUseCase):
     def execute(
         self, dto: CreatePostDto
     ) -> Union[UseCaseSuccessOutput, UseCaseFailureOutput]:
-        user = self._get_user(dto.user_id)
-        if not user:
-            return UseCaseFailureOutput(type=FailureType.NOT_FOUND_ERROR)
+        # TODO:user 검증 생략을 위한 주석 제거
+        # user = self._get_user(dto.user_id)
+        # if not user:
+        #     return UseCaseFailureOutput(type=FailureType.NOT_FOUND_ERROR)
 
         post = self._board_repo.create_post(dto=dto)
         if not post:

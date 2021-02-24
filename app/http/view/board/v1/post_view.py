@@ -33,8 +33,9 @@ from core.use_case_output import FailureType, UseCaseFailureOutput
 
 
 @api.route("/board/v1/posts", methods=["POST"])
-@jwt_required
-@auth_required
+# TODO:user 검증 생략을 위한 주석 제거
+# @jwt_required
+# @auth_required
 @swag_from("create_post.yml", methods=["POST"])
 def create_post_view():
     dto = CreatePostRequest(
