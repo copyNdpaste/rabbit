@@ -26,6 +26,10 @@ requestBody:
             type: array
             items:
               type: integer
+          file_type:
+            type: string
+          files:
+            type: array
 responses:
   '200':
     description: update post

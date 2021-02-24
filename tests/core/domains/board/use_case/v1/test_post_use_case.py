@@ -1,9 +1,7 @@
 import io
 import pytest
 from unittest.mock import patch
-
 from werkzeug.datastructures import FileStorage
-
 from core.domains.board.dto.post_dto import (
     CreatePostDto,
     UpdatePostDto,
@@ -14,7 +12,6 @@ from core.domains.board.dto.post_dto import (
     GetLikePostListDto,
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
-from core.domains.board.entity.attachment_entiry import AttachmentEntity
 from core.domains.board.enum.attachment_enum import AttachmentEnum
 from core.domains.board.enum.post_enum import (
     PostCategoryEnum,

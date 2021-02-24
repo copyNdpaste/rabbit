@@ -1,9 +1,7 @@
 import os
 import uuid
-from typing import Union, Optional, Tuple, List
-
 import inject
-
+from typing import Union, Optional
 from app.extensions.utils.enum.aws_enum import S3BucketEnum, S3PathEnum
 from app.extensions.utils.event_observer import send_message, get_event_object
 from app.extensions.utils.image_helper import S3Helper
