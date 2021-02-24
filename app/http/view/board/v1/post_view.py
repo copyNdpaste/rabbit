@@ -38,7 +38,7 @@ from core.use_case_output import FailureType, UseCaseFailureOutput
 @swag_from("create_post.yml", methods=["POST"])
 def create_post_view():
     dto = CreatePostRequest(
-        **request.form.to_dict(), files=request.files.getlist("file")
+        **request.form.to_dict(), files=request.files.getlist("file"),
     ).validate_request_and_make_dto()
     if not dto:
         return failure_response(
