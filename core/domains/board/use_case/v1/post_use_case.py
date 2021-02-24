@@ -18,6 +18,7 @@ from core.domains.board.dto.post_dto import (
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
 from core.domains.board.enum import PostTopicEnum
+from core.domains.board.enum.attachment_enum import AttachmentEnum
 from core.domains.board.enum.post_enum import PostLikeStateEnum, PostLikeCountEnum
 from core.domains.board.repository.board_repository import BoardRepository
 from core.domains.region.enum import RegionTopicEnum
@@ -42,6 +43,37 @@ class PostBaseUseCase:
     def _make_cursor(self, last_post_id: int = None) -> dict:
         return {"cursor": {"last_post_id": last_post_id}}
 
+    def _upload_pictures(self, dto: CreatePostDto, post_id: int):
+        attachment_list = []
+
+        for file in dto.files:
+            f, extension = os.path.splitext(file.filename)
+            uuid_ = str(uuid.uuid4())
+            object_name = S3PathEnum.POST_IMGS.value + uuid_ + extension
+
+            res = S3Helper.upload(
+                bucket=S3BucketEnum.LUDICER_BUCKET.value,
+                file_name=file,
+                object_name=object_name,
+            )
+
+            if not res:
+                return False
+
+            attachment = self._board_repo.create_attachment(
+                post_id=post_id,
+                type=dto.type,
+                file_name=f,
+                path=S3PathEnum.POST_IMGS.value,
+                extension=extension,
+                uuid=uuid_,
+            )
+            if not attachment:
+                return False
+            attachment_list.append(object_name)
+
+        return attachment_list
+
 
 class CreatePostUseCase(PostBaseUseCase):
     @inject.autoparams()
@@ -61,38 +93,17 @@ class CreatePostUseCase(PostBaseUseCase):
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
 
         attachment_list = []
-        for file in dto.files:
-            f, extension = os.path.splitext(file.filename)
-            uuid_ = str(uuid.uuid4())
-            object_name = S3PathEnum.POST_IMGS.value + uuid_ + extension
-
-            res = S3Helper.upload(
-                bucket=S3BucketEnum.LUDICER_BUCKET.value,
-                file_name=file,
-                object_name=object_name,
-            )
-
-            if not res:
+        if dto.file_type == AttachmentEnum.PICTURE.value:
+            attachment_list = self._upload_pictures(dto=dto, post_id=post.id)
+            if attachment_list == False:
                 return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
-
-            attachment = self._board_repo.create_attachment(
-                post_id=post.id,
-                type=dto.type,
-                file_name=f,
-                path=S3PathEnum.POST_IMGS.value,
-                extension=extension,
-                uuid=uuid_,
-            )
-            if not attachment:
-                return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
-            attachment_list.append(attachment)
 
         post_like_count = self._board_repo.create_post_like_count(post_id=post.id)
         if not post_like_count:
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
 
         post.post_like_count = post_like_count.count
-        post.attachment = attachment_list
+        post.attachments = attachment_list
 
         return UseCaseSuccessOutput(value=post)
 

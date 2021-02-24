@@ -9,8 +9,8 @@ class S3Helper:
     def upload(cls, bucket, file_name, object_name):
         """
         :param bucket: s3 bucket
-        :param path: 저장할 경로
-        :param file_and_extension: 파일
+        :param file_name: 파일
+        :param object_name: 저장할 경로 + 파일
         :return:
         """
         client = boto3.client(

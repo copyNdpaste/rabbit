@@ -35,8 +35,8 @@ class PostEntity(BaseModel):
     status: str
     post_like_count: int = 0
     post_like_state: str = PostLikeStateEnum.DEFAULT.value
-    categories: list = []
-    attachment: List[Optional[AttachmentEntity]] = None
+    categories: List = []
+    attachments: List = []
 
 
 class PostListEntity(BaseModel):

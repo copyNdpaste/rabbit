@@ -6,7 +6,7 @@ security:
 requestBody:
   required: true
   content:
-    application/json:
+    multipart/form-data:
       schema:
         type: object
         properties:
@@ -30,8 +30,6 @@ requestBody:
             type: string
           files:
             type: array
-            items:
-              type: string
 responses:
   '200':
     description: create post
