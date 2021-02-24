@@ -80,7 +80,7 @@ def test_when_create_post_then_success(session, normal_user_factory, create_cate
 
     assert post_entity.title == dto.title
     assert post_entity.post_like_count == PostLikeCountEnum.DEFAULT.value
-    assert isinstance(post_entity.attachment[0], AttachmentEntity)
+    assert isinstance(post_entity.attachments, list)
 
 
 def test_when_update_post_then_success(session, normal_user_factory, article_factory):
