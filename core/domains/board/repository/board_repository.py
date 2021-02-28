@@ -126,6 +126,7 @@ class BoardRepository:
             return self._get_post(post_id=dto.post_id)
         except Exception as e:
             session.rollback()
+            # TODO : log
             return None
 
     def is_post_exist(self, post_id: int) -> bool:

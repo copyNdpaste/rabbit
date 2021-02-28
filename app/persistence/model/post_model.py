@@ -94,7 +94,12 @@ class PostModel(db.Model):
             categories=[category.name for category in self.categories]
             if self.categories
             else [],
-            attachments=self.attachments if self.attachments else [],
+            attachments=[
+                attachment.path + attachment.uuid + attachment.extension
+                for attachment in self.attachments
+            ]
+            if self.attachments
+            else [],
         )
 
     def to_post_list_entity(self) -> PostListEntity:
@@ -133,5 +138,10 @@ class PostModel(db.Model):
             categories=[category.name for category in self.categories]
             if self.categories
             else [],
-            attachments=self.attachments if self.attachments else [],
+            attachments=[
+                attachment.path + attachment.uuid + attachment.extension
+                for attachment in self.attachments
+            ]
+            if self.attachments
+            else [],
         )
