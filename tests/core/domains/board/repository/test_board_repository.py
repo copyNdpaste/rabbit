@@ -3,6 +3,7 @@ import pytest
 from datetime import datetime
 from app.extensions.utils.enum.aws_enum import S3PathEnum
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
+from core.domains.board.entity.attachment_entiry import AttachmentEntity
 from core.domains.board.enum.attachment_enum import AttachmentEnum
 from core.domains.board.enum.post_enum import (
     PostCategoryEnum,
@@ -233,22 +234,25 @@ def test_get_post_list_except_deleted_or_blocked(
     assert len(post_list) == 0
 
 
-def test_get_post(session, normal_user_factory, post_factory):
+def test_get_post(session, normal_user_factory, post_factory, attachment_factory):
     """
     post 조회 시 관련 table 목록 가져옴.
     """
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
+    attachments1 = attachment_factory.build_batch(size=1)
+    attachments2 = attachment_factory.build_batch(size=1)
+
     post1 = post_factory(
         Article=True,
-        Attachments=True,
+        Attachments=attachments1,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
     )
     post2 = post_factory(
         Article=True,
-        Attachments=True,
+        Attachments=attachments2,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
     )
@@ -910,3 +914,22 @@ def test_create_attachment(session, post_factory):
     )
 
     assert attachment.post_id == post.id
+
+
+def test_get_attachments(
+    session, normal_user_factory, post_factory, attachment_factory
+):
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    attachments = attachment_factory.build_batch(size=3)
+
+    post = post_factory(Article=True, Attachments=attachments, user_id=user.id)
+    session.add(post)
+    session.commit()
+
+    attachments = BoardRepository().get_attachments(post_id=post.id)
+
+    for attachment in attachments:
+        assert isinstance(attachment, AttachmentEntity)

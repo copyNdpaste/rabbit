@@ -41,7 +41,7 @@ class PostBaseUseCase:
     def _make_cursor(self, last_post_id: int = None) -> dict:
         return {"cursor": {"last_post_id": last_post_id}}
 
-    def _upload_pictures(self, dto: CreatePostDto, post_id: int):
+    def _upload_pictures(self, dto, post_id: int):
         attachment_list = []
 
         for file in dto.files:
@@ -90,10 +90,10 @@ class CreatePostUseCase(PostBaseUseCase):
         if not post:
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
 
-        attachment_list = []
+        attachments = []
         if dto.file_type == AttachmentEnum.PICTURE.value:
-            attachment_list = self._upload_pictures(dto=dto, post_id=post.id)
-            if attachment_list == False:
+            attachments = self._upload_pictures(dto=dto, post_id=post.id)
+            if attachments == False:
                 return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
 
         post_like_count = self._board_repo.create_post_like_count(post_id=post.id)
@@ -101,7 +101,7 @@ class CreatePostUseCase(PostBaseUseCase):
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
 
         post.post_like_count = post_like_count.count
-        post.attachments = attachment_list
+        post.attachments = attachments
 
         return UseCaseSuccessOutput(value=post)
 
@@ -184,6 +184,17 @@ class UpdatePostUseCase(PostBaseUseCase):
         post = self._board_repo.update_post(dto=dto)
         if not post:
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
+
+        attachments = self._board_repo.get_attachments(post_id=post.id)
+        if attachments:
+            self._board_repo.delete_attachments(post_id=post.id)
+        attachments = []
+        if dto.file_type == AttachmentEnum.PICTURE.value:
+            attachments = self._upload_pictures(dto=dto, post_id=post.id)
+            if attachments == False:
+                return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
+        post.attachments = attachments
+
         return UseCaseSuccessOutput(value=post)
 
 

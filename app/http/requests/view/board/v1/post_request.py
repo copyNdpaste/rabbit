@@ -171,6 +171,8 @@ class UpdatePostSchema(BaseModel):
     unit: StrictStr
     price_per_unit: StrictInt
     status: StrictStr
+    file_type: StrictStr
+    files: List
 
 
 class UpdatePostRequest:
@@ -188,23 +190,27 @@ class UpdatePostRequest:
         unit,
         price_per_unit,
         status,
+        file_type,
+        files,
     ):
-        self.post_id = post_id
-        self.user_id = user_id
+        self.post_id = int(post_id) if post_id else None
+        self.user_id = int(user_id) if user_id else None
         self.title = title
         self.body = body
-        self.region_group_id = region_group_id
+        self.region_group_id = int(region_group_id) if region_group_id else None
         self.type = type
         self.is_comment_disabled = is_comment_disabled
-        self.category_ids = category_ids
-        self.amount = amount
+        self.category_ids = json.loads(category_ids) if category_ids else []
+        self.amount = int(amount) if amount else None
         self.unit = unit
-        self.price_per_unit = price_per_unit
+        self.price_per_unit = int(price_per_unit) if price_per_unit else None
         self.status = status
+        self.file_type = file_type
+        self.files = files
 
     def validate_request_and_make_dto(self):
         try:
-            UpdatePostSchema(
+            schema = UpdatePostSchema(
                 post_id=self.post_id,
                 user_id=self.user_id,
                 title=self.title,
@@ -217,27 +223,13 @@ class UpdatePostRequest:
                 unit=self.unit,
                 price_per_unit=self.price_per_unit,
                 status=self.status,
-            )
-            return self.to_dto()
+                file_type=self.file_type,
+                files=self.files,
+            ).dict()
+            return UpdatePostDto(**schema)
         except ValidationError as e:
             print(e)
             return False
-
-    def to_dto(self) -> UpdatePostDto:
-        return UpdatePostDto(
-            post_id=self.post_id,
-            user_id=self.user_id,
-            title=self.title,
-            body=self.body,
-            region_group_id=self.region_group_id,
-            type=self.type,
-            is_comment_disabled=self.is_comment_disabled,
-            category_ids=self.category_ids,
-            amount=self.amount,
-            unit=self.unit,
-            price_per_unit=self.price_per_unit,
-            status=self.status,
-        )
 
 
 class DeletePostSchema(BaseModel):

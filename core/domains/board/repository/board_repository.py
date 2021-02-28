@@ -227,13 +227,6 @@ class BoardRepository:
     def get_post(self, post_id: int) -> Optional[PostEntity]:
         post = session.query(PostModel).filter_by(id=post_id).first()
 
-        post_attachment_entities = []
-        if post and post.attachments:
-            for attachment in post.attachments:
-                post_attachment_entities.append(attachment.to_entity())
-
-        post.attachment_list = post_attachment_entities
-
         return post.to_entity() if post else None
 
     def add_read_count(self, post_id: int) -> bool:
@@ -353,3 +346,17 @@ class BoardRepository:
         )
 
         return [post.to_entity() for post in post_list]
+
+    def get_attachments(self, post_id: int) -> list:
+        attachments = session.query(AttachmentModel).filter_by(post_id=post_id).all()
+
+        return [attachment.to_entity() for attachment in attachments]
+
+    def delete_attachments(self, post_id: int) -> bool:
+        try:
+            session.query(AttachmentModel).filter_by(post_id=post_id).delete()
+            return True
+        except Exception as e:
+            # TODO: log
+            session.rollback()
+            return False

@@ -43,6 +43,9 @@ class UpdatePostDto(BaseModel):
     unit: str
     price_per_unit: int
     status: str
+    category_ids: List[int] = []
+    file_type: str = None
+    files: List = []
 
 
 class DeletePostDto(BaseModel):

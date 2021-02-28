@@ -76,12 +76,14 @@ def get_post_view(post_id):
     return PostPresenter().transform(GetPostUseCase().execute(dto=dto))
 
 
-@api.route("/board/v1/posts", methods=["PUT"])
+@api.route("/board/v1/posts/<int:post_id>", methods=["PUT"])
 @jwt_required
 @auth_required
 @swag_from("update_post.yml", methods=["PUT"])
-def update_post_view():
-    dto = UpdatePostRequest(**request.get_json()).validate_request_and_make_dto()
+def update_post_view(post_id):
+    dto = UpdatePostRequest(
+        **request.form.to_dict(), post_id=post_id, files=request.files.getlist("files"),
+    ).validate_request_and_make_dto()
     if not dto:
         return failure_response(
             UseCaseFailureOutput(type=FailureType.INVALID_REQUEST_ERROR)

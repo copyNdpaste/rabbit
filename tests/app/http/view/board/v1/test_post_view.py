@@ -4,6 +4,7 @@ import pytest
 from unittest.mock import patch
 from flask import url_for
 from flask_jwt_extended import create_access_token
+from werkzeug.datastructures import FileStorage
 from app.persistence.model.attachment_model import AttachmentModel
 from core.domains.board.enum.attachment_enum import AttachmentEnum
 from core.domains.board.enum.post_enum import (
@@ -33,7 +34,11 @@ def test_when_create_post_then_success(
     categories = create_categories(PostCategoryEnum.get_dict())
 
     # 실제 업로드 확인하려면 아래 경로에 이미지 첨부하고 patch 데코레이터 제거한 뒤 실행.
-    file = (io.BytesIO(b"test image"), "C:/project/rabbit/app/extensions/utils/a.jpg")
+    file = FileStorage(
+        stream=io.BytesIO(b"aaa"),
+        filename="C:/project/rabbit/app/extensions/utils/a.jpg",
+        content_type="multipart/form-data",
+    )
 
     access_token = create_access_token(identity=user.id)
     authorization = "Bearer " + access_token
@@ -72,7 +77,9 @@ def test_when_create_post_then_success(
     assert attachment.extension == ".jpg"
 
 
+@patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
 def test_when_update_post_then_success(
+    s3_upload_mock,
     client,
     session,
     test_request_context,
@@ -81,9 +88,14 @@ def test_when_update_post_then_success(
     normal_user_factory,
     article_factory,
     create_categories,
+    attachment_factory,
 ):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
     session.add(user)
+    session.commit()
+
+    attachment = attachment_factory(post_id=user.post[0].id)
+    session.add(attachment)
     session.commit()
 
     article = article_factory(post_id=user.post[0].id)
@@ -92,32 +104,48 @@ def test_when_update_post_then_success(
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
+    # 실제 업로드 확인하려면 아래 경로에 이미지 첨부하고 patch 데코레이터 제거한 뒤 실행.
+    file = FileStorage(
+        stream=io.BytesIO(b"aaa"),
+        filename="C:/project/rabbit/app/extensions/utils/a.jpg",
+        content_type="multipart/form-data",
+    )
+
     access_token = create_access_token(identity=user.id)
     authorization = "Bearer " + access_token
-    headers = make_header(authorization=authorization)
+    headers = make_header(
+        authorization=authorization, content_type="multipart/form-data", accept="*/*"
+    )
     dct = dict(
-        post_id=user.post[0].id,
         user_id=user.id,
         title="떡볶이 같이 먹어요",
         body="new body",
         region_group_id=1,
         type="article",
         is_comment_disabled=True,
+        category_ids=json.dumps([categories[0].id, categories[1].id]),
         amount=10,
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
         status=PostStatusEnum.SELLING.value,
-        category_ids=[categories[0].id],
+        file_type=AttachmentEnum.PICTURE.value,
+        files=[file],
     )
 
     with test_request_context:
         response = client.put(
-            url_for("api/rabbit.update_post_view"), json=dct, headers=headers
+            url_for("api/rabbit.update_post_view", post_id=user.post[0].id),
+            data=dct,
+            headers=headers,
         )
 
     assert response.status_code == 200
     data = response.get_json()["data"]
     assert data["post"]["user_id"] == user.id
+    attachment = (
+        session.query(AttachmentModel).filter_by(post_id=data["post"]["id"]).first()
+    )
+    assert attachment.extension == ".jpg"
 
 
 def test_when_delete_post_then_success(

@@ -125,8 +125,9 @@ class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     @factory.post_generation
     def Attachments(self, create, extracted, **kwargs):
-        if create:
-            AttachmentFactory(post=self, **kwargs)
+        if extracted:
+            for attachment in extracted:
+                self.attachments.append(attachment)
 
 
 class PostCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
