@@ -1,7 +1,6 @@
 import factory
-from faker import Factory as FakerFactory
 import uuid
-
+from faker import Factory as FakerFactory
 from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.post_model import PostModel
 from app.persistence.model.region_group_model import RegionGroupModel
@@ -12,12 +11,15 @@ from app.persistence.model.post_like_state_model import PostLikeStateModel
 from app.persistence.model.post_like_count_model import PostLikeCountModel
 from app.persistence.model.post_category_model import PostCategoryModel
 from app.persistence.model.category_model import CategoryModel
+from app.persistence.model.attachment_model import AttachmentModel
 from core.domains.board.enum.post_enum import (
     PostUnitEnum,
     PostStatusEnum,
     PostLikeStateEnum,
     PostCategoryEnum,
 )
+from core.domains.board.enum.attachment_enum import AttachmentEnum
+from app.extensions.utils.enum.aws_enum import S3PathEnum
 
 faker = FakerFactory.create(locale="ko_KR")
 
@@ -45,7 +47,7 @@ class UserProfileFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     uuid = str(uuid.uuid4())
     file_name = "file"
-    path = "uploads/"
+    path = "profile_imgs/"
 
 
 class PostLikeCountFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -71,6 +73,18 @@ class CategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     id = 1
     name = PostCategoryEnum.DIVIDING_FOOD_INGREDIENT
+
+
+class AttachmentFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = AttachmentModel
+
+    post_id = 1
+    type = AttachmentEnum.PICTURE.value
+    uuid = str(uuid.uuid4())
+    file_name = factory.Sequence(lambda n: "file_name_{}".format(n))
+    path = S3PathEnum.POST_IMGS.value
+    extension = ".jpg"
 
 
 class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -108,6 +122,12 @@ class PostFactory(factory.alchemy.SQLAlchemyModelFactory):
         if extracted:
             for category in extracted:
                 obj.categories.append(category)
+
+    @factory.post_generation
+    def Attachments(self, create, extracted, **kwargs):
+        if extracted:
+            for attachment in extracted:
+                self.attachments.append(attachment)
 
 
 class PostCategoryFactory(factory.alchemy.SQLAlchemyModelFactory):

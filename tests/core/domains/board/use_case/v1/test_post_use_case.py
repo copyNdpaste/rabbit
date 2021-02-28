@@ -1,5 +1,7 @@
+import io
 import pytest
-
+from unittest.mock import patch
+from werkzeug.datastructures import FileStorage
 from core.domains.board.dto.post_dto import (
     CreatePostDto,
     UpdatePostDto,
@@ -10,6 +12,7 @@ from core.domains.board.dto.post_dto import (
     GetLikePostListDto,
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
+from core.domains.board.enum.attachment_enum import AttachmentEnum
 from core.domains.board.enum.post_enum import (
     PostCategoryEnum,
     PostUnitEnum,
@@ -17,6 +20,7 @@ from core.domains.board.enum.post_enum import (
     PostLikeCountEnum,
     PostLikeStateEnum,
     PostLimitEnum,
+    PostTypeEnum,
 )
 from core.domains.board.use_case.v1.post_use_case import (
     CreatePostUseCase,
@@ -32,19 +36,29 @@ from core.use_case_output import FailureType
 from tests.seeder.factory import PostFactory
 
 
-def test_when_create_post_then_success(session, normal_user_factory, create_categories):
+@patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
+def test_when_create_post_then_success(
+    upload_mock, session, normal_user_factory, create_categories
+):
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
+    # 실제 업로드 확인하려면 아래 경로에 이미지 첨부하고 patch 데코레이터 제거한 뒤 실행.
+    file = FileStorage(
+        stream=io.BytesIO(b"aaa"),
+        filename="C:/project/rabbit/app/extensions/utils/a.jpg",
+        content_type="multipart/form-data",
+    )
+
     dto = CreatePostDto(
         user_id=user.id,
         title="떡볶이 나눠 먹어요",
         body="",
         region_group_id=1,
-        type="article",
+        type=PostTypeEnum.ATTACHMENT.value,
         is_comment_disabled=True,
         is_deleted=False,
         is_blocked=False,
@@ -57,22 +71,39 @@ def test_when_create_post_then_success(session, normal_user_factory, create_cate
         price_per_unit=10000,
         status=PostStatusEnum.SELLING.value,
         category_ids=[categories[0].id],
+        file_type=AttachmentEnum.PICTURE.value,
+        files=[file],
     )
 
     post_entity = CreatePostUseCase().execute(dto=dto).value
 
     assert post_entity.title == dto.title
     assert post_entity.post_like_count == PostLikeCountEnum.DEFAULT.value
+    assert isinstance(post_entity.attachments, list)
 
 
-def test_when_update_post_then_success(session, normal_user_factory, article_factory):
+@patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
+def test_when_update_post_then_success(
+    upload_mock, session, normal_user_factory, article_factory, attachment_factory
+):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
     session.add(user)
+    session.commit()
+
+    attachment = attachment_factory(post_id=user.post[0].id)
+    session.add(attachment)
     session.commit()
 
     article = article_factory(post_id=user.post[0].id)
     session.add(article)
     session.commit()
+
+    # 실제 업로드 확인하려면 아래 경로에 이미지 첨부하고 patch 데코레이터 제거한 뒤 실행.
+    file = FileStorage(
+        stream=io.BytesIO(b"aaa"),
+        filename="C:/project/rabbit/app/extensions/utils/a.jpg",
+        content_type="multipart/form-data",
+    )
 
     dto = UpdatePostDto(
         post_id=user.post[0].id,
@@ -86,6 +117,8 @@ def test_when_update_post_then_success(session, normal_user_factory, article_fac
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
         status=PostStatusEnum.SELLING.value,
+        file_type=AttachmentEnum.PICTURE.value,
+        files=[file],
     )
 
     post_entity = UpdatePostUseCase().execute(dto=dto).value
@@ -93,6 +126,10 @@ def test_when_update_post_then_success(session, normal_user_factory, article_fac
     assert post_entity.title == dto.title
     assert post_entity.body == dto.body
     assert post_entity.is_comment_disabled == dto.is_comment_disabled
+    assert isinstance(post_entity.attachments, list)
+
+
+# TODO: category update
 
 
 def test_when_not_owner_update_post_then_fail(
@@ -308,15 +345,22 @@ def test_when_deleted_or_blocked_post_then_except(
     assert len(post_list) == 1
 
 
-def test_when_get_post_then_success(session, normal_user_factory, post_factory):
+def test_when_get_post_then_success(
+    session, normal_user_factory, post_factory, attachment_factory
+):
     """
     post 조회
     """
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
+    attachments = attachment_factory.build_batch(size=1)
+
     post = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+        Article=True,
+        Attachments=attachments,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
 
     session.add(post)
@@ -328,6 +372,7 @@ def test_when_get_post_then_success(session, normal_user_factory, post_factory):
 
     assert post_entity.id == dto.post_id
     assert post_entity.read_count == 1
+    assert isinstance(post_entity.attachments, list)
 
 
 def test_when_get_not_exist_post_then_not_found(session):

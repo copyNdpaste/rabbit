@@ -1,8 +1,6 @@
 from datetime import datetime
-from typing import Optional
-
+from typing import Optional, List
 from pydantic import BaseModel
-
 from core.domains.board.enum.post_enum import PostLikeStateEnum
 from core.domains.user.entity.user_entity import UserEntity
 from core.domains.user.entity.user_profile_entity import UserProfileEntity
@@ -15,6 +13,7 @@ class PostEntity(BaseModel):
     body: str
     region_group_id: int
     region_group_name: str
+    region_name: str
     type: str
     is_comment_disabled: bool
     is_deleted: bool
@@ -34,7 +33,8 @@ class PostEntity(BaseModel):
     status: str
     post_like_count: int = 0
     post_like_state: str = PostLikeStateEnum.DEFAULT.value
-    categories: list = []
+    categories: List = []
+    attachments: List = None
 
 
 class PostListEntity(BaseModel):
@@ -65,3 +65,4 @@ class PostListEntity(BaseModel):
     status: str
     post_like_count: int = 0
     categories: list = []
+    attachments: List = None

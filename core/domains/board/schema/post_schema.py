@@ -20,7 +20,7 @@ class PostResponseBaseSchema(BaseModel):
     is_blocked: bool
     report_count: StrictInt
     read_count: StrictInt
-    categories: List[str]
+    categories: List
     last_user_action: StrictStr
     last_user_action_at: Optional[datetime]
     last_admin_action: StrictStr
@@ -34,6 +34,7 @@ class PostResponseBaseSchema(BaseModel):
     unit: str
     price_per_unit: int
     status: str
+    attachments: List = []
 
 
 class PostResponseSchema(BaseModel):
