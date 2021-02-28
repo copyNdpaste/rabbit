@@ -114,28 +114,18 @@ class GetPostListRequest:
 
     def validate_request_and_make_dto(self):
         try:
-            GetPostListSchema(
+            schema = GetPostListSchema(
                 region_group_id=self.region_group_id,
                 previous_post_id=self.previous_post_id,
                 title=self.title,
                 type=self.type,
                 category_ids=self.category_ids,
                 status=self.status,
-            )
-            return self.to_dto()
+            ).dict()
+            return GetPostListDto(**schema)
         except ValidationError as e:
             print(e)
             return False
-
-    def to_dto(self) -> GetPostListDto:
-        return GetPostListDto(
-            region_group_id=self.region_group_id,
-            previous_post_id=self.previous_post_id,
-            title=self.title,
-            type=self.type,
-            category_ids=self.category_ids,
-            status=self.status,
-        )
 
 
 class GetPostSchema(BaseModel):
