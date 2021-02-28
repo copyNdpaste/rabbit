@@ -1,11 +1,9 @@
+import uuid
 from sqlalchemy import Column, BigInteger, Integer, ForeignKey, String, DateTime
 from sqlalchemy.orm import relationship
-
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
 from app.persistence.model.post_model import PostModel
-import uuid
-
 from core.domains.board.entity.attachment_entiry import AttachmentEntity
 
 

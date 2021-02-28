@@ -1,9 +1,8 @@
-from dataclasses import dataclass
 from datetime import datetime
+from pydantic import BaseModel
 
 
-@dataclass
-class PostReportEntity:
+class PostReportEntity(BaseModel):
     id: int
     post_id: int
     report_user_id: int
@@ -15,8 +14,7 @@ class PostReportEntity:
     updated_at: datetime
 
 
-@dataclass
-class CommentReportEntity:
+class CommentReportEntity(BaseModel):
     id: int
     comment_id: int
     report_user_id: int
