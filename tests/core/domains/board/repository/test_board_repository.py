@@ -306,10 +306,10 @@ def test_get_post_except_deleted_or_blocked(session, normal_user_factory, post_f
     session.add_all([deleted_post, blocked_post])
     session.commit()
 
-    post_entity = BoardRepository().get_post(post_id=deleted_post.id)
+    post_entity = BoardRepository().get_post(post_id=deleted_post.id, is_deleted=True)
     assert post_entity.is_deleted == True
 
-    post_entity = BoardRepository().get_post(post_id=blocked_post.id)
+    post_entity = BoardRepository().get_post(post_id=blocked_post.id, is_blocked=True)
     assert post_entity.is_blocked == True
 
 

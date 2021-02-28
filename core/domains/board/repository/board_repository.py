@@ -225,8 +225,14 @@ class BoardRepository:
             # TODO : log 추가
             pass
 
-    def get_post(self, post_id: int) -> Optional[PostEntity]:
-        post = session.query(PostModel).filter_by(id=post_id, is_deleted=False).first()
+    def get_post(
+        self, post_id: int, is_deleted: bool = False, is_blocked: bool = False
+    ) -> Optional[PostEntity]:
+        post = (
+            session.query(PostModel)
+            .filter_by(id=post_id, is_deleted=is_deleted, is_blocked=is_blocked)
+            .first()
+        )
 
         return post.to_entity() if post else None
 
