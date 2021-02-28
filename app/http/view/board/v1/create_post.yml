@@ -30,6 +30,12 @@ requestBody:
             type: string
           files:
             type: array
+          amount:
+            type: integer
+          unit:
+            type: string
+          price_per_unit:
+            type: integer
 responses:
   '200':
     description: create post
