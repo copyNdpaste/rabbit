@@ -62,7 +62,7 @@ def get_post_list_view():
     return PostListPresenter().transform(GetPostListUseCase().execute(dto=dto))
 
 
-@api.route("/board/v1/post/<int:post_id>", methods=["GET"])
+@api.route("/board/v1/posts/<int:post_id>", methods=["GET"])
 @jwt_required
 @auth_required
 @swag_from("get_post.yml", methods=["GET"])
