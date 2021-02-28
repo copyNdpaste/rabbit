@@ -17,7 +17,7 @@ depends_on = None
 
 
 def upgrade():
-    op.create_index("region_group_id_index", "posts", ["region_group_id"], unique=True)
+    op.create_index("region_group_id_index", "posts", ["region_group_id"], unique=False)
 
 
 def downgrade():

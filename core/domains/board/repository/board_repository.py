@@ -134,7 +134,7 @@ class BoardRepository:
             session.query(PostModel).filter_by(id=post_id).exists()
         ).scalar()
 
-    # TODO: parameter 너무 많아지면 dto 사용 고려
+    # TODO: parameter 너무 많아지면 dto 사용 고려, type은 현재 안씀...
     def get_post_list(
         self,
         region_group_id: int,
