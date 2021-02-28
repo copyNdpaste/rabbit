@@ -67,6 +67,7 @@ class PostModel(db.Model):
             user_id=self.user_id,
             title=self.title,
             body=self.article.body if self.article else None,
+            region_name=self.user.region.name if self.user.region else None,
             region_group_id=self.region_group_id,
             region_group_name=self.region_group.name if self.region_group else None,
             type=self.type,

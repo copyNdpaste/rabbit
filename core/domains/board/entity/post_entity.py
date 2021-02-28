@@ -13,6 +13,7 @@ class PostEntity(BaseModel):
     body: str
     region_group_id: int
     region_group_name: str
+    region_name: str
     type: str
     is_comment_disabled: bool
     is_deleted: bool
