@@ -226,7 +226,7 @@ class BoardRepository:
             pass
 
     def get_post(self, post_id: int) -> Optional[PostEntity]:
-        post = session.query(PostModel).filter_by(id=post_id).first()
+        post = session.query(PostModel).filter_by(id=post_id, is_deleted=False).first()
 
         return post.to_entity() if post else None
 
