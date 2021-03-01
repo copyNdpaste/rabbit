@@ -5,6 +5,7 @@ from typing import Union, Optional
 from app.extensions.utils.enum.aws_enum import S3BucketEnum, S3PathEnum
 from app.extensions.utils.event_observer import send_message, get_event_object
 from app.extensions.utils.image_helper import S3Helper
+from app.extensions.utils.log_helper import logger
 from core.domains.board.dto.post_dto import (
     CreatePostDto,
     UpdatePostDto,
@@ -153,7 +154,9 @@ class GetPostUseCase(PostBaseUseCase):
         try:
             self._board_repo.add_read_count(post_id=dto.post_id)
         except Exception as e:
-            # TODO : 로그
+            logger.error(
+                f"[GetPostUseCase][execute] post_id : {dto.post_id} error : {e}"
+            )
             return UseCaseFailureOutput(FailureType.SYSTEM_ERROR)
         post = self._board_repo.get_post(post_id=dto.post_id)
 

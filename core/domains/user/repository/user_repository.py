@@ -1,5 +1,6 @@
 from typing import Optional
 from app.extensions.database import session
+from app.extensions.utils.log_helper import logger
 from app.persistence.model.user_model import UserModel
 from app.persistence.model.user_profile_model import UserProfileModel
 from core.domains.user.entity.user_entity import UserEntity
@@ -21,7 +22,9 @@ class UserRepository:
             )
             return self.get_user(user_id=user_id)
         except Exception as e:
-            # TODO:log
+            logger.error(
+                f"[UserRepository][update_user] user_id : {user_id} error : {e}"
+            )
             session.rollback()
             return None
 
@@ -47,6 +50,8 @@ class UserRepository:
             )
             return self.get_user_profile(user_profile_id=user_profile_id)
         except Exception as e:
-            # TODO:log
+            logger.error(
+                f"[UserRepository][update_user] user_profile_id : {user_profile_id} error : {e}"
+            )
             session.rollback()
             return None

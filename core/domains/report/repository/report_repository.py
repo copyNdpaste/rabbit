@@ -1,6 +1,7 @@
 from typing import Optional
 
 from app.extensions.database import session
+from app.extensions.utils.log_helper import logger
 from app.persistence.model.post_report_model import PostReportModel
 from core.domains.board.entity.report_entity import PostReportEntity
 from core.domains.report.dto.post_report_dto import CreatePostReportDto
@@ -24,6 +25,9 @@ class ReportRepository:
 
             return post_report
         except Exception as e:
-            # TODO : log
+            logger.error(
+                f"[ReportRepository][create_post_report] post_id : {dto.post_id} report_user_id : {dto.report_user_id}"
+                f" error : {e}"
+            )
             session.rollback()
             return None

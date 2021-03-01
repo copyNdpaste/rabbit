@@ -1,5 +1,6 @@
 from typing import List, Optional, Union
 from app.extensions.database import session
+from app.extensions.utils.log_helper import logger
 from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.attachment_model import AttachmentModel
 from app.persistence.model.category_model import CategoryModel
@@ -46,7 +47,12 @@ class BoardRepository:
 
             return post.to_entity()
         except Exception as e:
-            # TODO : log e 필요
+            logger.error(
+                f"[BoardRepository][create_post] user_id : {dto.user_id} title : {dto.title} "
+                f"region_group_id : {dto.region_group_id} type : {dto.type} "
+                f"is_comment_disabled : {dto.is_comment_disabled} amount : {dto.amount} unit : {dto.unit}"
+                f" price_per_unit : {dto.price_per_unit} status : {dto.status} error : {e}"
+            )
             session.rollback()
             return None
 
@@ -84,7 +90,10 @@ class BoardRepository:
             return attachment.to_entity() if attachment else None
         except Exception as e:
             session.rollback()
-            # TODO: log
+            logger.error(
+                f"[BoardRepository][create_attachment] post_id : {post_id} type : {type} file_name : {file_name} "
+                f"path : {path} extension : {extension} uuid : {uuid} error : {e}"
+            )
             return None
 
     def _get_post(self, post_id) -> PostEntity:
@@ -111,7 +120,10 @@ class BoardRepository:
             return post_entity if post_entity else None
         except Exception as e:
             session.rollback()
-            # TODO : log
+            logger.error(
+                f"[BoardRepository][update_post] title : {dto.title} region_group_id : {dto.region_group_id} "
+                f"type : {dto.type} is_comment_disabled : {dto.is_comment_disabled} error : {e}"
+            )
             return None
 
     def is_post_owner(self, dto) -> bool:
@@ -126,7 +138,7 @@ class BoardRepository:
             return self._get_post(post_id=dto.post_id)
         except Exception as e:
             session.rollback()
-            # TODO : log
+            logger.error(f"[BoardRepository][delete_post] post_id : {dto.post_id}")
             return None
 
     def is_post_exist(self, post_id: int) -> bool:
@@ -222,8 +234,8 @@ class BoardRepository:
 
             return [post.to_post_list_entity() for post in post_list]
         except Exception as e:
-            # TODO : log 추가
-            pass
+            logger.error(f"[BoardRepository][get_post_list] error : {e}")
+            return []
 
     def get_post(
         self, post_id: int, is_deleted: bool = False, is_blocked: bool = False
@@ -243,7 +255,9 @@ class BoardRepository:
             )
             return True
         except Exception as e:
-            # TODO : log
+            logger.error(
+                f"[BoardRepository][add_read_count] post_id : {post_id} error : {e}"
+            )
             session.rollback()
             return False
 
@@ -255,7 +269,9 @@ class BoardRepository:
             session.commit()
             return post_like_count.to_entity()
         except Exception as e:
-            # TODO : log
+            logger.error(
+                f"[BoardRepository][create_post_like_count] post_id : {post_id} error : {e}"
+            )
             session.rollback()
             return None
 
@@ -273,7 +289,9 @@ class BoardRepository:
             )
             return True
         except Exception as e:
-            # TODO : log
+            logger.error(
+                f"[BoardRepository][update_post_like_count] post_id : {post_id} count : {count} error : {e}"
+            )
             session.rollback()
             return False
 
@@ -298,7 +316,9 @@ class BoardRepository:
 
             return self.get_post_like_state(user_id=user_id, post_id=post_id)
         except Exception as e:
-            # TODO : log
+            logger.error(
+                f"[BoardRepository][create_post_like_state] post_id : {post_id} user_id : {user_id} error : {e}"
+            )
             session.rollback()
             return False
 
@@ -312,7 +332,10 @@ class BoardRepository:
 
             return self.get_post_like_state(user_id=user_id, post_id=post_id)
         except Exception as e:
-            # TODO : log
+            logger.error(
+                f"[BoardRepository][create_post_like_state] post_id : {post_id} user_id : {user_id} state : {state}"
+                f" error : {e}"
+            )
             session.rollback()
             return None
 
@@ -364,6 +387,8 @@ class BoardRepository:
             session.query(AttachmentModel).filter_by(post_id=post_id).delete()
             return True
         except Exception as e:
-            # TODO: log
+            logger.error(
+                f"[BoardRepository][delete_attachments] post_id : {post_id} error : {e}"
+            )
             session.rollback()
             return False
