@@ -42,7 +42,7 @@ def test_when_get_user_with_relations_then_success(
 
     assert user_entity.id == user.id
     assert isinstance(user_entity.region, RegionEntity)
-    assert isinstance(user_entity.user_profile, UserProfileEntity)
+    assert isinstance(user_entity.user_profile, str)
 
 
 @patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)

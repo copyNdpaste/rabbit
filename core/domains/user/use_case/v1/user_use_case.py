@@ -44,15 +44,10 @@ class UpdateUserUseCase:
         if not user:
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
 
-        attachment = self._upload_picture(dto=dto, user_profile_id=user.profile_id)
-        if not attachment:
-            return UseCaseFailureOutput(FailureType.SYSTEM_ERROR)
-
-        user.user_profile = (
-            attachment[0].path + attachment[0].uuid + attachment[0].extension
-            if attachment[0]
-            else ""
-        )
+        if dto.files:
+            attachment = self._upload_picture(dto=dto, user_profile_id=user.profile_id)
+            if not attachment:
+                return UseCaseFailureOutput(FailureType.SYSTEM_ERROR)
 
         return UseCaseSuccessOutput(value=user)
 

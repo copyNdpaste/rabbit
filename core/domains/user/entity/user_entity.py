@@ -1,9 +1,6 @@
 from datetime import datetime
-
 from pydantic import BaseModel
-
 from core.domains.region.entity.region_entity import RegionEntity
-from core.domains.user.entity.user_profile_entity import UserProfileEntity
 
 
 class UserEntity(BaseModel):
@@ -16,5 +13,5 @@ class UserEntity(BaseModel):
     region_id: int
     created_at: datetime
     updated_at: datetime
-    user_profile: UserProfileEntity
+    user_profile: str
     region: RegionEntity
