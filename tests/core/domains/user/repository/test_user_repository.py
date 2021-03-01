@@ -1,5 +1,7 @@
 import uuid
 
+import pytest
+
 from app.extensions.utils.enum.aws_enum import S3PathEnum
 from core.domains.user.enum.user_enum import UserStatusEnum
 from core.domains.user.repository.user_repository import UserRepository
@@ -15,6 +17,7 @@ def test_get_user(session, normal_user_factory):
     assert user_entity == user.to_entity()
 
 
+@pytest.mark.skip(reason="fox에서 처리되므로 스킵")
 def test_update_user(session, normal_user_factory, region_factory):
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
@@ -47,6 +50,7 @@ def test_get_user_profile(session, normal_user_factory):
     assert user_profile.id == user.profile_id
 
 
+@pytest.mark.skip(reason="fox에서 처리되므로 스킵")
 def test_update_user_profile(session, normal_user_factory):
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)

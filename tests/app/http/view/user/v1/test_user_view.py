@@ -1,6 +1,7 @@
 import io
 from unittest.mock import patch
 
+import pytest
 from flask import url_for
 from flask_jwt_extended import create_access_token
 from werkzeug.datastructures import FileStorage
@@ -50,6 +51,7 @@ def test_when_get_not_existing_user_then_failure(
     assert response.get_json()["type"] == FailureType.NOT_FOUND_ERROR
 
 
+@pytest.mark.skip(reason="fox에서 처리되므로 스킵")
 @patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
 def test_when_update_user_then_success(
     upload_mock,
