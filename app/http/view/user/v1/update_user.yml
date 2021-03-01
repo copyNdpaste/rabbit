@@ -12,6 +12,20 @@ parameters:
       type: integer
       format: int64
       minimum: 1
+requestBody:
+  content:
+    multipart/form-data:
+      schema:
+        type: object
+        properties:
+          nickname:
+            type: string
+          status:
+            type: string
+          region_id:
+            type: integer
+          files:
+            type: array
 responses:
   '200':
     description: A user object

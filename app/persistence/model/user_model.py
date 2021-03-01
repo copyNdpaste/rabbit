@@ -8,7 +8,6 @@ from sqlalchemy import (
     ForeignKey,
 )
 from sqlalchemy.orm import relationship, backref
-
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
 from app.persistence.model.region_model import RegionModel
@@ -46,6 +45,10 @@ class UserModel(db.Model):
             region_id=self.region_id,
             created_at=self.created_at,
             updated_at=self.updated_at,
-            user_profile=self.user_profile.to_entity(),
+            user_profile=self.user_profile.path
+            + self.user_profile.uuid
+            + self.user_profile.extension
+            if self.user_profile
+            else None,
             region=self.region.to_entity(),
         )
