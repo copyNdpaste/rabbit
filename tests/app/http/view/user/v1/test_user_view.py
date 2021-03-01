@@ -1,11 +1,5 @@
-import uuid
-
 from flask import url_for
 from flask_jwt_extended import create_access_token
-
-from app.persistence.model.region_model import RegionModel
-from app.persistence.model.user_model import UserModel
-from app.persistence.model.user_profile_model import UserProfileModel
 from core.use_case_output import FailureType
 
 

@@ -8,7 +8,6 @@ from sqlalchemy import (
     ForeignKey,
 )
 from sqlalchemy.orm import relationship, backref
-
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
 from app.persistence.model.region_model import RegionModel

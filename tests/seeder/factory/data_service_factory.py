@@ -1,5 +1,4 @@
 import factory
-
 from . import (
     UserFactory,
     PostFactory,

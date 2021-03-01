@@ -47,7 +47,8 @@ class UserProfileFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     uuid = str(uuid.uuid4())
     file_name = "file"
-    path = "profile_imgs/"
+    path = S3PathEnum.PROFILE_IMGS.value
+    extension = ".jpg"
 
 
 class PostLikeCountFactory(factory.alchemy.SQLAlchemyModelFactory):
