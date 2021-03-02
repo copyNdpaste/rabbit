@@ -1,8 +1,7 @@
 from datetime import datetime
 
 import pytest
-
-from app.persistence.model.category_model import CategoryModel
+from app.persistence.model.notification_history_model import NotificationHistoryModel
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.enum.post_enum import (
     PostCategoryEnum,
@@ -12,9 +11,18 @@ from core.domains.board.enum.post_enum import (
     PostLikeCountEnum,
     PostLimitEnum,
 )
+from core.domains.notification.enum.notification_enum import (
+    CategoryEnum,
+    TypeEnum,
+    StatusEnum,
+    MessageEnum
+)
 from core.domains.board.repository.board_repository import BoardRepository
+from core.domains.notification.repository.notification_repository import NotificationRepository
+from core.domains.notification.dto.notification_dto import MessageDto, NotificationHistoryDto
 from core.domains.user.entity.user_entity import UserEntity
 from tests.seeder.factory import PostFactory
+from app.extensions.utils.message_converter import NotificationMessageConverter
 
 
 def test_create_post(session, normal_user_factory, create_categories):
@@ -202,7 +210,7 @@ def test_get_post_list_pagination(session, normal_user_factory, create_categorie
 
 
 def test_get_post_list_except_deleted_or_blocked(
-    session, normal_user_factory, post_factory
+        session, normal_user_factory, post_factory
 ):
     """
     post list 조회 시 삭제, 차단된 게시글 제외
@@ -321,7 +329,7 @@ def test_add_read_count(session, normal_user_factory, post_factory):
 
 
 def test_search_post_list(
-    session, normal_user_factory, post_factory, create_categories
+        session, normal_user_factory, post_factory, create_categories
 ):
     """
     post 검색. user1 post 2개, user2 post 2개, user3 post 1개, 다른 지역 user4 post 1개
@@ -431,7 +439,7 @@ def test_like_post(session, normal_user_factory, post_factory, post_like_state_f
 
 
 def test_unlike_post_like(
-    session, normal_user_factory, post_factory, post_like_state_factory
+        session, normal_user_factory, post_factory, post_like_state_factory
 ):
     # 찜취소
     user = normal_user_factory(Region=True, UserProfile=True)
@@ -456,7 +464,7 @@ def test_unlike_post_like(
 
 
 def test_when_like_post_then_up_post_like_count(
-    session, normal_user_factory, post_factory
+        session, normal_user_factory, post_factory
 ):
     # 찜하면 count + 1
     user = normal_user_factory(Region=True, UserProfile=True)
@@ -483,7 +491,7 @@ def test_when_like_post_then_up_post_like_count(
 
 
 def test_when_unlike_post_then_down_post_like_count(
-    session, normal_user_factory, post_factory
+        session, normal_user_factory, post_factory
 ):
     # 찜취소하면 count - 1
     user = normal_user_factory(Region=True, UserProfile=True)
@@ -532,13 +540,13 @@ def test_create_post_like_count(session, normal_user_factory, post_factory):
     ],
 )
 def test_get_post_list_by_status(
-    post_status,
-    input_status,
-    result_count,
-    session,
-    normal_user_factory,
-    post_factory,
-    create_categories,
+        post_status,
+        input_status,
+        result_count,
+        session,
+        normal_user_factory,
+        post_factory,
+        create_categories,
 ):
     """
     post list 조회 시 판매중, 거래완료 상태에 따라 응답
@@ -584,12 +592,12 @@ def test_get_post_list_by_status(
     ],
 )
 def test_get_post_list_by_category(
-    input_category_ids,
-    result_count,
-    session,
-    normal_user_factory,
-    post_factory,
-    create_categories,
+        input_category_ids,
+        result_count,
+        session,
+        normal_user_factory,
+        post_factory,
+        create_categories,
 ):
     """
     post category에 해당되는 post 응답
@@ -626,7 +634,7 @@ def test_get_post_list_by_category(
 
 
 def test_get_post_list_order_by_desc(
-    session, normal_user_factory, create_categories, post_factory
+        session, normal_user_factory, create_categories, post_factory
 ):
     """
     판매중, 거래완료 최신순으로 조회
@@ -678,12 +686,12 @@ def test_get_post_list_order_by_desc(
 
 @pytest.mark.parametrize("post_count_result, input_user_id", [(2, 1), (0, 0)])
 def test_get_selling_post_list(
-    post_count_result,
-    input_user_id,
-    session,
-    normal_user_factory,
-    create_categories,
-    post_factory,
+        post_count_result,
+        input_user_id,
+        session,
+        normal_user_factory,
+        create_categories,
+        post_factory,
 ):
     """
     판매 목록 조회
@@ -722,7 +730,7 @@ def test_get_selling_post_list(
 
 
 def test_get_selling_post_list_pagination(
-    session, normal_user_factory, create_categories, post_factory,
+        session, normal_user_factory, create_categories, post_factory,
 ):
     """
     판매 목록 조회 페이지네이션
@@ -756,11 +764,11 @@ def test_get_selling_post_list_pagination(
 
 
 def test_get_like_post_list_success(
-    session,
-    normal_user_factory,
-    create_categories,
-    post_factory,
-    post_like_state_factory,
+        session,
+        normal_user_factory,
+        create_categories,
+        post_factory,
+        post_like_state_factory,
 ):
     """
     내가 찜한 게시글, 찜 안한 게시글 생성 후 찜한 게시글만 응답  확인
@@ -806,7 +814,7 @@ def test_get_like_post_list_success(
 
 
 def test_get_empty_like_post_list_success(
-    session, normal_user_factory, create_categories, post_factory,
+        session, normal_user_factory, create_categories, post_factory,
 ):
     """
     게시글 응답 빈 list 확인
@@ -838,11 +846,11 @@ def test_get_empty_like_post_list_success(
 
 
 def test_get_like_post_list_pagination_success(
-    session,
-    normal_user_factory,
-    create_categories,
-    post_factory,
-    post_like_state_factory,
+        session,
+        normal_user_factory,
+        create_categories,
+        post_factory,
+        post_like_state_factory,
 ):
     """
     내가 찜한 게시글 페이지네이션
@@ -885,3 +893,59 @@ def test_get_like_post_list_pagination_success(
 
     assert len(like_post_list_result) == 1
     assert like_post_list_result[0].id == liked_post_list[0].id
+
+
+def test_create_notification_history(session, normal_user_factory, create_categories):
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    post_dto = CreatePostDto(
+        user_id=user.id,
+        title="떡볶이 나눠 먹어요",
+        body="",
+        region_group_id=1,
+        type="article",
+        is_comment_disabled=True,
+        is_deleted=False,
+        is_blocked=False,
+        report_count=0,
+        read_count=0,
+        last_user_action="default",
+        last_admin_action="default",
+        amount=10,
+        unit=PostUnitEnum.UNIT.value,
+        price_per_unit=10000,
+        status=PostStatusEnum.SELLING.value,
+        category_ids=[categories[0].id],
+    )
+
+    post_entity = BoardRepository().create_post(dto=post_dto)
+
+    user2 = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user2)
+    session.commit()
+
+    message_dto = MessageDto(
+        post_id=post_entity.id,
+        user_id=user2.id,
+        category=CategoryEnum.KEYWORD.value,
+        type=TypeEnum.ALL.value,
+        msg=MessageEnum.KEYWORD.value
+    )
+
+    notification_message = NotificationMessageConverter.to_dict(message_dto)
+    notification_history_dto = NotificationHistoryDto(
+        user_id=message_dto.user_id,
+        status=StatusEnum.PENDING.value,
+        type=message_dto.type,
+        category=message_dto.category,
+        message=notification_message
+    )
+    NotificationRepository().create_notification_history(dto=notification_history_dto)
+    notification_history = session.query(NotificationHistoryModel).filter(NotificationHistoryModel.id == 1).first()
+
+    assert notification_history.message == notification_message
+
