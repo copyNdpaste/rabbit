@@ -4,6 +4,7 @@ import os
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY") or "auckland"
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY") or "hawaii"
+    REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
@@ -16,7 +17,7 @@ class LocalConfig(Config):
     SQLALCHEMY_ECHO = True
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = (
-        "postgresql+psycopg2://postgres:1234@localhost:5432/rabbit"
+        "postgresql+psycopg2://rabbit:password@localhost:5432/bium"
     )
 
 

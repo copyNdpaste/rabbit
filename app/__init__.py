@@ -6,7 +6,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 from app.config import config
-from app.extensions import jwt
+from app.extensions import jwt, redis
 from app.extensions.database import db, migrate
 from app.extensions.ioc_container import init_provider
 from app.extensions.swagger import swagger_config
@@ -21,7 +21,7 @@ from core.domains.region import event
 
 
 def init_config(
-    app: Flask, config_name: str, settings: Optional[Dict[str, Any]] = None
+        app: Flask, config_name: str, settings: Optional[Dict[str, Any]] = None
 ) -> None:
     app_config = config[config_name]
     app.config.from_object(app_config)
@@ -40,16 +40,17 @@ def init_blueprint(app: Flask):
 def init_extensions(app: Flask):
     Swagger(app, **swagger_config())
     jwt.init_app(app)
+    redis.init_app(app)
 
 
 def create_app(
-    config_name: str = "default", settings: Optional[Dict[str, Any]] = None
+        config_name: str = "default", settings: Optional[Dict[str, Any]] = None
 ) -> Flask:
     app = Flask(__name__)
 
     if (
-        os.environ.get("FLASK_CONFIG") is not None
-        and os.environ.get("FLASK_CONFIG") is not config_name
+            os.environ.get("FLASK_CONFIG") is not None
+            and os.environ.get("FLASK_CONFIG") is not config_name
     ):
         config_name = os.environ.get("FLASK_CONFIG")
 
