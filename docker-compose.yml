@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+  postgres:
+    container_name: 'rabbitpostgres'
+    image: 'postgres:11'
+    environment:
+      - POSTGRES_USER=rabbit
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=bium
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'pgdata:/var/lib/postgresql/data/'
+    command:
+      - "postgres"
+      - "-c"
+      - "max_locks_per_transaction=10000"
+
+  redis:
+    container_name: 'rabbitredis'
+    image: 'redis:latest'
+    ports:
+      - '127.0.0.1:6379:6379'
+    volumes:
+      - 'redisdata:/data'
+
+volumes:
+  pgdata:
+  redisdata:
