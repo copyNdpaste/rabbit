@@ -5,6 +5,7 @@ from flasgger import Swagger
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
+from app.commands import init_commands
 from app.config import config
 from app.extensions import jwt, redis
 from app.extensions.database import db, migrate
@@ -61,6 +62,7 @@ def create_app(
         init_db(app, db)
         init_provider()
         init_extensions(app)
+        init_commands()
 
     print("\n💌💌💌Flask Config is '{}'".format(config_name))
 
