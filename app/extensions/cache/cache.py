@@ -11,13 +11,13 @@ class RedisClient:
     def __init__(self):
         self._redis_client: redis.Redis = redis.Redis
         self.keys = None
-        self.copied_keys = None
+        self.copied_keys = []
 
     def init_app(self, app: Flask):
         redis_url = app.config.get(RedisClient.CONFIG_NAME)
         self._redis_client = self._redis_client.from_url(redis_url)
 
-    def scan(self, pattern: str) -> None:
+    def scan_pattern(self, pattern: str) -> None:
         self.keys = self._redis_client.scan_iter(pattern)
 
     def get_after_scan(self) -> Optional[dict]:
@@ -26,7 +26,7 @@ class RedisClient:
             value = self._redis_client.get(key)
             self.copied_keys.append(key)
             return {"key": key, "value": value}
-        except StopIteration:
+        except StopIteration as e:
             return None
 
     def set(self, key: Any, value: Any, ex: Union[int, timedelta] = None, ) -> None:
@@ -36,7 +36,7 @@ class RedisClient:
         for key in self.copied_keys:
             self._redis_client.delete(key)
         self.keys = None
-        self.copied_keys = None
+        self.copied_keys = []
 
     def get_by_key(self, key: str) -> str:
         return self._redis_client.get(name=key)
