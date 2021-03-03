@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 
 from redis import Redis
@@ -25,15 +26,15 @@ class NotificationRepository:
             session.add(notification_history)
             session.commit()
 
-            self._set_notification_info(notification_history.id, dto.user_id)
+            self._set_notification_info(notification_history.id, dto.message)
 
         except Exception as e:
             # TODO : log e 필요
             session.rollback()
 
-    def _set_notification_info(self, notification_history_id: int, user_id: int) -> None:
+    def _set_notification_info(self, notification_history_id: int, message: dict) -> None:
         self.redis.set(
             key=f"{RedisKeyPrefix.KEYWORD.value}:{str(notification_history_id)}",
-            value=user_id,
+            value=json.dumps(message, ensure_ascii=False).encode('UTF-8'),
             ex=RedisExpire.TIME.value
         )
