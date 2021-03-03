@@ -29,7 +29,7 @@ def upgrade():
         sa.Column("is_available", sa.Boolean(), nullable=False),
         sa.Column("use_bantime", sa.Boolean(), nullable=False),
         sa.Column("use_keyword", sa.Boolean(), nullable=False),
-        sa.Column("use_chat", sa.Integer(), nullable=False),
+        sa.Column("use_chat", sa.Boolean(), nullable=False),
         sa.Column("use_etc", sa.Boolean(), nullable=False),
         sa.Column("ban_time_from", sa.String(length=4), nullable=False),
         sa.Column("ban_time_to", sa.String(length=4), nullable=False),
