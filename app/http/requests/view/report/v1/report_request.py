@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from app.extensions.utils.log_helper import logger
 from core.domains.report.dto.post_report_dto import CreatePostReportDto
 
+logger = logger.getLogger(__name__)
+
 
 class CreatePostReportSchema(BaseModel):
     post_id: int

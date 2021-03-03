@@ -28,7 +28,7 @@ def upgrade():
         sa.Column("uuid", sa.String(length=50), nullable=False),
         sa.Column("file_name", sa.String(length=50), nullable=False),
         sa.Column("path", sa.String(length=100), nullable=False),
-        sa.Column("extensions", sa.String(length=5), nullable=False),
+        sa.Column("extension", sa.String(length=5), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=True),
         sa.PrimaryKeyConstraint("id"),

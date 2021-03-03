@@ -21,6 +21,8 @@ from core.domains.board.enum.post_enum import (
     PostStatusEnum,
 )
 
+logger = logger.getLogger(__name__)
+
 
 class BoardRepository:
     def create_post(self, dto: CreatePostDto) -> Optional[PostEntity]:
@@ -50,8 +52,8 @@ class BoardRepository:
             logger.error(
                 f"[BoardRepository][create_post] user_id : {dto.user_id} title : {dto.title} "
                 f"region_group_id : {dto.region_group_id} type : {dto.type} "
-                f"is_comment_disabled : {dto.is_comment_disabled} amount : {dto.amount} unit : {dto.unit}"
-                f" price_per_unit : {dto.price_per_unit} status : {dto.status} error : {e}"
+                f"is_comment_disabled : {dto.is_comment_disabled} amount : {dto.amount} unit : {dto.unit} "
+                f"price_per_unit : {dto.price_per_unit} status : {dto.status} error : {e}"
             )
             session.rollback()
             return None
@@ -59,13 +61,20 @@ class BoardRepository:
     def create_post_categories(self, post_id: int, dto: CreatePostDto):
         post_categories = []
 
-        for category_id in dto.category_ids:
-            post_categories.append(
-                PostCategoryModel(post_id=post_id, category_id=category_id)
-            )
+        try:
+            for category_id in dto.category_ids:
+                post_categories.append(
+                    PostCategoryModel(post_id=post_id, category_id=category_id)
+                )
 
-        session.add_all(post_categories)
-        session.commit()
+            session.add_all(post_categories)
+            session.commit()
+        except Exception as e:
+            logger.error(
+                f"[BoardRepository][create_post_categories] post_id : {post_id} error : {e}"
+            )
+            session.rollback()
+            return False
 
     def create_attachment(
         self,
@@ -138,7 +147,9 @@ class BoardRepository:
             return self._get_post(post_id=dto.post_id)
         except Exception as e:
             session.rollback()
-            logger.error(f"[BoardRepository][delete_post] post_id : {dto.post_id}")
+            logger.error(
+                f"[BoardRepository][delete_post] post_id : {dto.post_id} error : {e}"
+            )
             return None
 
     def is_post_exist(self, post_id: int) -> bool:

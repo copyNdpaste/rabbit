@@ -26,6 +26,9 @@ from core.domains.user.enum import UserTopicEnum
 from core.use_case_output import UseCaseSuccessOutput, UseCaseFailureOutput, FailureType
 
 
+logger = logger.getLogger(__name__)
+
+
 class PostBaseUseCase:
     @inject.autoparams()
     def __init__(self, board_repo: BoardRepository):

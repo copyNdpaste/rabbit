@@ -6,6 +6,8 @@ from app.persistence.model.user_profile_model import UserProfileModel
 from core.domains.user.entity.user_entity import UserEntity
 from core.domains.user.entity.user_profile_entity import UserProfileEntity
 
+logger = logger.getLogger(__name__)
+
 
 class UserRepository:
     def get_user(self, user_id: int) -> Optional[UserEntity]:
