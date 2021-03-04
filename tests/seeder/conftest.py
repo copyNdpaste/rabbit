@@ -17,7 +17,7 @@ from tests.seeder.factory import (
     AttachmentFactory,
     NotificationFactory,
     KeywordFactory,
-    UserNotificationTokenFactory
+    UserNotificationTokenFactory,
 )
 from tests.seeder.factory.data_service_factory import NormalUserFactory
 
@@ -36,7 +36,7 @@ MODEL_FACTORIES = [
     AttachmentFactory,
     NotificationFactory,
     KeywordFactory,
-    UserNotificationTokenFactory
+    UserNotificationTokenFactory,
 ]
 
 

@@ -6,7 +6,7 @@ from flask import Flask
 
 
 class RedisClient:
-    CONFIG_NAME = 'REDIS_URL'
+    CONFIG_NAME = "REDIS_URL"
 
     def __init__(self):
         self._redis_client: redis.Redis = redis.Redis
@@ -29,7 +29,7 @@ class RedisClient:
         except StopIteration as e:
             return None
 
-    def set(self, key: Any, value: Any, ex: Union[int, timedelta] = None, ) -> None:
+    def set(self, key: Any, value: Any, ex: Union[int, timedelta] = None,) -> None:
         self._redis_client.set(name=key, value=value, ex=ex)
 
     def clear_cache(self) -> None:

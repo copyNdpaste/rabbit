@@ -3,7 +3,9 @@ from sqlalchemy import (
     BigInteger,
     Integer,
     String,
-    ForeignKey, DateTime, Boolean,
+    ForeignKey,
+    DateTime,
+    Boolean,
 )
 from sqlalchemy.orm import relationship, backref
 

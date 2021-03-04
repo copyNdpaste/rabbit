@@ -12,14 +12,11 @@ class NotificationMessageConverter:
                 "token": dto.token,
                 "category": dto.category,
                 "type": dto.type,
-                "notification": {
-                    "title": dto.title,
-                    "body": dto.body,
-                },
+                "notification": {"title": dto.title, "body": dto.body,},
                 "data": {
                     "post_id": dto.post_id,
                     "user_id": dto.user_id,
-                    "created_at": str(get_server_timestamp().replace(microsecond=0))
-                }
+                    "created_at": str(get_server_timestamp().replace(microsecond=0)),
+                },
             }
         }

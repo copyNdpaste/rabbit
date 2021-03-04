@@ -63,22 +63,30 @@ class NotificationUseCase:
                 for key in message:
                     response = self.push_service.notify_single_device(
                         registration_id=message[key].get("message").get("token"),
-                        data_message=message[key])
-                    self._logging(message=f"[*] FCM response -> {response.get('success')}")
+                        data_message=message[key],
+                    )
+                    self._logging(
+                        message=f"[*] FCM response -> {response.get('success')}"
+                    )
 
                     # notification_history 상태값 변경
                     status = StatusEnum.SUCCESS.value
                     if response.get("failure") > 0:
                         status = StatusEnum.FAIL.value
 
-                    self._update_notification_status(notification_history_id=key, status=status)
+                    self._update_notification_status(
+                        notification_history_id=key, status=status
+                    )
         except Exception as e:
             self._logging(message="[*] _push_notification() exception")
             self._logging(message=str(e))
 
     def _update_notification_status(self, notification_history_id: int, status: str):
-        send_message(topic_name=NotificationTopicEnum.UPDATE_NOTIFICATION_STATUS,
-                     notification_history_id=notification_history_id, status=status)
+        send_message(
+            topic_name=NotificationTopicEnum.UPDATE_NOTIFICATION_STATUS,
+            notification_history_id=notification_history_id,
+            status=status,
+        )
 
     def _logging(self, message: str) -> None:
         print(message)

@@ -22,9 +22,18 @@ from core.domains.board.enum import PostTopicEnum
 from core.domains.board.enum.attachment_enum import AttachmentEnum
 from core.domains.board.enum.post_enum import PostLikeStateEnum, PostLikeCountEnum
 from core.domains.board.repository.board_repository import BoardRepository
-from core.domains.notification.dto.notification_dto import NotificationHistoryDto, MessageDto
+from core.domains.notification.dto.notification_dto import (
+    NotificationHistoryDto,
+    MessageDto,
+)
 from core.domains.notification.enum import NotificationTopicEnum
-from core.domains.notification.enum.notification_enum import StatusEnum, TypeEnum, CategoryEnum, TitleEnum, BodyEnum
+from core.domains.notification.enum.notification_enum import (
+    StatusEnum,
+    TypeEnum,
+    CategoryEnum,
+    TitleEnum,
+    BodyEnum,
+)
 from core.domains.region.enum import RegionTopicEnum
 from core.domains.user.entity.user_entity import UserEntity
 from core.domains.user.enum import UserTopicEnum
@@ -86,7 +95,7 @@ class CreatePostUseCase(PostBaseUseCase):
         self._board_repo = board_repo
 
     def execute(
-            self, dto: CreatePostDto
+        self, dto: CreatePostDto
     ) -> Union[UseCaseSuccessOutput, UseCaseFailureOutput]:
         user = self._get_user(dto.user_id)
         if not user:
@@ -109,7 +118,6 @@ class CreatePostUseCase(PostBaseUseCase):
         post.post_like_count = post_like_count.count
         post.attachments = attachments
 
-
         # 키워드 노티 전송 대상 조회
         target_user_group: List[dict] = self._get_target_user_for_notification()
 
@@ -118,9 +126,9 @@ class CreatePostUseCase(PostBaseUseCase):
             notification_list = list()
             for target_user in target_user_group:
                 if (
-                        post.title.find(target_user["keyword_1"]) >= 0 or
-                        post.title.find(target_user["keyword_2"]) >= 0 or
-                        post.title.find(target_user["keyword_3"]) >= 0
+                    post.title.find(target_user["keyword_1"]) >= 0
+                    or post.title.find(target_user["keyword_2"]) >= 0
+                    or post.title.find(target_user["keyword_3"]) >= 0
                 ):
                     message_dto = MessageDto(
                         token=target_user.get("token"),
@@ -129,16 +137,18 @@ class CreatePostUseCase(PostBaseUseCase):
                         category=CategoryEnum.KEYWORD.value,
                         type=TypeEnum.ALL.value,
                         title=TitleEnum.KEYWORD.value,
-                        body=BodyEnum.KEYWORD.value
+                        body=BodyEnum.KEYWORD.value,
                     )
-                    notification_message = NotificationMessageConverter.to_dict(message_dto)
+                    notification_message = NotificationMessageConverter.to_dict(
+                        message_dto
+                    )
 
                     notification_history = NotificationHistoryDto(
                         user_id=target_user.get("user_id"),
                         status=StatusEnum.PENDING.value,
                         type=TypeEnum.ALL.value,
                         category=CategoryEnum.KEYWORD.value,
-                        message=notification_message
+                        message=notification_message,
                     )
 
                     notification_list.append(notification_history)
@@ -150,10 +160,17 @@ class CreatePostUseCase(PostBaseUseCase):
 
     def _get_target_user_for_notification(self):
         send_message(topic_name=NotificationTopicEnum.GET_KEYWORD_TARGET_USER)
-        return get_event_object(topic_name=NotificationTopicEnum.GET_KEYWORD_TARGET_USER)
+        return get_event_object(
+            topic_name=NotificationTopicEnum.GET_KEYWORD_TARGET_USER
+        )
 
-    def _create_notification_history(self, notification_list: List[NotificationHistoryDto]):
-        send_message(topic_name=NotificationTopicEnum.CREATE_NOTIFICATION_HISTORY, notification_list=notification_list)
+    def _create_notification_history(
+        self, notification_list: List[NotificationHistoryDto]
+    ):
+        send_message(
+            topic_name=NotificationTopicEnum.CREATE_NOTIFICATION_HISTORY,
+            notification_list=notification_list,
+        )
 
 
 class GetPostListUseCase(PostBaseUseCase):
@@ -163,7 +180,7 @@ class GetPostListUseCase(PostBaseUseCase):
         self._board_repo = board_repo
 
     def execute(
-            self, dto: GetPostListDto
+        self, dto: GetPostListDto
     ) -> Union[UseCaseSuccessOutput, UseCaseFailureOutput]:
         is_region_group_exist = self._get_region_group(id=dto.region_group_id)
         if not is_region_group_exist:
@@ -217,7 +234,7 @@ class UpdatePostUseCase(PostBaseUseCase):
         self._board_repo = board_repo
 
     def execute(
-            self, dto: UpdatePostDto
+        self, dto: UpdatePostDto
     ) -> Union[UseCaseSuccessOutput, UseCaseFailureOutput]:
         is_post_owner = self._is_post_owner(dto=dto)
         if not is_post_owner:
@@ -247,7 +264,7 @@ class DeletePostUseCase(PostBaseUseCase):
         self._board_repo = board_repo
 
     def execute(
-            self, dto: DeletePostDto
+        self, dto: DeletePostDto
     ) -> Union[UseCaseSuccessOutput, UseCaseFailureOutput]:
         is_post_owner = self._is_post_owner(dto=dto)
         if not is_post_owner:

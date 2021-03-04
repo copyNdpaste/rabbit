@@ -8,7 +8,9 @@ from app.persistence.model.post_model import PostModel
 from app.persistence.model.region_group_model import RegionGroupModel
 from app.persistence.model.region_model import RegionModel
 from app.persistence.model.user_model import UserModel
-from app.persistence.model.user_notification_token_model import UserNotificationTokenModel
+from app.persistence.model.user_notification_token_model import (
+    UserNotificationTokenModel,
+)
 from app.persistence.model.user_profile_model import UserProfileModel
 from app.persistence.model.post_like_state_model import PostLikeStateModel
 from app.persistence.model.post_like_count_model import PostLikeCountModel
@@ -198,4 +200,4 @@ class UserNotificationTokenFactory(factory.alchemy.SQLAlchemyModelFactory):
         model = UserNotificationTokenModel
 
     user_id = 1
-    token = faker.bothify(text='????-#######')
+    token = faker.bothify(text="????-#######")
