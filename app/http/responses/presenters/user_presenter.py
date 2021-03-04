@@ -12,7 +12,7 @@ class UserPresenter:
         if isinstance(output, UseCaseSuccessOutput):
             value = output.value
             try:
-                schema = UserResponseSchema(id=value.id, nickname=value.nickname)
+                schema = UserResponseSchema(user=value)
             except ValidationError as e:
                 print(e)
                 return failure_response(
@@ -22,7 +22,7 @@ class UserPresenter:
                     )
                 )
             result = {
-                "data": {"user": schema.dict()},
+                "data": schema.dict(),
                 "meta": {"cursor": output.meta},
             }
             return success_response(result=result)

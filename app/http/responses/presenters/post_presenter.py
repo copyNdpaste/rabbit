@@ -1,7 +1,5 @@
 from typing import Union
-
 from pydantic import ValidationError
-
 from app.http.responses import failure_response, success_response
 from core.domains.board.schema.post_schema import (
     PostResponseSchema,

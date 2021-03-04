@@ -35,7 +35,6 @@ def upgrade():
         sa.Column("is_blocked", sa.Boolean(), nullable=False),
         sa.Column("report_count", sa.Integer(), nullable=True),
         sa.Column("read_count", sa.Integer(), nullable=True),
-        sa.Column("category", sa.Integer(), nullable=False),
         sa.Column("last_user_action", sa.String(length=20), nullable=False),
         sa.Column("last_user_action_at", sa.DateTime(), nullable=True),
         sa.Column("last_admin_action", sa.String(length=20), nullable=False),

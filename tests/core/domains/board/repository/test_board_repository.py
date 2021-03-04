@@ -1,8 +1,11 @@
-from datetime import datetime
-
+import uuid
 import pytest
+from datetime import datetime
+from app.extensions.utils.enum.aws_enum import S3PathEnum
 from app.persistence.model.notification_history_model import NotificationHistoryModel
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
+from core.domains.board.entity.attachment_entiry import AttachmentEntity
+from core.domains.board.enum.attachment_enum import AttachmentEnum
 from core.domains.board.enum.post_enum import (
     PostCategoryEnum,
     PostUnitEnum,
@@ -240,18 +243,27 @@ def test_get_post_list_except_deleted_or_blocked(
     assert len(post_list) == 0
 
 
-def test_get_post(session, normal_user_factory, post_factory):
+def test_get_post(session, normal_user_factory, post_factory, attachment_factory):
     """
     post 조회 시 관련 table 목록 가져옴.
     """
     user = normal_user_factory(Region=True, UserProfile=True)
     session.add(user)
     session.commit()
+    attachments1 = attachment_factory.build_batch(size=1)
+    attachments2 = attachment_factory.build_batch(size=1)
+
     post1 = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+        Article=True,
+        Attachments=attachments1,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
     post2 = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+        Article=True,
+        Attachments=attachments2,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
 
     session.add_all([post1, post2])
@@ -268,6 +280,7 @@ def test_get_post(session, normal_user_factory, post_factory):
     assert post_entity.region_group_name == user.post[0].region_group.name
     assert isinstance(post_entity.created_at, datetime)
     assert isinstance(post_entity.user, UserEntity)
+    assert isinstance(post_entity.attachments, list)
 
 
 def test_get_empty_post(session, normal_user_factory):
@@ -302,10 +315,10 @@ def test_get_post_except_deleted_or_blocked(session, normal_user_factory, post_f
     session.add_all([deleted_post, blocked_post])
     session.commit()
 
-    post_entity = BoardRepository().get_post(post_id=deleted_post.id)
+    post_entity = BoardRepository().get_post(post_id=deleted_post.id, is_deleted=True)
     assert post_entity.is_deleted == True
 
-    post_entity = BoardRepository().get_post(post_id=blocked_post.id)
+    post_entity = BoardRepository().get_post(post_id=blocked_post.id, is_blocked=True)
     assert post_entity.is_blocked == True
 
 
@@ -892,6 +905,43 @@ def test_get_like_post_list_pagination_success(
 
     assert len(like_post_list_result) == 1
     assert like_post_list_result[0].id == liked_post_list[0].id
+
+
+def test_create_attachment(session, post_factory):
+    post = post_factory()
+
+    session.add(post)
+    session.commit()
+
+    attachment = BoardRepository().create_attachment(
+        post_id=post.id,
+        type=AttachmentEnum.PICTURE.value,
+        file_name="hi",
+        path=S3PathEnum.POST_IMGS.value,
+        uuid=str(uuid.uuid4()),
+        extension="jpg",
+    )
+
+    assert attachment.post_id == post.id
+
+
+def test_get_attachments(
+    session, normal_user_factory, post_factory, attachment_factory
+):
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    attachments = attachment_factory.build_batch(size=3)
+
+    post = post_factory(Article=True, Attachments=attachments, user_id=user.id)
+    session.add(post)
+    session.commit()
+
+    attachments = BoardRepository().get_attachments(post_id=post.id)
+
+    for attachment in attachments:
+        assert isinstance(attachment, AttachmentEntity)
 
 
 def test_create_notification_history(session, normal_user_factory, create_categories):

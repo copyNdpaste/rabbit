@@ -1,9 +1,8 @@
-from dataclasses import dataclass
 from datetime import datetime
+from pydantic.main import BaseModel
 
 
-@dataclass
-class RegionEntity:
+class RegionEntity(BaseModel):
     id: int
     region_group_id: int
     name: str

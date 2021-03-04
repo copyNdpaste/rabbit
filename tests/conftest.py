@@ -1,5 +1,7 @@
 import os
 
+import boto3
+from botocore.stub import Stubber
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from pytest_factoryboy import register

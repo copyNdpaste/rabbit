@@ -9,6 +9,7 @@ from alembic import context
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 from app import db
+from app.persistence.model.attachment_model import AttachmentModel
 from app.persistence.model.post_like_count_model import PostLikeCountModel
 from app.persistence.model.user_profile_model import UserProfileModel
 from app.persistence.model.comment_model import CommentModel

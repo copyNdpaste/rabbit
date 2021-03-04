@@ -8,7 +8,6 @@ Create Date: 2021-02-11 13:51:13.594223
 from alembic import op
 import sqlalchemy as sa
 
-
 # revision identifiers, used by Alembic.
 revision = "8b00c22260f6"
 down_revision = "24163c9a3759"
@@ -19,6 +18,9 @@ depends_on = None
 def upgrade():
     op.create_table(
         "post_category",
+        sa.Column(
+            "id", sa.SmallInteger().with_variant(sa.Integer(), "sqlite"), nullable=False
+        ),
         sa.Column("post_id", sa.BIGINT(), autoincrement=False, nullable=True),
         sa.Column("category_id", sa.SMALLINT(), autoincrement=False, nullable=True),
         sa.ForeignKeyConstraint(
@@ -27,6 +29,7 @@ def upgrade():
         sa.ForeignKeyConstraint(
             ["post_id"], ["posts.id"], name="post_category_post_id_fkey"
         ),
+        sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
         "post_id_category_id_index",

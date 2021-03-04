@@ -1,8 +1,12 @@
+import os
+import uuid
 from typing import Union, Optional, List
 
 import inject
-
+from typing import Union, Optional
+from app.extensions.utils.enum.aws_enum import S3BucketEnum, S3PathEnum
 from app.extensions.utils.event_observer import send_message, get_event_object
+from app.extensions.utils.image_helper import S3Helper
 from app.extensions.utils.message_converter import NotificationMessageConverter
 from core.domains.board.dto.post_dto import (
     CreatePostDto,
@@ -15,6 +19,7 @@ from core.domains.board.dto.post_dto import (
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
 from core.domains.board.enum import PostTopicEnum
+from core.domains.board.enum.attachment_enum import AttachmentEnum
 from core.domains.board.enum.post_enum import PostLikeStateEnum, PostLikeCountEnum
 from core.domains.board.repository.board_repository import BoardRepository
 from core.domains.notification.dto.notification_dto import NotificationHistoryDto, MessageDto
@@ -42,6 +47,37 @@ class PostBaseUseCase:
     def _make_cursor(self, last_post_id: int = None) -> dict:
         return {"cursor": {"last_post_id": last_post_id}}
 
+    def _upload_pictures(self, dto, post_id: int):
+        attachment_list = []
+
+        for file in dto.files:
+            f, extension = os.path.splitext(file.filename)
+            uuid_ = str(uuid.uuid4())
+            object_name = S3PathEnum.POST_IMGS.value + uuid_ + extension
+
+            res = S3Helper.upload(
+                bucket=S3BucketEnum.LUDICER_BUCKET.value,
+                file_name=file,
+                object_name=object_name,
+            )
+
+            if not res:
+                return False
+
+            attachment = self._board_repo.create_attachment(
+                post_id=post_id,
+                type=dto.type,
+                file_name=f,
+                path=S3PathEnum.POST_IMGS.value,
+                extension=extension,
+                uuid=uuid_,
+            )
+            if not attachment:
+                return False
+            attachment_list.append(attachment)
+
+        return attachment_list
+
 
 class CreatePostUseCase(PostBaseUseCase):
     @inject.autoparams()
@@ -60,11 +96,19 @@ class CreatePostUseCase(PostBaseUseCase):
         if not post:
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
 
+        attachments = []
+        if dto.file_type == AttachmentEnum.PICTURE.value:
+            attachments = self._upload_pictures(dto=dto, post_id=post.id)
+            if attachments == False:
+                return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
+
         post_like_count = self._board_repo.create_post_like_count(post_id=post.id)
         if not post_like_count:
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
 
         post.post_like_count = post_like_count.count
+        post.attachments = attachments
+
 
         # 키워드 노티 전송 대상 조회
         target_user_group: List[dict] = self._get_target_user_for_notification()
@@ -162,6 +206,7 @@ class GetPostUseCase(PostBaseUseCase):
             # TODO : 로그
             return UseCaseFailureOutput(FailureType.SYSTEM_ERROR)
         post = self._board_repo.get_post(post_id=dto.post_id)
+
         return UseCaseSuccessOutput(value=post)
 
 
@@ -181,6 +226,17 @@ class UpdatePostUseCase(PostBaseUseCase):
         post = self._board_repo.update_post(dto=dto)
         if not post:
             return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
+
+        attachments = self._board_repo.get_attachments(post_id=post.id)
+        if attachments:
+            self._board_repo.delete_attachments(post_id=post.id)
+        attachments = []
+        if dto.file_type == AttachmentEnum.PICTURE.value:
+            attachments = self._upload_pictures(dto=dto, post_id=post.id)
+            if attachments == False:
+                return UseCaseFailureOutput(type=FailureType.SYSTEM_ERROR)
+        post.attachments = attachments
+
         return UseCaseSuccessOutput(value=post)
 
 

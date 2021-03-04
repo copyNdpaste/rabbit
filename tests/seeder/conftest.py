@@ -14,6 +14,7 @@ from tests.seeder.factory import (
     PostLikeCountFactory,
     CategoryFactory,
     PostCategoryFactory,
+    AttachmentFactory,
     NotificationFactory,
     KeywordFactory,
     UserNotificationTokenFactory
@@ -32,6 +33,7 @@ MODEL_FACTORIES = [
     PostLikeCountFactory,
     CategoryFactory,
     PostCategoryFactory,
+    AttachmentFactory,
     NotificationFactory,
     KeywordFactory,
     UserNotificationTokenFactory

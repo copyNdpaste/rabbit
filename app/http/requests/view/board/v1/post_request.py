@@ -1,7 +1,6 @@
+import json
 from typing import List
-
 from pydantic import BaseModel, ValidationError, StrictInt, StrictStr
-
 from core.domains.board.dto.post_dto import (
     CreatePostDto,
     UpdatePostDto,
@@ -21,15 +20,13 @@ class CreatePostSchema(BaseModel):
     region_group_id: StrictInt
     type: StrictStr
     is_comment_disabled: bool
-    is_deleted: bool
-    is_blocked: bool
-    report_count: StrictInt
-    read_count: StrictInt
     category_ids: List[int]
     amount: StrictInt
     unit: StrictStr
     price_per_unit: StrictInt
     status: StrictStr
+    file_type: StrictStr
+    files: List
 
 
 # TODO : pydantic 활용해서 request 스키마 검증, dto 생성 간소화
@@ -42,74 +39,51 @@ class CreatePostRequest:
         region_group_id,
         type,
         is_comment_disabled,
-        is_deleted,
-        is_blocked,
-        report_count,
-        read_count,
         category_ids,
         amount,
         unit,
         price_per_unit,
         status,
+        file_type,
+        files,
     ):
-        self.user_id = user_id
+        self.user_id = int(user_id) if user_id else None
         self.title = title
         self.body = body
-        self.region_group_id = region_group_id
+        self.region_group_id = int(region_group_id) if region_group_id else None
         self.type = type
-        self.is_comment_disabled = is_comment_disabled
-        self.is_deleted = is_deleted
-        self.is_blocked = is_blocked
-        self.report_count = report_count
-        self.read_count = read_count
-        self.category_ids = category_ids
-        self.amount = amount
+        self.is_comment_disabled = (
+            True if is_comment_disabled and is_comment_disabled == "true" else False
+        )
+        self.category_ids = json.loads(category_ids) if category_ids else []
+        self.amount = int(amount) if amount else None
         self.unit = unit
-        self.price_per_unit = price_per_unit
+        self.price_per_unit = int(price_per_unit) if price_per_unit else None
         self.status = status
+        self.file_type = file_type
+        self.files = files
 
     def validate_request_and_make_dto(self):
         try:
-            CreatePostSchema(
+            schema = CreatePostSchema(
                 user_id=self.user_id,
                 title=self.title,
                 body=self.body,
                 region_group_id=self.region_group_id,
                 type=self.type,
                 is_comment_disabled=self.is_comment_disabled,
-                is_deleted=self.is_deleted,
-                is_blocked=self.is_blocked,
-                report_count=self.report_count,
-                read_count=self.read_count,
                 category_ids=self.category_ids,
                 amount=self.amount,
                 unit=self.unit,
                 price_per_unit=self.price_per_unit,
                 status=self.status,
-            )
-            return self.to_dto()
+                file_type=self.file_type,
+                files=self.files,
+            ).dict()
+            return CreatePostDto(**schema)
         except ValidationError as e:
             print(e)
             return False
-
-    def to_dto(self) -> CreatePostDto:
-        return CreatePostDto(
-            user_id=self.user_id,
-            title=self.title,
-            body=self.body,
-            region_group_id=self.region_group_id,
-            type=self.type,
-            is_comment_disabled=self.is_comment_disabled,
-            is_deleted=self.is_deleted,
-            is_blocked=self.is_blocked,
-            report_count=self.report_count,
-            read_count=self.read_count,
-            category_ids=self.category_ids,
-            amount=self.amount,
-            unit=self.unit,
-            price_per_unit=self.price_per_unit,
-            status=self.status,
-        )
 
 
 class GetPostListSchema(BaseModel):
@@ -140,28 +114,18 @@ class GetPostListRequest:
 
     def validate_request_and_make_dto(self):
         try:
-            GetPostListSchema(
+            schema = GetPostListSchema(
                 region_group_id=self.region_group_id,
                 previous_post_id=self.previous_post_id,
                 title=self.title,
                 type=self.type,
                 category_ids=self.category_ids,
                 status=self.status,
-            )
-            return self.to_dto()
+            ).dict()
+            return GetPostListDto(**schema)
         except ValidationError as e:
             print(e)
             return False
-
-    def to_dto(self) -> GetPostListDto:
-        return GetPostListDto(
-            region_group_id=self.region_group_id,
-            previous_post_id=self.previous_post_id,
-            title=self.title,
-            type=self.type,
-            category_ids=self.category_ids,
-            status=self.status,
-        )
 
 
 class GetPostSchema(BaseModel):
@@ -197,6 +161,8 @@ class UpdatePostSchema(BaseModel):
     unit: StrictStr
     price_per_unit: StrictInt
     status: StrictStr
+    file_type: StrictStr
+    files: List
 
 
 class UpdatePostRequest:
@@ -214,23 +180,27 @@ class UpdatePostRequest:
         unit,
         price_per_unit,
         status,
+        file_type,
+        files,
     ):
-        self.post_id = post_id
-        self.user_id = user_id
+        self.post_id = int(post_id) if post_id else None
+        self.user_id = int(user_id) if user_id else None
         self.title = title
         self.body = body
-        self.region_group_id = region_group_id
+        self.region_group_id = int(region_group_id) if region_group_id else None
         self.type = type
         self.is_comment_disabled = is_comment_disabled
-        self.category_ids = category_ids
-        self.amount = amount
+        self.category_ids = json.loads(category_ids) if category_ids else []
+        self.amount = int(amount) if amount else None
         self.unit = unit
-        self.price_per_unit = price_per_unit
+        self.price_per_unit = int(price_per_unit) if price_per_unit else None
         self.status = status
+        self.file_type = file_type
+        self.files = files
 
     def validate_request_and_make_dto(self):
         try:
-            UpdatePostSchema(
+            schema = UpdatePostSchema(
                 post_id=self.post_id,
                 user_id=self.user_id,
                 title=self.title,
@@ -243,27 +213,13 @@ class UpdatePostRequest:
                 unit=self.unit,
                 price_per_unit=self.price_per_unit,
                 status=self.status,
-            )
-            return self.to_dto()
+                file_type=self.file_type,
+                files=self.files,
+            ).dict()
+            return UpdatePostDto(**schema)
         except ValidationError as e:
             print(e)
             return False
-
-    def to_dto(self) -> UpdatePostDto:
-        return UpdatePostDto(
-            post_id=self.post_id,
-            user_id=self.user_id,
-            title=self.title,
-            body=self.body,
-            region_group_id=self.region_group_id,
-            type=self.type,
-            is_comment_disabled=self.is_comment_disabled,
-            category_ids=self.category_ids,
-            amount=self.amount,
-            unit=self.unit,
-            price_per_unit=self.price_per_unit,
-            status=self.status,
-        )
 
 
 class DeletePostSchema(BaseModel):

@@ -1,12 +1,14 @@
 from typing import List, Optional, Union
 from app.extensions.database import session
 from app.persistence.model.article_model import ArticleModel
+from app.persistence.model.attachment_model import AttachmentModel
 from app.persistence.model.category_model import CategoryModel
 from app.persistence.model.post_category_model import PostCategoryModel
 from app.persistence.model.post_like_count_model import PostLikeCountModel
 from app.persistence.model.post_like_state_model import PostLikeStateModel
 from app.persistence.model.post_model import PostModel
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
+from core.domains.board.entity.attachment_entiry import AttachmentEntity
 from core.domains.board.entity.like_entity import (
     PostLikeStateEntity,
     PostLikeCountEntity,
@@ -28,10 +30,6 @@ class BoardRepository:
                 region_group_id=dto.region_group_id,
                 type=dto.type,
                 is_comment_disabled=dto.is_comment_disabled,
-                is_deleted=dto.is_deleted,
-                is_blocked=dto.is_blocked,
-                report_count=dto.report_count,
-                read_count=dto.read_count,
                 amount=dto.amount,
                 unit=dto.unit,
                 price_per_unit=dto.price_per_unit,
@@ -62,6 +60,32 @@ class BoardRepository:
 
         session.add_all(post_categories)
         session.commit()
+
+    def create_attachment(
+        self,
+        post_id: int,
+        type: str,
+        file_name: str,
+        path: str,
+        extension: str,
+        uuid: str,
+    ) -> Optional[AttachmentEntity]:
+        try:
+            attachment = AttachmentModel(
+                post_id=post_id,
+                type=type,
+                file_name=file_name,
+                path=path,
+                extension=extension,
+                uuid=uuid,
+            )
+            session.add(attachment)
+            session.commit()
+            return attachment.to_entity() if attachment else None
+        except Exception as e:
+            session.rollback()
+            # TODO: log
+            return None
 
     def _get_post(self, post_id) -> PostEntity:
         return session.query(PostModel).filter_by(id=post_id).first().to_entity()
@@ -102,6 +126,7 @@ class BoardRepository:
             return self._get_post(post_id=dto.post_id)
         except Exception as e:
             session.rollback()
+            # TODO : log
             return None
 
     def is_post_exist(self, post_id: int) -> bool:
@@ -109,7 +134,7 @@ class BoardRepository:
             session.query(PostModel).filter_by(id=post_id).exists()
         ).scalar()
 
-    # TODO: parameter 너무 많아지면 dto 사용 고려
+    # TODO: parameter 너무 많아지면 dto 사용 고려, type은 현재 안씀...
     def get_post_list(
         self,
         region_group_id: int,
@@ -200,8 +225,14 @@ class BoardRepository:
             # TODO : log 추가
             pass
 
-    def get_post(self, post_id: int) -> Optional[PostEntity]:
-        post = session.query(PostModel).filter_by(id=post_id).first()
+    def get_post(
+        self, post_id: int, is_deleted: bool = False, is_blocked: bool = False
+    ) -> Optional[PostEntity]:
+        post = (
+            session.query(PostModel)
+            .filter_by(id=post_id, is_deleted=is_deleted, is_blocked=is_blocked)
+            .first()
+        )
 
         return post.to_entity() if post else None
 
@@ -322,3 +353,17 @@ class BoardRepository:
         )
 
         return [post.to_entity() for post in post_list]
+
+    def get_attachments(self, post_id: int) -> list:
+        attachments = session.query(AttachmentModel).filter_by(post_id=post_id).all()
+
+        return [attachment.to_entity() for attachment in attachments]
+
+    def delete_attachments(self, post_id: int) -> bool:
+        try:
+            session.query(AttachmentModel).filter_by(post_id=post_id).delete()
+            return True
+        except Exception as e:
+            # TODO: log
+            session.rollback()
+            return False

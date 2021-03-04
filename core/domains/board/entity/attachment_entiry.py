@@ -2,11 +2,13 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class UserProfileEntity(BaseModel):
+class AttachmentEntity(BaseModel):
     id: int
-    uuid: str
+    post_id: int
+    type: str
     file_name: str
     path: str
     extension: str
+    uuid: str
     created_at: datetime
     updated_at: datetime

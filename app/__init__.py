@@ -36,7 +36,7 @@ def init_db(app: Flask, db: SQLAlchemy) -> None:
 
 def init_blueprint(app: Flask):
     app.register_blueprint(main_bp)
-    app.register_blueprint(api)
+    app.register_blueprint(api, url_prefix="/api/rabbit")
 
 
 def init_extensions(app: Flask):
