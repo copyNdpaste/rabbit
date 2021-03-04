@@ -18,5 +18,10 @@ def create_notification_history(notification_list: List[NotificationHistoryDto])
     NotificationRepository().create_notification_history(notification_list=notification_list)
 
 
+def update_notification_status(notification_history_id: int, status: str):
+    NotificationRepository().update_notification_status(notification_history_id=notification_history_id, status=status)
+
+
 pub.subscribe(get_keyword_target_user, NotificationTopicEnum.GET_KEYWORD_TARGET_USER)
 pub.subscribe(create_notification_history, NotificationTopicEnum.CREATE_NOTIFICATION_HISTORY)
+pub.subscribe(update_notification_status, NotificationTopicEnum.UPDATE_NOTIFICATION_STATUS)

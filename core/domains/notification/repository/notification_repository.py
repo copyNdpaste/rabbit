@@ -66,3 +66,13 @@ class NotificationRepository:
             )
             result.append(info_dict)
         return result
+
+    def update_notification_status(self, notification_history_id: int, status: str) -> None:
+        try:
+            session.query(NotificationHistoryModel).filter_by(id=notification_history_id).update(
+                {"status": status}
+            )
+        except Exception as e:
+            # TODO : log e 필요
+            print("-------------------> ", e)
+            session.rollback()

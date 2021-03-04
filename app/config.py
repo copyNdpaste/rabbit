@@ -6,6 +6,7 @@ class Config:
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY") or "hawaii"
     REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    FCM_KEY = "AAAA0LqKiYE:APA91bE5vxdLLRhLBNq8D4q4XwxE87G_wbnzO2yE3cLVsYY4yL42kNzeOOYJBxSyVIXsspkbPJOZmxFUWTOvpK4pAAKIUZpAQOrQac_moyEQUGqXf8yDHpAZ0NWpVogWFNQiE2_jZ5CR"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_ECHO = False
