@@ -5,6 +5,7 @@ from . import (
     PostFactory,
     UserProfileFactory,
     RegionFactory,
+    UserNotificationTokenFactory,
 )
 
 
@@ -28,3 +29,8 @@ class NormalUserFactory(UserFactory):
     def Region(obj, create, extracted, **kwargs):
         if extracted:
             RegionFactory(user=obj, **kwargs)
+
+    @factory.post_generation
+    def UserNotificationToken(obj, create, extracted, **kwargs):
+        if extracted:
+            UserNotificationTokenFactory(user=obj, **kwargs)
