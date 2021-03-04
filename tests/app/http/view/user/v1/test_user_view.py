@@ -49,55 +49,55 @@ def test_when_get_not_existing_user_then_failure(
     assert response.status_code == 400
     assert response.get_json()["type"] == FailureType.NOT_FOUND_ERROR
 
-
-@patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
-def test_when_update_user_then_success(
-    upload_mock,
-    client,
-    session,
-    test_request_context,
-    jwt_manager,
-    make_header,
-    normal_user_factory,
-    region_factory,
-):
-    user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
-
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
-    headers = make_header(
-        authorization=authorization, content_type="multipart/form-data", accept="*/*"
-    )
-
-    region = region_factory()
-    session.add(region)
-    session.commit()
-
-    # 실제 업로드 확인하려면 아래 경로에 이미지 첨부하고 patch 데코레이터 제거한 뒤 실행.
-    file = FileStorage(
-        stream=io.BytesIO(b"aaa"),
-        filename="C:/project/rabbit/app/extensions/utils/a.jpg",
-        content_type="multipart/form-data",
-    )
-
-    dct = {
-        "nickname": "changed",
-        "status": UserStatusEnum.DEFAULT.value,
-        "region_id": region.id,
-        "files": [file],
-    }
-
-    with test_request_context:
-        response = client.put(
-            url_for("api/rabbit.update_user_view", user_id=user.id),
-            data=dct,
-            headers=headers,
-        )
-
-    assert response.status_code == 200
-    user_entity = response.get_json()["data"]["user"]
-    assert user_entity["id"] == user.id
-    assert user_entity["nickname"] == dct["nickname"]
-    assert isinstance(user_entity["user_profile"], str)
+# fox에서 user 관련 처리하기 때문에 api 주석처리함
+# @patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
+# def test_when_update_user_then_success(
+#     upload_mock,
+#     client,
+#     session,
+#     test_request_context,
+#     jwt_manager,
+#     make_header,
+#     normal_user_factory,
+#     region_factory,
+# ):
+#     user = normal_user_factory(Region=True, UserProfile=True)
+#     session.add(user)
+#     session.commit()
+#
+#     access_token = create_access_token(identity=user.id)
+#     authorization = "Bearer " + access_token
+#     headers = make_header(
+#         authorization=authorization, content_type="multipart/form-data", accept="*/*"
+#     )
+#
+#     region = region_factory()
+#     session.add(region)
+#     session.commit()
+#
+#     # 실제 업로드 확인하려면 아래 경로에 이미지 첨부하고 patch 데코레이터 제거한 뒤 실행.
+#     file = FileStorage(
+#         stream=io.BytesIO(b"aaa"),
+#         filename="C:/project/rabbit/app/extensions/utils/a.jpg",
+#         content_type="multipart/form-data",
+#     )
+#
+#     dct = {
+#         "nickname": "changed",
+#         "status": UserStatusEnum.DEFAULT.value,
+#         "region_id": region.id,
+#         "files": [file],
+#     }
+#
+#     with test_request_context:
+#         response = client.put(
+#             url_for("api/rabbit/update_user_view", user_id=user.id),
+#             data=dct,
+#             headers=headers,
+#         )
+#
+#     assert response.status_code == 200
+#     user_entity = response.get_json()["data"]["user"]
+#     assert user_entity["id"] == user.id
+#     assert user_entity["nickname"] == dct["nickname"]
+#     assert isinstance(user_entity["user_profile"], str)
