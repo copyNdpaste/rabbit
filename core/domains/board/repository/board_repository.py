@@ -1,6 +1,5 @@
 from typing import List, Optional, Union
 from app.extensions.database import session
-from app.extensions.utils.query_helper import RawQueryHelper
 from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.category_model import CategoryModel
 from app.persistence.model.post_category_model import PostCategoryModel

@@ -14,8 +14,7 @@ from core.domains.board.enum.post_enum import (
 from core.domains.notification.enum.notification_enum import (
     CategoryEnum,
     TypeEnum,
-    StatusEnum,
-    MessageEnum
+    StatusEnum, TitleEnum, BodyEnum,
 )
 from core.domains.board.repository.board_repository import BoardRepository
 from core.domains.notification.repository.notification_repository import NotificationRepository
@@ -933,18 +932,22 @@ def test_create_notification_history(session, normal_user_factory, create_catego
         user_id=user2.id,
         category=CategoryEnum.KEYWORD.value,
         type=TypeEnum.ALL.value,
-        msg=MessageEnum.KEYWORD.value
+        title=TitleEnum.KEYWORD.value,
+        body=BodyEnum.KEYWORD.value,
+        token="asdfasdf"
     )
 
     notification_message = NotificationMessageConverter.to_dict(message_dto)
-    notification_history_dto = NotificationHistoryDto(
+
+    notification_history_list = list()
+    notification_history_list.append(NotificationHistoryDto(
         user_id=message_dto.user_id,
         status=StatusEnum.PENDING.value,
         type=message_dto.type,
         category=message_dto.category,
         message=notification_message
-    )
-    NotificationRepository().create_notification_history(dto=notification_history_dto)
+    ))
+    NotificationRepository().create_notification_history(notification_list=notification_history_list)
     notification_history = session.query(NotificationHistoryModel).filter(NotificationHistoryModel.id == 1).first()
 
     assert notification_history.message == notification_message

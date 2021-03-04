@@ -19,6 +19,7 @@ from app.http.view import api
 from core.domains.board import event
 from core.domains.user import event
 from core.domains.region import event
+from core.domains.notification import event
 
 
 def init_config(

@@ -7,13 +7,19 @@ class NotificationMessageConverter:
     @staticmethod
     def to_dict(dto: MessageDto):
         return {
-            "uuid": str(uuid.uuid4()),
-            "msg": {
-                "post_id": dto.post_id,
-                "user_id": dto.user_id,
+            "message": {
+                "uuid": str(uuid.uuid4()),
+                "token": dto.token,
                 "category": dto.category,
                 "type": dto.type,
-                "message": dto.msg,
-                "created_at": str(get_server_timestamp().replace(microsecond=0))
-            },
+                "notification": {
+                    "title": dto.title,
+                    "body": dto.body,
+                },
+                "data": {
+                    "post_id": dto.post_id,
+                    "user_id": dto.user_id,
+                    "created_at": str(get_server_timestamp().replace(microsecond=0))
+                }
+            }
         }
