@@ -70,6 +70,7 @@ def test_when_create_post_then_success(
     data = response.get_json()["data"]
     assert data["post"]["user_id"] == user.id
     assert data["post"]["body"] == dct["body"]
+    assert isinstance(data["post"]["category_ids"], list)
 
     attachment = (
         session.query(AttachmentModel).filter_by(post_id=data["post"]["id"]).first()
