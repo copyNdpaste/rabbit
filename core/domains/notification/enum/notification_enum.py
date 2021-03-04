@@ -25,7 +25,7 @@ class TitleEnum(Enum):
 
 class BodyEnum(Enum):
     KEYWORD = "키워드 등록한 물품이 게시되었습니다."
-    CHAT = "메세지가 왔습니다."
+    CHAT = "메시지가 왔습니다."
 
 
 class RedisExpire(Enum):
