@@ -1,16 +1,16 @@
 import json
 import os
 import sys
-from time import sleep
 from typing import Optional, List
 
+from flask import current_app
 from redis import Redis
 
 from app import redis
 from pyfcm import FCMNotification
 
 from app.extensions.utils.event_observer import send_message
-from application import app
+
 from core.domains.notification.enum import NotificationTopicEnum
 from core.domains.notification.enum.notification_enum import StatusEnum
 
@@ -19,7 +19,7 @@ class NotificationUseCase:
     def __init__(self, topic: str, redis_client: Optional[Redis] = None):
         self.topic = topic
         self.redis = redis_client or redis
-        self.push_service = FCMNotification(api_key=app.config.get("FCM_KEY"))
+        self.push_service = FCMNotification(api_key=current_app.config.get("FCM_KEY"))
 
         if not hasattr(self, "stdout"):
             self.stdout = sys.stdout
@@ -29,10 +29,11 @@ class NotificationUseCase:
 
     def execute(self):
         self.stdout.write(f"🚀\tSTARTING NOTIFICATION SEND - {self.client_id}")
+        self.stdout.write(f"\n🚀\tFCM KEY - {current_app.config.get('FCM_KEY')}")
         self.redis.scan_pattern(pattern="keyword*")
 
         messages = self._get_messages()
-        self._logging(message=f"[*] Get keyword data -> {len(messages)}")
+        self._logging(message=f"\n[*] Get keyword data -> {len(messages)}")
 
         self._push_notification(messages)
 
