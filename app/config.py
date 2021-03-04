@@ -2,11 +2,11 @@ import os
 
 
 class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY") or "auckland"
-    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY") or "hawaii"
-    REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "rabbit"
+    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY") or "rabbit"
+    REDIS_URL = os.environ.get("REDIS_URL") or "redis://localhost:6379/0"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-    FCM_KEY = "AAAA0LqKiYE:APA91bE5vxdLLRhLBNq8D4q4XwxE87G_wbnzO2yE3cLVsYY4yL42kNzeOOYJBxSyVIXsspkbPJOZmxFUWTOvpK4pAAKIUZpAQOrQac_moyEQUGqXf8yDHpAZ0NWpVogWFNQiE2_jZ5CR"
+    FCM_KEY = os.environ.get("FCM_KEY") or "rabbit"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_ECHO = False
@@ -46,7 +46,9 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     SERVICE_NAME = "rabbit"
     os.environ["FLASK_ENV"] = "production"
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("PROD_DATABASE_URL")
+    AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
 
 config = dict(
