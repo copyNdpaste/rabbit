@@ -86,7 +86,7 @@ class ECRPush:
         return env.lower()
 
     def get_latest_tag(
-            self, previous_result: Optional[list] = None, next_token: Optional[str] = None
+        self, previous_result: Optional[list] = None, next_token: Optional[str] = None
     ) -> str:
         client = self.get_client()
         if next_token:
@@ -131,7 +131,7 @@ class ECRPush:
         return {"username": username, "password": password, "registry": registry}
 
     def push(
-            self, docker_client: DockerClient, image: Image, tag: int, credentials: dict
+        self, docker_client: DockerClient, image: Image, tag: int, credentials: dict
     ) -> None:
         server_address = credentials.get("registry", "").split("//")[1]
         self.tag_image(image, tag, server_address)
@@ -150,11 +150,11 @@ class ECRPush:
     def push_image(self, tag: int, server_address: str, credentials: dict) -> None:
         docker_client = self.get_docker_client()
         for line in docker_client.images.push(
-                f"{server_address}/{self.image_name}",
-                tag,
-                stream=True,
-                decode=True,
-                auth_config=credentials,
+            f"{server_address}/{self.image_name}",
+            tag,
+            stream=True,
+            decode=True,
+            auth_config=credentials,
         ):
             self.debug_log(line)
             if line.get("error") is not None:

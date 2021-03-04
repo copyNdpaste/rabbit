@@ -2,10 +2,15 @@ import factory
 import uuid
 from faker import Factory as FakerFactory
 from app.persistence.model.article_model import ArticleModel
+from app.persistence.model.keyword_model import KeywordModel
+from app.persistence.model.notification_model import NotificationModel
 from app.persistence.model.post_model import PostModel
 from app.persistence.model.region_group_model import RegionGroupModel
 from app.persistence.model.region_model import RegionModel
 from app.persistence.model.user_model import UserModel
+from app.persistence.model.user_notification_token_model import (
+    UserNotificationTokenModel,
+)
 from app.persistence.model.user_profile_model import UserProfileModel
 from app.persistence.model.post_like_state_model import PostLikeStateModel
 from app.persistence.model.post_like_count_model import PostLikeCountModel
@@ -166,3 +171,33 @@ class RegionFactory(factory.alchemy.SQLAlchemyModelFactory):
     def RegionGroup(obj, create, extracted, **kwargs):
         if extracted:
             RegionGroupFactory(region=obj, **kwargs)
+
+
+class NotificationFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = NotificationModel
+
+    user_id = 1
+    is_available = True
+    use_bantime = False
+    use_keyword = True
+    use_chat = True
+    use_etc = True
+
+
+class KeywordFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = KeywordModel
+
+    user_id = 1
+    name_1 = "양파"
+    name_2 = "TEST"
+    name_3 = "사과"
+
+
+class UserNotificationTokenFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = UserNotificationTokenModel
+
+    user_id = 1
+    token = faker.bothify(text="????-#######")
