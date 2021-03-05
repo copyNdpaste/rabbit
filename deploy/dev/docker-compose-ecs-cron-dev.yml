@@ -4,11 +4,8 @@ services:
     image: __ECR_ADDRESS__
     ports:
       - "5000:5000"
-    entrypoint: /bin/sh
-    command: >
-      -c "echo \"/usr/bin/env > /etc/environment; crond -f\" > /cron.sh \
-      && echo \"*/1 * * * * . /etc/environment; /usr/local/bin/python3 flask start-worker rabbit.notification.keyword.v1 1>/proc/1/fd/1 2>/proc/1/fd/2\" | crontab - \
-      && sh /cron.sh"
+    entrypoint: /usr/local/bin/poetry
+    command: "flask start-worker rabbit.notification.keyword.v1"
     logging:
       driver: awslogs
       options:
