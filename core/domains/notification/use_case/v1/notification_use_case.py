@@ -34,8 +34,8 @@ class NotificationUseCase:
         while True:
             self.redis.scan_pattern(pattern="keyword*")
 
-            # 1분마다 실행
-            sleep(60)
+            # 3분마다 실행
+            sleep(180)
             messages = self._get_messages()
             self._logging(message=f"\n[*] Get keyword data -> {len(messages)}")
 
