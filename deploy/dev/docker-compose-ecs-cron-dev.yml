@@ -1,0 +1,20 @@
+version: "3"
+services:
+  rabbit-cron-dev:
+    image: __ECR_ADDRESS__
+    ports:
+      - "5000:5000"
+    entrypoint: /bin/sh
+    command: >
+      -c "echo \"/usr/bin/env > /etc/environment; crond -f\" > /cron.sh \
+      && echo \"*/1 * * * * . /etc/environment; /usr/local/bin/python3 flask start-worker rabbit.notification.keyword.v1 1>/proc/1/fd/1 2>/proc/1/fd/2\" | crontab - \
+      && sh /cron.sh"
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: bium/rabbit-cron-dev-logs
+        awslogs-region: ap-northeast-2
+        awslogs-stream-prefix: bium/rabbit-cron-dev-logs
+        awslogs-create-group: "true"
+    environment:
+      # environment
