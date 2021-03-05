@@ -5,7 +5,7 @@ services:
     ports:
       - "5000:5000"
     entrypoint: /usr/local/bin/poetry
-    command: "supervisord"
+    command: "run supervisord"
     logging:
       driver: awslogs
       options:
