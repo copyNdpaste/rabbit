@@ -5,7 +5,7 @@ services:
     ports:
       - "5000:5000"
     entrypoint: /usr/local/bin/poetry
-    command: "run flask start-worker rabbit.notification.keyword.v1"
+    command: "run-program supervisord"
     logging:
       driver: awslogs
       options:
