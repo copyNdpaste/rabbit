@@ -11,6 +11,9 @@ from core.domains.board.dto.post_dto import (
     GetLikePostListDto,
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
+from app.extensions.utils.log_helper import logger
+
+logger = logger.getLogger(__name__)
 
 
 class CreatePostSchema(BaseModel):
@@ -29,7 +32,6 @@ class CreatePostSchema(BaseModel):
     files: List
 
 
-# TODO : pydantic 활용해서 request 스키마 검증, dto 생성 간소화
 class CreatePostRequest:
     def __init__(
         self,
@@ -82,7 +84,9 @@ class CreatePostRequest:
             ).dict()
             return CreatePostDto(**schema)
         except ValidationError as e:
-            print(e)
+            logger.error(
+                f"[CreatePostRequest][validate_request_and_make_dto] error : {e}"
+            )
             return False
 
 
@@ -124,7 +128,9 @@ class GetPostListRequest:
             ).dict()
             return GetPostListDto(**schema)
         except ValidationError as e:
-            print(e)
+            logger.error(
+                f"[GetPostListRequest][validate_request_and_make_dto] error : {e}"
+            )
             return False
 
 
@@ -141,7 +147,7 @@ class GetPostRequest:
             GetPostSchema(post_id=self.post_id)
             return self.to_dto()
         except ValidationError as e:
-            print(e)
+            logger.error(f"[GetPostRequest][validate_request_and_make_dto] error : {e}")
             return False
 
     def to_dto(self) -> GetPostDto:
@@ -218,7 +224,9 @@ class UpdatePostRequest:
             ).dict()
             return UpdatePostDto(**schema)
         except ValidationError as e:
-            print(e)
+            logger.error(
+                f"[UpdatePostRequest][validate_request_and_make_dto] error : {e}"
+            )
             return False
 
 
@@ -234,14 +242,13 @@ class DeletePostRequest:
 
     def validate_request_and_make_dto(self):
         try:
-            DeletePostSchema(post_id=self.post_id, user_id=self.user_id)
-            return self.to_dto()
+            schema = DeletePostSchema(post_id=self.post_id, user_id=self.user_id).dict()
+            return DeletePostDto(**schema)
         except ValidationError as e:
-            print(e)
+            logger.error(
+                f"[DeletePostRequest][validate_request_and_make_dto] error : {e}"
+            )
             return False
-
-    def to_dto(self) -> DeletePostDto:
-        return DeletePostDto(post_id=self.post_id, user_id=self.user_id)
 
 
 class LikePostSchema(BaseModel):
@@ -256,14 +263,13 @@ class LikePostRequest:
 
     def validate_request_and_make_dto(self):
         try:
-            LikePostSchema(post_id=self.post_id, user_id=self.user_id)
-            return self.to_dto()
+            schema = LikePostSchema(post_id=self.post_id, user_id=self.user_id).dict()
+            return LikePostDto(**schema)
         except ValidationError as e:
-            print(e)
+            logger.error(
+                f"[LikePostRequest][validate_request_and_make_dto] error : {e}"
+            )
             return False
-
-    def to_dto(self) -> LikePostDto:
-        return LikePostDto(post_id=self.post_id, user_id=self.user_id)
 
 
 class GetSellingPostListSchema(BaseModel):
@@ -283,7 +289,9 @@ class GetSellingPostListRequest:
             ).dict()
             return GetSellingPostListDto(**schema)
         except ValidationError as e:
-            print(e)
+            logger.error(
+                f"[GetSellingPostListRequest][validate_request_and_make_dto] error : {e}"
+            )
             return False
 
 
@@ -304,5 +312,7 @@ class GetLikePostListRequest:
             ).dict()
             return GetLikePostListDto(**schema)
         except ValidationError as e:
-            print(e)
+            logger.error(
+                f"[GetLikePostListRequest][validate_request_and_make_dto] error : {e}"
+            )
             return False
