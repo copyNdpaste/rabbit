@@ -17,6 +17,7 @@ from app.persistence.model.comment_report_model import CommentReportModel
 from app.persistence.model.post_report_model import PostReportModel
 from app.persistence.model.region_group_model import RegionGroupModel
 from app.persistence.model.post_like_state_model import PostLikeStateModel
+from app.persistence.model.notification_history_model import NotificationHistoryModel
 
 config = context.config
 

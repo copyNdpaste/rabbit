@@ -2,6 +2,7 @@ import uuid
 import pytest
 from datetime import datetime
 from app.extensions.utils.enum.aws_enum import S3PathEnum
+from app.persistence.model.notification_history_model import NotificationHistoryModel
 from core.domains.board.dto.post_dto import CreatePostDto, UpdatePostDto, DeletePostDto
 from core.domains.board.entity.attachment_entiry import AttachmentEntity
 from core.domains.board.enum.attachment_enum import AttachmentEnum
@@ -13,9 +14,24 @@ from core.domains.board.enum.post_enum import (
     PostLikeCountEnum,
     PostLimitEnum,
 )
+from core.domains.notification.enum.notification_enum import (
+    CategoryEnum,
+    TypeEnum,
+    StatusEnum,
+    TitleEnum,
+    BodyEnum,
+)
 from core.domains.board.repository.board_repository import BoardRepository
+from core.domains.notification.repository.notification_repository import (
+    NotificationRepository,
+)
+from core.domains.notification.dto.notification_dto import (
+    MessageDto,
+    NotificationHistoryDto,
+)
 from core.domains.user.entity.user_entity import UserEntity
 from tests.seeder.factory import PostFactory
+from app.extensions.utils.message_converter import NotificationMessageConverter
 
 
 def test_create_post(session, normal_user_factory, create_categories):
@@ -933,3 +949,70 @@ def test_get_attachments(
 
     for attachment in attachments:
         assert isinstance(attachment, AttachmentEntity)
+
+
+def test_create_notification_history(session, normal_user_factory, create_categories):
+    user = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user)
+    session.commit()
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    post_dto = CreatePostDto(
+        user_id=user.id,
+        title="떡볶이 나눠 먹어요",
+        body="",
+        region_group_id=1,
+        type="article",
+        is_comment_disabled=True,
+        is_deleted=False,
+        is_blocked=False,
+        report_count=0,
+        read_count=0,
+        last_user_action="default",
+        last_admin_action="default",
+        amount=10,
+        unit=PostUnitEnum.UNIT.value,
+        price_per_unit=10000,
+        status=PostStatusEnum.SELLING.value,
+        category_ids=[categories[0].id],
+    )
+
+    post_entity = BoardRepository().create_post(dto=post_dto)
+
+    user2 = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user2)
+    session.commit()
+
+    message_dto = MessageDto(
+        post_id=post_entity.id,
+        user_id=user2.id,
+        category=CategoryEnum.KEYWORD.value,
+        type=TypeEnum.ALL.value,
+        title=TitleEnum.KEYWORD.value,
+        body=BodyEnum.KEYWORD.value,
+        token="asdfasdf",
+    )
+
+    notification_message = NotificationMessageConverter.to_dict(message_dto)
+
+    notification_history_list = list()
+    notification_history_list.append(
+        NotificationHistoryDto(
+            user_id=message_dto.user_id,
+            status=StatusEnum.PENDING.value,
+            type=message_dto.type,
+            category=message_dto.category,
+            message=notification_message,
+        )
+    )
+    NotificationRepository().create_notification_history(
+        notification_list=notification_history_list
+    )
+    notification_history = (
+        session.query(NotificationHistoryModel)
+        .filter(NotificationHistoryModel.id == 1)
+        .first()
+    )
+
+    assert notification_history.message == notification_message

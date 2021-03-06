@@ -91,7 +91,7 @@ class PostModel(db.Model):
             post_like_state=self.post_like_state[0].state
             if self.post_like_state
             else PostLikeStateEnum.DEFAULT.value,
-            categories=[category.name for category in self.categories]
+            category_ids=[category.id for category in self.categories]
             if self.categories
             else [],
             attachments=[
@@ -135,7 +135,7 @@ class PostModel(db.Model):
             price_per_unit=self.price_per_unit,
             status=self.status,
             post_like_count=self.post_like_count.count if self.post_like_count else 0,
-            categories=[category.name for category in self.categories]
+            category_ids=[category.id for category in self.categories]
             if self.categories
             else [],
             attachments=[

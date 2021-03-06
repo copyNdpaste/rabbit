@@ -1,9 +1,10 @@
 import io
 from unittest.mock import patch
+
+import pytest
 from werkzeug.datastructures import FileStorage
 from core.domains.region.entity.region_entity import RegionEntity
 from core.domains.user.dto.user_dto import GetUserDto, UpdateUserDto
-from core.domains.user.entity.user_profile_entity import UserProfileEntity
 from core.domains.user.enum.user_enum import UserStatusEnum
 from core.domains.user.use_case.v1.user_use_case import (
     GetUserUseCase,
@@ -45,6 +46,7 @@ def test_when_get_user_with_relations_then_success(
     assert isinstance(user_entity.user_profile, str)
 
 
+@pytest.mark.skip(reason="fox에서 처리되므로 스킵")
 @patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
 def test_when_update_user_then_success(
     upload_mock, session, normal_user_factory, region_factory

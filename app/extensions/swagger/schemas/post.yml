@@ -24,7 +24,7 @@ post:
       type: integer
     read_count:
       type: integer
-    categories:
+    category_ids:
       type: array
       items:
         type: integer

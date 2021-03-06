@@ -1,5 +1,8 @@
 import io
 import pytest
+
+from app.persistence.model.notification_history_model import NotificationHistoryModel
+from app.persistence.model.notification_model import NotificationModel
 from unittest.mock import patch
 from werkzeug.datastructures import FileStorage
 from core.domains.board.dto.post_dto import (
@@ -32,8 +35,9 @@ from core.domains.board.use_case.v1.post_use_case import (
     GetSellingPostListUseCase,
     GetLikePostListUseCase,
 )
+from core.domains.notification.enum.notification_enum import StatusEnum
 from core.use_case_output import FailureType
-from tests.seeder.factory import PostFactory
+from tests.seeder.factory import PostFactory, KeywordFactory, NotificationFactory
 
 
 @patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
@@ -767,3 +771,56 @@ def test_get_like_post_list(
     like_post_list = GetLikePostListUseCase().execute(dto=dto).value
 
     assert len(like_post_list) == 1
+
+
+def test_when_create_post_then_set_redis_notification(
+    session, normal_user_factory, create_categories
+):
+    user = normal_user_factory(
+        Region=True, UserProfile=True, UserNotificationToken=True
+    )
+    session.add(user)
+    session.commit()
+
+    keyword = KeywordFactory.build()
+    notification = NotificationFactory.build()
+    session.add(keyword)
+    session.add(notification)
+    session.commit()
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    user2 = normal_user_factory(Region=True, UserProfile=True)
+    session.add(user2)
+    session.commit()
+
+    dto = CreatePostDto(
+        user_id=user2.id,
+        title="양파 나눠 먹어요",
+        body="",
+        region_group_id=1,
+        type="article",
+        is_comment_disabled=True,
+        is_deleted=False,
+        is_blocked=False,
+        report_count=0,
+        read_count=0,
+        last_user_action="default",
+        last_admin_action="default",
+        amount=10,
+        unit=PostUnitEnum.UNIT.value,
+        price_per_unit=10000,
+        status=PostStatusEnum.SELLING.value,
+        category_ids=[categories[0].id],
+    )
+
+    CreatePostUseCase().execute(dto=dto).value
+
+    notification_history = (
+        session.query(NotificationHistoryModel)
+        .filter(NotificationHistoryModel.id == 1)
+        .first()
+    )
+
+    assert user.id == notification_history.user_id
+    assert notification_history.status == StatusEnum.PENDING.value
