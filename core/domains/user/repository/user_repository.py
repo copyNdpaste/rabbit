@@ -1,12 +1,12 @@
 from typing import Optional
 from app.extensions.database import session
-from app.extensions.utils.log_helper import logger
+from app.extensions.utils.log_helper import logger_
 from app.persistence.model.user_model import UserModel
 from app.persistence.model.user_profile_model import UserProfileModel
 from core.domains.user.entity.user_entity import UserEntity
 from core.domains.user.entity.user_profile_entity import UserProfileEntity
 
-logger = logger.getLogger(__name__)
+logger = logger_.getLogger(__name__)
 
 
 class UserRepository:

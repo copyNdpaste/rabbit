@@ -7,7 +7,7 @@ from typing import Union, Optional
 from app.extensions.utils.enum.aws_enum import S3BucketEnum, S3PathEnum
 from app.extensions.utils.event_observer import send_message, get_event_object
 from app.extensions.utils.image_helper import S3Helper
-from app.extensions.utils.log_helper import logger
+from app.extensions.utils.log_helper import logger_
 from app.extensions.utils.message_converter import NotificationMessageConverter
 from core.domains.board.dto.post_dto import (
     CreatePostDto,
@@ -40,7 +40,7 @@ from core.domains.user.entity.user_entity import UserEntity
 from core.domains.user.enum import UserTopicEnum
 from core.use_case_output import UseCaseSuccessOutput, UseCaseFailureOutput, FailureType
 
-logger = logger.getLogger(__name__)
+logger = logger_.getLogger(__name__)
 
 
 class PostBaseUseCase:

@@ -11,9 +11,9 @@ from core.domains.board.dto.post_dto import (
     GetLikePostListDto,
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
-from app.extensions.utils.log_helper import logger
+from app.extensions.utils.log_helper import logger_
 
-logger = logger.getLogger(__name__)
+logger = logger_.getLogger(__name__)
 
 
 class CreatePostSchema(BaseModel):

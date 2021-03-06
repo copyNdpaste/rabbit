@@ -1,10 +1,10 @@
 from pydantic import ValidationError
 from pydantic import BaseModel
 
-from app.extensions.utils.log_helper import logger
+from app.extensions.utils.log_helper import logger_
 from core.domains.report.dto.post_report_dto import CreatePostReportDto
 
-logger = logger.getLogger(__name__)
+logger = logger_.getLogger(__name__)
 
 
 class CreatePostReportSchema(BaseModel):

@@ -1,11 +1,11 @@
 from typing import Optional
 from app.extensions.database import session
-from app.extensions.utils.log_helper import logger
+from app.extensions.utils.log_helper import logger_
 from app.persistence.model.post_report_model import PostReportModel
 from core.domains.board.entity.report_entity import PostReportEntity
 from core.domains.report.dto.post_report_dto import CreatePostReportDto
 
-logger = logger.getLogger(__name__)
+logger = logger_.getLogger(__name__)
 
 
 class ReportRepository:

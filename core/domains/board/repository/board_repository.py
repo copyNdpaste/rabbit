@@ -1,6 +1,6 @@
 from typing import List, Optional, Union
 from app.extensions.database import session
-from app.extensions.utils.log_helper import logger
+from app.extensions.utils.log_helper import logger_
 from app.persistence.model.article_model import ArticleModel
 from app.persistence.model.attachment_model import AttachmentModel
 from app.persistence.model.category_model import CategoryModel
@@ -21,7 +21,7 @@ from core.domains.board.enum.post_enum import (
     PostStatusEnum,
 )
 
-logger = logger.getLogger(__name__)
+logger = logger_.getLogger(__name__)
 
 
 class BoardRepository:

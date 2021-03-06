@@ -2,7 +2,7 @@ import boto3
 from botocore.exceptions import ClientError
 from flask import current_app
 from app.extensions.utils.enum.aws_enum import AwsServiceEnum
-from app.extensions.utils.log_helper import logger
+from app.extensions.utils.log_helper import logger_
 
 
 class S3Helper:
