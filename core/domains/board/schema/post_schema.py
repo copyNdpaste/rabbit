@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import Optional, List
-
 from pydantic import BaseModel, StrictInt, StrictStr
-
 from core.domains.user.entity.user_entity import UserEntity
 
 

@@ -35,29 +35,17 @@ class CreatePostReportRequest:
 
     def validate_request_and_make_dto(self):
         try:
-            CreatePostReportSchema(
+            schema = CreatePostReportSchema(
                 post_id=self.post_id,
                 report_user_id=self.report_user_id,
                 status=self.status,
                 context=self.context,
                 confirm_admin_id=self.confirm_admin_id,
                 is_system_report=self.is_system_report,
-            )
-            return self.to_dto()
+            ).dict()
+            return CreatePostReportDto(**schema)
         except ValidationError as e:
             logger.error(
-                f"[CreatePostReportRequest][validate_request_and_make_dto] post_id : {self.post_id} "
-                f"report_user_id : {self.report_user_id} status : {self.status} context : {self.context} "
-                f"confirm_admin_id : {self.confirm_admin_id} is_system_report : {self.is_system_report} error : {e}"
+                f"[CreatePostReportRequest][validate_request_and_make_dto] error : {e}"
             )
             return False
-
-    def to_dto(self) -> CreatePostReportDto:
-        return CreatePostReportDto(
-            post_id=self.post_id,
-            report_user_id=self.report_user_id,
-            status=self.status,
-            context=self.context,
-            confirm_admin_id=self.confirm_admin_id,
-            is_system_report=self.is_system_report,
-        )
