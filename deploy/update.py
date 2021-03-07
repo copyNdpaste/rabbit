@@ -17,7 +17,9 @@ from botocore.exceptions import ClientError
 parser = argparse.ArgumentParser(description="Compose image.")
 parser.add_argument("-e", "--environment", type=str, help="Specify environment")
 parser.add_argument("-d", "--debug", action="store_true", help="DEBUG")
-parser.add_argument("-s", "--service", type=str, help="Specify service (api / worker)")
+parser.add_argument(
+    "-s", "--service", type=str, help="Specify service (api / cron / worker)"
+)
 
 # logger
 logging.basicConfig(format="[%(levelname)s]\t%(message)s", level=logging.INFO)
@@ -35,7 +37,7 @@ def intify(l: list):
 # constants
 BASE_DIR = Path(__file__).absolute().parent.parent
 AVAILABLE_ENVIRONMENT = ["dev", "prod"]
-AVAILABLE_SERVICE = ["api", "worker"]
+AVAILABLE_SERVICE = ["api", "cron", "worker"]
 ECS_BASE_URL = "https://ap-northeast-2.console.aws.amazon.com/ecs/home?region=ap-northeast-2#/clusters/"
 
 
@@ -117,7 +119,11 @@ class ECSCompose:
     def call_command(self) -> list:
         env = self.environment
         service_type = self.service_type
-        if env == "dev" or (env == "prod" and service_type == "worker"):
+        if (
+            env == "dev"
+            or (env == "prod" and service_type == "worker")
+            or (env == "prod" and service_type == "cron")
+        ):
             return [
                 "ecs-cli",
                 "compose",
