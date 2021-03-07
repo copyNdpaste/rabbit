@@ -3,11 +3,12 @@ from core.domains.report.use_case.v1.report_use_case import CreatePostReportUseC
 from core.use_case_output import FailureType
 
 
-def test_when_create_post_report_then_success(app, session, normal_user_factory):
+def test_when_create_post_report_then_success(
+    app, session, normal_user_factory, add_and_commit
+):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
     report_user = normal_user_factory(Region=True, UserProfile=True, Post=True)
-    session.add_all([user, report_user])
-    session.commit()
+    add_and_commit([user, report_user])
 
     dto = CreatePostReportDto(
         post_id=user.post[0].id,
@@ -24,12 +25,11 @@ def test_when_create_post_report_then_success(app, session, normal_user_factory)
 
 
 def test_when_create_post_report_without_post_then_not_found(
-    app, session, normal_user_factory
+    app, session, normal_user_factory, add_and_commit
 ):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
     report_user = normal_user_factory(Region=True, UserProfile=True, Post=True)
-    session.add_all([user, report_user])
-    session.commit()
+    add_and_commit([user, report_user])
 
     dto = CreatePostReportDto(
         post_id=0,

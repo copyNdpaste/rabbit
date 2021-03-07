@@ -3,7 +3,6 @@ import json
 import pytest
 from unittest.mock import patch
 from flask import url_for
-from flask_jwt_extended import create_access_token
 from werkzeug.datastructures import FileStorage
 from app.persistence.model.attachment_model import AttachmentModel
 from core.domains.board.enum.attachment_enum import AttachmentEnum
@@ -26,10 +25,11 @@ def test_when_create_post_then_success(
     make_header,
     normal_user_factory,
     create_categories,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
@@ -40,8 +40,7 @@ def test_when_create_post_then_success(
         content_type="multipart/form-data",
     )
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(
         authorization=authorization, content_type="multipart/form-data", accept="*/*"
     )
@@ -90,18 +89,17 @@ def test_when_update_post_then_success(
     article_factory,
     create_categories,
     attachment_factory,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     attachment = attachment_factory(post_id=user.post[0].id)
-    session.add(attachment)
-    session.commit()
+    add_and_commit([attachment])
 
     article = article_factory(post_id=user.post[0].id)
-    session.add(article)
-    session.commit()
+    add_and_commit([article])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
@@ -112,8 +110,7 @@ def test_when_update_post_then_success(
         content_type="multipart/form-data",
     )
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(
         authorization=authorization, content_type="multipart/form-data", accept="*/*"
     )
@@ -157,17 +154,16 @@ def test_when_delete_post_then_success(
     make_header,
     normal_user_factory,
     article_factory,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     article = article_factory(post_id=user.post[0].id)
-    session.add(article)
-    session.commit()
+    add_and_commit([article])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
 
     post_id = user.post[0].id
@@ -191,10 +187,11 @@ def test_when_get_post_list_then_success(
     normal_user_factory,
     post_factory,
     create_categories,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
@@ -212,8 +209,7 @@ def test_when_get_post_list_then_success(
     )
 
     user2 = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user2)
-    session.commit()
+    add_and_commit([user2])
     post3 = post_factory(
         Article=True,
         Categories=categories,
@@ -227,11 +223,9 @@ def test_when_get_post_list_then_success(
         user_id=user2.id,
     )
 
-    session.add_all([post1, post2, post3, post4])
-    session.commit()
+    add_and_commit([post1, post2, post3, post4])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
     dct = dict(
         region_group_id=user.region.region_group.id,
@@ -259,10 +253,11 @@ def test_when_get_post_then_success(
     make_header,
     normal_user_factory,
     post_factory,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
     post1 = post_factory(
         Article=True, region_group_id=user.region.region_group.id, user_id=user.id
     )
@@ -270,11 +265,9 @@ def test_when_get_post_then_success(
         Article=True, region_group_id=user.region.region_group.id, user_id=user.id
     )
 
-    session.add_all([post1, post2])
-    session.commit()
+    add_and_commit([post1, post2])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
 
     with test_request_context:
@@ -295,13 +288,14 @@ def test_when_search_post_list_then_success(
     test_request_context,
     client,
     create_categories,
+    add_and_commit,
+    make_authorization,
 ):
     """
     post 검색
     """
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     region_group_id = user.region.region_group_id
 
@@ -314,11 +308,9 @@ def test_when_search_post_list_then_success(
         user_id=user.id,
     )
 
-    session.add(post)
-    session.commit()
+    add_and_commit([post])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
 
     dct = dict(
@@ -346,22 +338,21 @@ def test_when_like_post_then_success(
     make_header,
     normal_user_factory,
     post_factory,
+    add_and_commit,
+    make_authorization,
 ):
     # 찜하기, 찜취소
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
     post = post_factory(
         Article=True,
         PostLikeCount=True,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
     )
-    session.add(post)
-    session.commit()
+    add_and_commit([post])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
 
     post_id = user.post[0].id
@@ -388,6 +379,8 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     test_request_context,
     client,
     create_categories,
+    add_and_commit,
+    make_authorization,
 ):
     """
     post list 조회 시 찜 개수 포함, 찜 상태 제외
@@ -397,8 +390,7 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     """
     user1 = normal_user_factory(Region=True, UserProfile=True)
     user2 = normal_user_factory(Region=True, UserProfile=True)
-    session.add_all([user1, user2])
-    session.commit()
+    add_and_commit([user1, user2])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
@@ -417,16 +409,14 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
         user_id=user1.id,
     )
 
-    session.add_all([post1, post2])
-    session.commit()
+    add_and_commit([post1, post2])
 
     # 찜하기
     like_post(user_id=user1.id, post_id=post1.id)
     like_post(user_id=user2.id, post_id=post1.id)
     like_post(user_id=user2.id, post_id=post2.id)
 
-    access_token = create_access_token(identity=user1.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user1.id)
     headers = make_header(authorization=authorization)
     dct = dict(
         region_group_id=user1.region.region_group.id,
@@ -464,13 +454,14 @@ def test_when_get_post_list_by_status_then_success(
     client,
     create_categories,
     post_factory,
+    add_and_commit,
+    make_authorization,
 ):
     """
     post list 조회 시 판매중, 거래완료 상태에 따라 응답
     """
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
@@ -490,11 +481,9 @@ def test_when_get_post_list_by_status_then_success(
         status=post_status,
     )
 
-    session.add_all([post1, post2])
-    session.commit()
+    add_and_commit([post1, post2])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
     dct = dict(
         region_group_id=user.region.region_group.id,
@@ -520,13 +509,14 @@ def test_when_get_post_list_order_by_desc_then_success(
     make_header,
     test_request_context,
     client,
+    add_and_commit,
+    make_authorization,
 ):
     """
     판매중, 거래완료 최신순으로 조회
     """
     user = normal_user_factory.build(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
@@ -554,11 +544,9 @@ def test_when_get_post_list_order_by_desc_then_success(
         status=PostStatusEnum.COMPLETED.value,
     )
 
-    session.add_all([post1, post2, post3])
-    session.commit()
+    add_and_commit([post1, post2, post3])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
     dct = dict(
         region_group_id=user.region.region_group.id,
@@ -590,13 +578,14 @@ def test_get_selling_post_list(
     make_header,
     test_request_context,
     client,
+    add_and_commit,
+    make_authorization,
 ):
     """
     판매 목록 조회
     """
     user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
-    session.add_all(user_list)
-    session.commit()
+    add_and_commit(user_list)
 
     post_owner = user_list[0]
 
@@ -619,11 +608,9 @@ def test_get_selling_post_list(
         status=PostStatusEnum.COMPLETED.value,
     )
 
-    session.add_all([post1, post2])
-    session.commit()
+    add_and_commit([post1, post2])
 
-    access_token = create_access_token(identity=input_user_id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=input_user_id)
     headers = make_header(authorization=authorization)
     dct = dict(user_id=input_user_id)
 
@@ -647,13 +634,14 @@ def test_when_get_like_post_list_then_success(
     create_categories,
     post_factory,
     post_like_state_factory,
+    add_and_commit,
+    make_authorization,
 ):
     """
     내가 찜한 게시글, 찜 안한 게시글 생성 후 찜한 게시글만 응답  확인
     """
     user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
-    session.add_all(user_list)
-    session.commit()
+    add_and_commit(user_list)
 
     user1 = user_list[0]
     user2 = user_list[1]
@@ -676,16 +664,13 @@ def test_when_get_like_post_list_then_success(
         user_id=user1.id,
         status=PostStatusEnum.SELLING.value,
     )
-    session.add(liked_post)
-    session.commit()
+    add_and_commit([liked_post])
 
     post_like_state = post_like_state_factory(post_id=liked_post.id, user_id=user2.id)
 
-    session.add_all([post, post_like_state])
-    session.commit()
+    add_and_commit([post, post_like_state])
 
-    access_token = create_access_token(identity=user2.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user1.id)
     headers = make_header(authorization=authorization)
     dct = dict(user_id=user2.id)
 

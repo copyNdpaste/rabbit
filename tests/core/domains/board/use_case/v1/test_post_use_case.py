@@ -2,7 +2,6 @@ import io
 import pytest
 
 from app.persistence.model.notification_history_model import NotificationHistoryModel
-from app.persistence.model.notification_model import NotificationModel
 from unittest.mock import patch
 from werkzeug.datastructures import FileStorage
 from core.domains.board.dto.post_dto import (
@@ -42,11 +41,10 @@ from tests.seeder.factory import PostFactory, KeywordFactory, NotificationFactor
 
 @patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
 def test_when_create_post_then_success(
-    upload_mock, session, normal_user_factory, create_categories
+    upload_mock, session, normal_user_factory, create_categories, add_and_commit
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
@@ -88,19 +86,21 @@ def test_when_create_post_then_success(
 
 @patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
 def test_when_update_post_then_success(
-    upload_mock, session, normal_user_factory, article_factory, attachment_factory
+    upload_mock,
+    session,
+    normal_user_factory,
+    article_factory,
+    attachment_factory,
+    add_and_commit,
 ):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     attachment = attachment_factory(post_id=user.post[0].id)
-    session.add(attachment)
-    session.commit()
+    add_and_commit([attachment])
 
     article = article_factory(post_id=user.post[0].id)
-    session.add(article)
-    session.commit()
+    add_and_commit([article])
 
     # 실제 업로드 확인하려면 아래 경로에 이미지 첨부하고 patch 데코레이터 제거한 뒤 실행.
     file = FileStorage(
@@ -137,15 +137,13 @@ def test_when_update_post_then_success(
 
 
 def test_when_not_owner_update_post_then_fail(
-    session, normal_user_factory, article_factory
+    session, normal_user_factory, article_factory, add_and_commit
 ):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     article = article_factory(post_id=user.post[0].id)
-    session.add(article)
-    session.commit()
+    add_and_commit([article])
 
     dto = UpdatePostDto(
         post_id=user.post[0].id,
@@ -166,14 +164,14 @@ def test_when_not_owner_update_post_then_fail(
     assert result["type"] == FailureType.INVALID_REQUEST_ERROR
 
 
-def test_when_delete_post_then_success(session, normal_user_factory, post_factory):
+def test_when_delete_post_then_success(
+    session, normal_user_factory, post_factory, add_and_commit
+):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     post = post_factory(Article=True, user_id=user.id)
-    session.add(post)
-    session.commit()
+    add_and_commit([post])
 
     dto = DeletePostDto(post_id=user.post[0].id, user_id=user.id)
 
@@ -184,15 +182,13 @@ def test_when_delete_post_then_success(session, normal_user_factory, post_factor
 
 
 def test_when_not_owner_delete_post_then_fail(
-    session, normal_user_factory, post_factory
+    session, normal_user_factory, post_factory, add_and_commit
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     post = post_factory(Article=True, user_id=user.id)
-    session.add(post)
-    session.commit()
+    add_and_commit([post])
 
     dto = DeletePostDto(post_id=user.post[0].id, user_id=-1)
 
@@ -202,14 +198,13 @@ def test_when_not_owner_delete_post_then_fail(
 
 
 def test_when_get_post_list_then_success(
-    session, normal_user_factory, post_factory, create_categories
+    session, normal_user_factory, post_factory, create_categories, add_and_commit
 ):
     """
     post list 조회 시 region에 맞는 관련 table 목록 가져옴.
     """
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
@@ -227,8 +222,7 @@ def test_when_get_post_list_then_success(
     )
 
     user2 = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user2)
-    session.commit()
+    add_and_commit([user2])
     post3 = post_factory(
         Article=True,
         Categories=categories,
@@ -242,8 +236,7 @@ def test_when_get_post_list_then_success(
         user_id=user2.id,
     )
 
-    session.add_all([post1, post2, post3, post4])
-    session.commit()
+    add_and_commit([post1, post2, post3, post4])
 
     dto = GetPostListDto(
         region_group_id=user.region.region_group.id, category_ids=[categories[0].id],
@@ -256,11 +249,10 @@ def test_when_get_post_list_then_success(
 
 
 def test_when_get_empty_post_list_then_empty_list(
-    session, normal_user_factory, create_categories
+    session, normal_user_factory, create_categories, add_and_commit
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
@@ -273,14 +265,13 @@ def test_when_get_empty_post_list_then_empty_list(
 
 
 def test_when_get_post_list_pagination_then_success(
-    session, normal_user_factory, create_categories
+    session, normal_user_factory, create_categories, add_and_commit
 ):
     """
     post list 조회 시 페이지네이션
     """
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
@@ -291,8 +282,7 @@ def test_when_get_post_list_pagination_then_success(
         region_group_id=user.region.region_group.id,
         user_id=user.id,
     )
-    session.add_all(post_list)
-    session.commit()
+    add_and_commit(post_list)
 
     dto = GetPostListDto(
         region_group_id=user.region.region_group.id,
@@ -306,14 +296,13 @@ def test_when_get_post_list_pagination_then_success(
 
 
 def test_when_deleted_or_blocked_post_then_except(
-    session, normal_user_factory, post_factory, create_categories
+    session, normal_user_factory, post_factory, create_categories, add_and_commit
 ):
     """
     post list 조회 시 삭제, 차단된 게시글 제외
     """
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
@@ -338,8 +327,7 @@ def test_when_deleted_or_blocked_post_then_except(
         is_blocked=True,
     )
 
-    session.add_all([post, deleted_post, blocked_post])
-    session.commit()
+    add_and_commit([post, deleted_post, blocked_post])
 
     dto = GetPostListDto(
         region_group_id=user.region.region_group.id, category_ids=[categories[0].id],
@@ -350,14 +338,13 @@ def test_when_deleted_or_blocked_post_then_except(
 
 
 def test_when_get_post_then_success(
-    session, normal_user_factory, post_factory, attachment_factory
+    session, normal_user_factory, post_factory, attachment_factory, add_and_commit
 ):
     """
     post 조회
     """
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
     attachments = attachment_factory.build_batch(size=1)
 
     post = post_factory(
@@ -367,8 +354,7 @@ def test_when_get_post_then_success(
         user_id=user.id,
     )
 
-    session.add(post)
-    session.commit()
+    add_and_commit([post])
 
     dto = GetPostDto(post_id=post.id)
 
@@ -379,7 +365,7 @@ def test_when_get_post_then_success(
     assert isinstance(post_entity.attachments, list)
 
 
-def test_when_get_not_exist_post_then_not_found(session):
+def test_when_get_not_exist_post_then_not_found(session, add_and_commit):
     """
     없는 post 조회
     """
@@ -391,15 +377,14 @@ def test_when_get_not_exist_post_then_not_found(session):
 
 
 def test_when_search_post_list_then_success(
-    session, normal_user_factory, post_factory, create_categories
+    session, normal_user_factory, post_factory, create_categories, add_and_commit
 ):
     """
     post 검색. user1 post 2개, user2 post 2개, user3 post 1개, 다른 지역 user4 post 1개
     총 5개 post 응답
     """
     user_list = normal_user_factory.build_batch(size=4, Region=True, UserProfile=True)
-    session.add_all(user_list)
-    session.commit()
+    add_and_commit(user_list)
 
     region_group_id = user_list[0].region.region_group_id
 
@@ -442,8 +427,7 @@ def test_when_search_post_list_then_success(
         user_id=user_list[3].id,
     )
 
-    session.add_all([post1, post2, post3, post4, post5, post6])
-    session.commit()
+    add_and_commit([post1, post2, post3, post4, post5, post6])
 
     dto = GetPostListDto(
         region_group_id=region_group_id,
@@ -460,21 +444,19 @@ def test_when_search_post_list_then_success(
 
 
 def test_when_post_like_first_then_create_post_like_state(
-    session, normal_user_factory, post_factory
+    session, normal_user_factory, post_factory, add_and_commit
 ):
     # 최초 찜하기
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
+    add_and_commit([user])
 
-    session.commit()
     post = post_factory(
         Article=True,
         PostLikeCount=True,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
     )
-    session.add(post)
-    session.commit()
+    add_and_commit([post])
 
     dto = LikePostDto(user_id=user.id, post_id=post.id)
 
@@ -487,20 +469,19 @@ def test_when_post_like_first_then_create_post_like_state(
 
 
 def test_when_post_like_then_update_post_like_state(
-    session, normal_user_factory, post_factory
+    session, normal_user_factory, post_factory, add_and_commit
 ):
     # 찜하기, 찜취소
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
+
     post = post_factory(
         Article=True,
         PostLikeCount=True,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
     )
-    session.add(post)
-    session.commit()
+    add_and_commit([post])
 
     dto = LikePostDto(user_id=user.id, post_id=post.id)
 
@@ -520,7 +501,12 @@ def test_when_post_like_then_update_post_like_state(
 
 
 def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
-    session, normal_user_factory, post_factory, like_post, create_categories
+    session,
+    normal_user_factory,
+    post_factory,
+    like_post,
+    create_categories,
+    add_and_commit,
 ):
     """
     post list 조회 시 찜 개수 포함, 찜 상태 제외
@@ -530,8 +516,7 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     """
     user1 = normal_user_factory(Region=True, UserProfile=True)
     user2 = normal_user_factory(Region=True, UserProfile=True)
-    session.add_all([user1, user2])
-    session.commit()
+    add_and_commit([user1, user2])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
@@ -549,9 +534,7 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
         region_group_id=user1.region.region_group.id,
         user_id=user1.id,
     )
-
-    session.add_all([post1, post2])
-    session.commit()
+    add_and_commit([post1, post2])
 
     # 찜하기
     like_post(user_id=user1.id, post_id=post1.id)
@@ -583,13 +566,13 @@ def test_when_get_post_list_by_status(
     normal_user_factory,
     post_factory,
     create_categories,
+    add_and_commit,
 ):
     """
     post list 조회 시 판매중, 거래완료 상태에 따라 응답
     """
     user = normal_user_factory.build(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     region_group_id = user.region.region_group_id
 
@@ -609,8 +592,7 @@ def test_when_get_post_list_by_status(
         status=post_status,
     )
 
-    session.add_all([post1, post2])
-    session.commit()
+    add_and_commit([post1, post2])
 
     dto = GetPostListDto(
         region_group_id=region_group_id,
@@ -624,14 +606,13 @@ def test_when_get_post_list_by_status(
 
 
 def test_when_get_post_list_order_by_desc_then_success(
-    session, normal_user_factory, create_categories, post_factory
+    session, normal_user_factory, create_categories, post_factory, add_and_commit
 ):
     """
     판매중, 거래완료 최신순으로 조회
     """
     user = normal_user_factory.build(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
@@ -658,9 +639,7 @@ def test_when_get_post_list_order_by_desc_then_success(
         user_id=user.id,
         status=PostStatusEnum.COMPLETED.value,
     )
-
-    session.add_all([post1, post2, post3])
-    session.commit()
+    add_and_commit([post1, post2, post3])
 
     dto = GetPostListDto(
         region_group_id=user.region.region_group_id,
@@ -684,13 +663,13 @@ def test_get_selling_post_list(
     normal_user_factory,
     create_categories,
     post_factory,
+    add_and_commit,
 ):
     """
     판매 목록 조회
     """
     user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
-    session.add_all(user_list)
-    session.commit()
+    add_and_commit(user_list)
 
     post_owner = user_list[0]
 
@@ -713,8 +692,7 @@ def test_get_selling_post_list(
         status=PostStatusEnum.COMPLETED.value,
     )
 
-    session.add_all([post1, post2])
-    session.commit()
+    add_and_commit([post1, post2])
 
     dto = GetSellingPostListDto(user_id=input_user_id)
 
@@ -729,13 +707,13 @@ def test_get_like_post_list(
     create_categories,
     post_factory,
     post_like_state_factory,
+    add_and_commit,
 ):
     """
     내가 찜한 게시글, 찜 안한 게시글 생성 후 찜한 게시글만 응답  확인
     """
     user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
-    session.add_all(user_list)
-    session.commit()
+    add_and_commit(user_list)
 
     user1 = user_list[0]
     user2 = user_list[1]
@@ -758,13 +736,11 @@ def test_get_like_post_list(
         user_id=user1.id,
         status=PostStatusEnum.SELLING.value,
     )
-    session.add(liked_post)
-    session.commit()
+    add_and_commit([liked_post])
 
     post_like_state = post_like_state_factory(post_id=liked_post.id, user_id=user2.id)
 
-    session.add_all([post, post_like_state])
-    session.commit()
+    add_and_commit([post, post_like_state])
 
     dto = GetLikePostListDto(user_id=user2.id)
 
@@ -774,25 +750,21 @@ def test_get_like_post_list(
 
 
 def test_when_create_post_then_set_redis_notification(
-    session, normal_user_factory, create_categories
+    session, normal_user_factory, create_categories, add_and_commit
 ):
     user = normal_user_factory(
         Region=True, UserProfile=True, UserNotificationToken=True
     )
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     keyword = KeywordFactory.build()
     notification = NotificationFactory.build()
-    session.add(keyword)
-    session.add(notification)
-    session.commit()
+    add_and_commit([keyword, notification])
 
     categories = create_categories(PostCategoryEnum.get_dict())
 
     user2 = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user2)
-    session.commit()
+    add_and_commit([user2])
 
     dto = CreatePostDto(
         user_id=user2.id,
@@ -814,7 +786,7 @@ def test_when_create_post_then_set_redis_notification(
         category_ids=[categories[0].id],
     )
 
-    CreatePostUseCase().execute(dto=dto).value
+    CreatePostUseCase().execute(dto=dto)
 
     notification_history = (
         session.query(NotificationHistoryModel)
