@@ -1,11 +1,15 @@
 from typing import Union
 from pydantic import ValidationError
+
+from app.extensions.utils.log_helper import logger_
 from app.http.responses import failure_response, success_response
 from core.domains.board.schema.post_schema import (
     PostResponseSchema,
     PostListResponseSchema,
 )
 from core.use_case_output import UseCaseSuccessOutput, UseCaseFailureOutput, FailureType
+
+logger = logger_.getLogger(__name__)
 
 
 class PostPresenter:
@@ -15,7 +19,7 @@ class PostPresenter:
             try:
                 schema = PostResponseSchema(post=value)
             except ValidationError as e:
-                print(e)
+                logger.error(f"[PostPresenter][transform] error : {e}")
                 return failure_response(
                     UseCaseFailureOutput(
                         type=FailureType.SYSTEM_ERROR,
@@ -39,7 +43,7 @@ class PostListPresenter:
                 try:
                     schema = PostListResponseSchema(post_list=value)
                 except ValidationError as e:
-                    print(e)
+                    logger.error(f"[PostListPresenter][transform] error : {e}")
                     return failure_response(
                         UseCaseFailureOutput(
                             type=FailureType.SYSTEM_ERROR,

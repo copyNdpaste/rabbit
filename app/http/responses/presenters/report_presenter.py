@@ -2,9 +2,12 @@ from typing import Union
 
 from pydantic import ValidationError
 
+from app.extensions.utils.log_helper import logger_
 from app.http.responses import failure_response, success_response
 from core.domains.report.schema.post_schema import PostReportResponseSchema
 from core.use_case_output import UseCaseSuccessOutput, UseCaseFailureOutput, FailureType
+
+logger = logger_.getLogger(__name__)
 
 
 class PostReportPresenter:
@@ -24,7 +27,7 @@ class PostReportPresenter:
                     updated_at=v.updated_at,
                 )
             except ValidationError as e:
-                print(e)
+                logger.error(f"[AuthenticationPresenter][transform] error : {e}")
                 return failure_response(
                     UseCaseFailureOutput(
                         type=FailureType.SYSTEM_ERROR,
