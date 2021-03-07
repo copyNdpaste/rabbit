@@ -18,12 +18,12 @@ class UserPresenter:
                 schema = UserResponseSchema(user=value)
             except ValidationError as e:
                 logger.error(f"[AuthenticationPresenter][transform] error : {e}")
-            return failure_response(
-                UseCaseFailureOutput(
-                    type=FailureType.SYSTEM_ERROR,
-                    message="response schema validation error",
+                return failure_response(
+                    UseCaseFailureOutput(
+                        type=FailureType.SYSTEM_ERROR,
+                        message="response schema validation error",
+                    )
                 )
-            )
             result = {
                 "data": schema.dict(),
                 "meta": {"cursor": output.meta},
