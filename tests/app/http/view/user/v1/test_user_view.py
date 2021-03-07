@@ -3,7 +3,6 @@ from unittest.mock import patch
 
 import pytest
 from flask import url_for
-from flask_jwt_extended import create_access_token
 from werkzeug.datastructures import FileStorage
 
 from core.domains.user.enum.user_enum import UserStatusEnum
@@ -11,14 +10,19 @@ from core.use_case_output import FailureType
 
 
 def test_when_get_user_with_valid_user_id_then_success(
-    client, session, test_request_context, jwt_manager, make_header, normal_user_factory
+    client,
+    session,
+    test_request_context,
+    jwt_manager,
+    make_authorization,
+    make_header,
+    normal_user_factory,
+    add_and_commit,
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
 
     with test_request_context:
@@ -32,14 +36,19 @@ def test_when_get_user_with_valid_user_id_then_success(
 
 
 def test_when_get_not_existing_user_then_failure(
-    client, session, test_request_context, jwt_manager, make_header, normal_user_factory
+    client,
+    session,
+    test_request_context,
+    jwt_manager,
+    make_header,
+    normal_user_factory,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
 
     with test_request_context:
@@ -62,13 +71,13 @@ def test_when_update_user_then_success(
     make_header,
     normal_user_factory,
     region_factory,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(
         authorization=authorization, content_type="multipart/form-data", accept="*/*"
     )

@@ -1,17 +1,21 @@
 from flask import url_for
-from flask_jwt_extended import create_access_token
 
 
 def test_when_create_post_report_then_success(
-    client, session, test_request_context, jwt_manager, make_header, normal_user_factory
+    client,
+    session,
+    test_request_context,
+    jwt_manager,
+    make_header,
+    normal_user_factory,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
     report_user = normal_user_factory(Region=True, UserProfile=True, Post=True)
-    session.add_all([user, report_user])
-    session.commit()
+    add_and_commit([user, report_user])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
     dct = dict(
         post_id=user.post[0].id,
