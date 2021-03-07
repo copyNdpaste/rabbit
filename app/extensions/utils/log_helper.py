@@ -1,5 +1,5 @@
 import logging
 
-logger = logging
+logger_ = logging
 format_ = "%(name)s - %(levelname)s : %(message)s"
-logger.basicConfig(format=format_, level=logging.INFO)
+logger_.basicConfig(format=format_, level=logging.INFO)

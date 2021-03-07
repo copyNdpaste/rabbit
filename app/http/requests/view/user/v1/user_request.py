@@ -1,7 +1,12 @@
 from typing import List
 
 from pydantic import BaseModel, ValidationError, StrictInt, StrictStr
+
+from app.extensions.utils.log_helper import logger_
 from core.domains.user.dto.user_dto import GetUserDto, UpdateUserDto
+
+
+logger = logger_.getLogger(__name__)
 
 
 class GetUserSchema(BaseModel):
@@ -17,7 +22,7 @@ class GetUserRequest:
             schema = GetUserSchema(user_id=self.user_id).dict()
             return GetUserDto(**schema)
         except ValidationError as e:
-            print(e)
+            logger.error(f"[GetUserRequest][validate_request_and_make_dto] error : {e}")
             return False
 
 
@@ -48,5 +53,7 @@ class UpdateUserRequest:
             ).dict()
             return UpdateUserDto(**schema)
         except ValidationError as e:
-            print(e)
+            logger.error(
+                f"[UpdateUserRequest][validate_request_and_make_dto] error : {e}"
+            )
             return False
