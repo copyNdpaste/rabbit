@@ -36,7 +36,7 @@ def swagger_config():
                 "servers": [
                     {"url": "http://localhost:5000/", "description": "local server"},
                     {
-                        "url": "https://www.l-bium.com/rabbit/",
+                        "url": "https://dev.l-bium.com/rabbit/",
                         "description": "development server",
                     },
                     {
@@ -49,7 +49,7 @@ def swagger_config():
             "specs": [
                 {
                     "endpoint": "apispec",
-                    "route": "/apispec.json",
+                    "route": "/rabbit/apispec.json",
                     "rule_filter": lambda rule: True,  # all in
                     "model_filter": lambda tag: True,  # all in
                 }

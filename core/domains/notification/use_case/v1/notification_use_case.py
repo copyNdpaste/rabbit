@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from time import sleep
 from typing import Optional, List
 
 from flask import current_app
@@ -30,17 +31,20 @@ class NotificationUseCase:
     def execute(self):
         self.stdout.write(f"🚀\tSTARTING NOTIFICATION SEND - {self.client_id}")
         self.stdout.write(f"\n🚀\tFCM KEY - {current_app.config.get('FCM_KEY')}")
-        self.redis.scan_pattern(pattern="keyword*")
+        while True:
+            self.redis.scan_pattern(pattern="keyword*")
 
-        messages = self._get_messages()
-        self._logging(message=f"\n[*] Get keyword data -> {len(messages)}")
+            # 3분마다 실행
+            sleep(180)
+            messages = self._get_messages()
+            self._logging(message=f"\n[*] Get keyword data -> {len(messages)}")
 
-        self._push_notification(messages)
+            self._push_notification(messages)
 
-        # Clear cache
-        if self.redis.copied_keys:
-            self._logging(message=f"[*] Clear keys -> {self.redis.copied_keys}")
-            self.redis.clear_cache()
+            # Clear cache
+            if self.redis.copied_keys:
+                self._logging(message=f"[*] Clear keys -> {self.redis.copied_keys}")
+                self.redis.clear_cache()
 
     def _get_messages(self) -> List:
         result = dict()

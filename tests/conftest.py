@@ -4,7 +4,6 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from pytest_factoryboy import register
 from sqlalchemy.orm import scoped_session
-
 from app import create_app
 from app.extensions.database import db as _db
 from .seeder.conftest import *

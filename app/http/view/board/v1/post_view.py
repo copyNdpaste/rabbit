@@ -1,6 +1,7 @@
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
+
 from app.http.requests.view.board.v1.post_request import (
     CreatePostRequest,
     UpdatePostRequest,
