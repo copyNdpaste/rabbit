@@ -1,7 +1,5 @@
 import os
 
-import boto3
-from botocore.stub import Stubber
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from pytest_factoryboy import register
@@ -91,3 +89,13 @@ def set_factories_session(session):
     # 예시) UserFactory._meta.sqlalchemy_session = session
     for factory in MODEL_FACTORIES:
         factory._meta.sqlalchemy_session = session
+
+
+@pytest.fixture()
+def add_and_commit(session):
+    def _add_and_commit(models: list = None):
+        for model in models:
+            session.add(model)
+        session.commit()
+
+    return _add_and_commit
