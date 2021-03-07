@@ -7,10 +7,9 @@ from core.domains.user.enum.user_enum import UserStatusEnum
 from core.domains.user.repository.user_repository import UserRepository
 
 
-def test_get_user(session, normal_user_factory):
+def test_get_user(session, normal_user_factory, add_and_commit):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     user_entity = UserRepository().get_user(user_id=user.id)
 
@@ -18,14 +17,12 @@ def test_get_user(session, normal_user_factory):
 
 
 @pytest.mark.skip(reason="fox에서 처리되므로 스킵")
-def test_update_user(session, normal_user_factory, region_factory):
+def test_update_user(session, normal_user_factory, region_factory, add_and_commit):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     region = region_factory()
-    session.add(region)
-    session.commit()
+    add_and_commit([region])
 
     user_entity = UserRepository().update_user(
         user_id=user.id,
@@ -40,10 +37,9 @@ def test_update_user(session, normal_user_factory, region_factory):
     assert user_entity.region_id == region.id
 
 
-def test_get_user_profile(session, normal_user_factory):
+def test_get_user_profile(session, normal_user_factory, add_and_commit):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     user_profile = UserRepository().get_user_profile(user.profile_id)
 
@@ -51,10 +47,9 @@ def test_get_user_profile(session, normal_user_factory):
 
 
 @pytest.mark.skip(reason="fox에서 처리되므로 스킵")
-def test_update_user_profile(session, normal_user_factory):
+def test_update_user_profile(session, normal_user_factory, add_and_commit):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     uuid_ = str(uuid.uuid4())
     user_profile = UserRepository().update_user_profile(

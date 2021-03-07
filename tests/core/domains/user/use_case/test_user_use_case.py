@@ -12,10 +12,9 @@ from core.domains.user.use_case.v1.user_use_case import (
 )
 
 
-def test_when_get_user_then_success(session, normal_user_factory):
+def test_when_get_user_then_success(session, normal_user_factory, add_and_commit):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     dto = GetUserDto(user_id=user.id)
 
@@ -25,17 +24,15 @@ def test_when_get_user_then_success(session, normal_user_factory):
 
 
 def test_when_get_user_with_relations_then_success(
-    session, normal_user_factory, post_factory
+    session, normal_user_factory, post_factory, add_and_commit
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     post = post_factory(
         Article=True, region_group_id=user.region.region_group.id, user_id=user.id
     )
-    session.add(post)
-    session.commit()
+    add_and_commit([post])
 
     dto = GetUserDto(user_id=user.id)
 
@@ -49,15 +46,13 @@ def test_when_get_user_with_relations_then_success(
 @pytest.mark.skip(reason="fox에서 처리되므로 스킵")
 @patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
 def test_when_update_user_then_success(
-    upload_mock, session, normal_user_factory, region_factory
+    upload_mock, session, normal_user_factory, region_factory, add_and_commit
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     region = region_factory()
-    session.add(region)
-    session.commit()
+    add_and_commit([region])
 
     # 실제 업로드 확인하려면 아래 경로에 이미지 첨부하고 patch 데코레이터 제거한 뒤 실행.
     file = FileStorage(
