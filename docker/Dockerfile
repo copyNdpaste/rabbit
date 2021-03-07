@@ -34,6 +34,7 @@ RUN apk del build-deps
 COPY app ${APP_DIR}/app
 COPY core ${APP_DIR}/core
 COPY application.py VERSION ${APP_DIR}/
+COPY supervisord.conf ${APP_DIR}/
 
 EXPOSE 5000
 WORKDIR ${APP_DIR}/
