@@ -10,7 +10,7 @@ class PostEntity(BaseModel):
     id: int
     user_id: int
     title: str
-    body: str
+    body: str = None
     region_group_id: int
     region_group_name: str
     region_name: str
@@ -41,7 +41,7 @@ class PostListEntity(BaseModel):
     id: int
     user_id: int
     title: str
-    body: str
+    body: str = None
     region_name: str
     region_group_id: int
     region_group_name: Optional[str] = None

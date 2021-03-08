@@ -24,7 +24,7 @@ class ReportRepository:
             session.add(post_report)
             session.commit()
 
-            return post_report
+            return post_report.to_entity() if post_report else None
         except Exception as e:
             logger.error(
                 f"[ReportRepository][create_post_report] post_id : {dto.post_id} report_user_id : {dto.report_user_id} "
@@ -32,3 +32,13 @@ class ReportRepository:
             )
             session.rollback()
             return None
+
+    def get_post_report(
+        self, report_user_id: int, post_id
+    ) -> Optional[PostReportEntity]:
+        post_report = (
+            session.query(PostReportModel)
+            .filter_by(report_user_id=report_user_id, post_id=post_id)
+            .first()
+        )
+        return post_report.to_entity() if post_report else None

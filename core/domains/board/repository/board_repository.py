@@ -403,3 +403,25 @@ class BoardRepository:
             )
             session.rollback()
             return False
+
+    def add_report_count(self, post_id: int) -> Union[int, bool]:
+        try:
+            session.query(PostModel).filter_by(id=post_id).update(
+                {"report_count": PostModel.report_count + 1}
+            )
+            return self._get_post(post_id=post_id).report_count
+        except Exception as e:
+            logger.error(
+                f"[BoardRepository][add_report_count] post_id : {post_id} error : {e}"
+            )
+            session.rollback()
+            return False
+
+    def block(self, post_id: int) -> bool:
+        try:
+            session.query(PostModel).filter_by(id=post_id).update({"is_blocked": True})
+            return True
+        except Exception as e:
+            logger.error(f"[BoardRepository][block] post_id : {post_id} error : {e}")
+            session.rollback()
+            return False
