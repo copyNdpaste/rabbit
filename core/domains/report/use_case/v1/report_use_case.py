@@ -1,9 +1,6 @@
-from typing import Optional
-
 import inject
 
 from app.extensions.utils.event_observer import send_message, get_event_object
-from core.domains.board.entity.post_entity import PostEntity
 from core.domains.board.enum import PostTopicEnum
 from core.domains.report.dto.post_report_dto import CreatePostReportDto
 from core.domains.report.enum.report_enum import PostReportEnum
