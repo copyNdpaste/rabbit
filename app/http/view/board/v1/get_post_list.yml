@@ -15,7 +15,7 @@ requestBody:
             type: integer
           title:
             type: string
-          type:
+          status:
             type: string
           category_ids:
             type: array
