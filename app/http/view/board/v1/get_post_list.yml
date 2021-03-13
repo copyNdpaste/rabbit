@@ -27,8 +27,19 @@ responses:
     content:
       application/json:
         schema:
-          items:
-            $ref: '#/components/schemas/post'
+          type: object
+          properties:
+            data:
+              items:
+                $ref: '#/components/schemas/post'
+            meta:
+              type: object
+              properties:
+                cursor:
+                  type: object
+                  properties:
+                    last_post_id:
+                      type: integer
   '400':
     description: unauthorized_error, invalid_request_error, not_found_error, system_error
     content:
