@@ -41,4 +41,5 @@ class PostReportModel(db.Model):
             confirm_admin_id=self.confirm_admin_id,
             is_system_report=self.is_system_report,
             created_at=self.created_at,
+            updated_at=self.updated_at,
         )

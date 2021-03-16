@@ -17,12 +17,14 @@ from app.persistence.model.post_like_count_model import PostLikeCountModel
 from app.persistence.model.post_category_model import PostCategoryModel
 from app.persistence.model.category_model import CategoryModel
 from app.persistence.model.attachment_model import AttachmentModel
+from app.persistence.model.post_report_model import PostReportModel
 from core.domains.board.enum.post_enum import (
     PostUnitEnum,
     PostStatusEnum,
     PostLikeStateEnum,
     PostCategoryEnum,
 )
+from core.domains.report.enum.report_enum import PostReportStatusEnum
 from core.domains.board.enum.attachment_enum import AttachmentEnum
 from app.extensions.utils.enum.aws_enum import S3PathEnum
 
@@ -201,3 +203,15 @@ class UserNotificationTokenFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     user_id = 1
     token = faker.bothify(text="????-#######")
+
+
+class PostReportFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = PostReportModel
+
+    post_id = 1
+    report_user_id = 1
+    status = PostReportStatusEnum.DEFAULT.value
+    context = "신고 이유"
+    confirm_admin_id = 0
+    is_system_report = False

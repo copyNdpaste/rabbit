@@ -334,9 +334,9 @@ class LikePostUseCase(PostBaseUseCase):
         return UseCaseSuccessOutput(value=post)
 
     def _is_post_exist(self, post_id) -> bool:
-        send_message(PostTopicEnum.IS_POST_EXIST, post_id=post_id)
+        send_message(PostTopicEnum.IS_POST_EXIST.value, post_id=post_id)
 
-        return get_event_object(topic_name=PostTopicEnum.IS_POST_EXIST)
+        return get_event_object(topic_name=PostTopicEnum.IS_POST_EXIST.value)
 
     def _get_to_be_adopted_post_like_state(self, state: str) -> str:
         return (

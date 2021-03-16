@@ -18,6 +18,7 @@ from tests.seeder.factory import (
     NotificationFactory,
     KeywordFactory,
     UserNotificationTokenFactory,
+    PostReportFactory,
 )
 from tests.seeder.factory.data_service_factory import NormalUserFactory
 
@@ -37,6 +38,7 @@ MODEL_FACTORIES = [
     NotificationFactory,
     KeywordFactory,
     UserNotificationTokenFactory,
+    PostReportFactory,
 ]
 
 
