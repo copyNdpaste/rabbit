@@ -64,3 +64,12 @@ pub.subscribe(get_posts, PostTopicEnum.GET_POSTS)
 * 로컬에서 `http://127.0.0.1:5000/{domain}/apidocs` 접속 후 `authorize`에 적절한 토큰과 `request parameter`를 넣고 `try it out`, `execute` 클릭한다.
 * api doc 추가 시 view 파일 위에 `swag_from` 데코레이터 사용해서 yml 파일 명시한다.
 * 프로젝트 변경 등으로 인한 api prefix 수정 시 `swagger/__init__.py` 에서 `static_url_path`, `specs_route` 등 수정해야 한다. 
+
+## [coverage](https://coverage.readthedocs.io/en/coverage-5.5/)
+* 커버리지 실행
+  * `coverage run -m pytest`
+* 커버리지 결과 리포트
+  * `coverage report -m`
+  * `Name Stmts Miss Cover Missing` 형식으로 어떤 파일의 어디가 커버되었는지 놓친 부분은 어딘지 나온다
+* 웹 브라우저에서 결과 리포트 확인
+  * `coverage html` -> `htmlcov/index.html` 웹 브라우저에서 열기 -> 보고 싶은 파일 열어서 얼마나 커버했는지 확인

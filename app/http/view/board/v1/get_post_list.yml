@@ -15,7 +15,7 @@ requestBody:
             type: integer
           title:
             type: string
-          type:
+          status:
             type: string
           category_ids:
             type: array
@@ -27,8 +27,14 @@ responses:
     content:
       application/json:
         schema:
-          items:
-            $ref: '#/components/schemas/post'
+          type: object
+          properties:
+            data:
+              items:
+                $ref: '#/components/schemas/post'
+            meta:
+              $ref: '#/components/schemas/post_meta'
+
   '400':
     description: unauthorized_error, invalid_request_error, not_found_error, system_error
     content:
