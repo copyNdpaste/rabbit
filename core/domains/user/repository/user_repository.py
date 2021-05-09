@@ -5,6 +5,7 @@ from app.persistence.model.user_model import UserModel
 from app.persistence.model.user_profile_model import UserProfileModel
 from core.domains.user.entity.user_entity import UserEntity
 from core.domains.user.entity.user_profile_entity import UserProfileEntity
+from core.exceptions import UserNotFoundException
 
 logger = logger_.getLogger(__name__)
 
@@ -13,7 +14,9 @@ class UserRepository:
     def get_user(self, user_id: int) -> Optional[UserEntity]:
         user = session.query(UserModel).filter_by(id=user_id).first()
 
-        return user.to_entity() if user else None
+        if not user:
+            raise UserNotFoundException
+        return user.to_entity()
 
     def update_user(
         self, user_id: int, nickname: str, status: str, region_id: int

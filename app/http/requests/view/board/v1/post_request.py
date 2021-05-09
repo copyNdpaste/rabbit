@@ -12,6 +12,7 @@ from core.domains.board.dto.post_dto import (
 )
 from core.domains.board.dto.post_like_dto import LikePostDto
 from app.extensions.utils.log_helper import logger_
+from core.exceptions import InvalidRequestException
 
 logger = logger_.getLogger(__name__)
 
@@ -87,7 +88,7 @@ class CreatePostRequest:
             logger.error(
                 f"[CreatePostRequest][validate_request_and_make_dto] error : {e}"
             )
-            return False
+            raise InvalidRequestException(message=e.errors())
 
 
 class GetPostListSchema(BaseModel):

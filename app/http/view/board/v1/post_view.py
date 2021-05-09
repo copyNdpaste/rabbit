@@ -40,10 +40,6 @@ def create_post_view():
     dto = CreatePostRequest(
         **request.form.to_dict(), files=request.files.getlist("files"),
     ).validate_request_and_make_dto()
-    if not dto:
-        return failure_response(
-            UseCaseFailureOutput(type=FailureType.INVALID_REQUEST_ERROR)
-        )
 
     return PostPresenter().transform(CreatePostUseCase().execute(dto=dto))
 
@@ -145,7 +141,7 @@ def get_selling_post_list_view():
 @auth_required
 @swag_from("get_like_post_list.yml", methods=["GET"])
 def get_like_post_list_view():
-    dto = GetLikePostListRequest(**request.get_json(),).validate_request_and_make_dto()
+    dto = GetLikePostListRequest(**request.get_json(), ).validate_request_and_make_dto()
     if not dto:
         return failure_response(
             UseCaseFailureOutput(type=FailureType.INVALID_REQUEST_ERROR)
