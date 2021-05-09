@@ -6,6 +6,7 @@ from flask import url_for
 from werkzeug.datastructures import FileStorage
 
 from core.domains.user.enum.user_enum import UserStatusEnum
+from core.exceptions import UserNotFoundException
 from core.use_case_output import FailureType
 
 
@@ -57,7 +58,7 @@ def test_when_get_not_existing_user_then_failure(
         )
 
     assert response.status_code == 404
-    assert response.get_json()["type"] == FailureType.NOT_FOUND_ERROR
+    assert response.get_json()["message"] == UserNotFoundException.msg
 
 
 @pytest.mark.skip(reason="fox에서 처리되므로 스킵")
