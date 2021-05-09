@@ -56,7 +56,7 @@ def test_when_get_not_existing_user_then_failure(
             url_for("api/rabbit.get_user_view", user_id=9999), headers=headers,
         )
 
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert response.get_json()["type"] == FailureType.NOT_FOUND_ERROR
 
 
