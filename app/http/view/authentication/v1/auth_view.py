@@ -11,8 +11,8 @@ from core.domains.authentication.use_case.v1.authentication_use_case import (
 
 
 @api.route("/authentication/v1/", methods=["GET"])
-@jwt_required
-@auth_required
+# @jwt_required
+# @auth_required
 def auth_for_testing_view():
     """
     인증 테스트 뷰

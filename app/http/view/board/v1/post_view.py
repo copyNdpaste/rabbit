@@ -33,8 +33,8 @@ from core.use_case_output import FailureType, UseCaseFailureOutput
 
 
 @api.route("/board/v1/posts", methods=["POST"])
-@jwt_required
-@auth_required
+# @jwt_required
+# @auth_required
 @swag_from("create_post.yml", methods=["POST"])
 def create_post_view():
     dto = CreatePostRequest(
@@ -49,8 +49,8 @@ def create_post_view():
 
 
 @api.route("/board/v1/posts", methods=["GET"])
-@jwt_required
-@auth_required
+# @jwt_required
+# @auth_required
 @swag_from("get_post_list.yml", methods=["GET"])
 def get_post_list_view():
     dto = GetPostListRequest(**request.get_json()).validate_request_and_make_dto()
@@ -63,8 +63,8 @@ def get_post_list_view():
 
 
 @api.route("/board/v1/posts/<int:post_id>", methods=["GET"])
-@jwt_required
-@auth_required
+# @jwt_required
+# @auth_required
 @swag_from("get_post.yml", methods=["GET"])
 def get_post_view(post_id):
     dto = GetPostRequest(post_id=post_id).validate_request_and_make_dto()
@@ -77,8 +77,8 @@ def get_post_view(post_id):
 
 
 @api.route("/board/v1/posts/<int:post_id>", methods=["PUT"])
-@jwt_required
-@auth_required
+# @jwt_required
+# @auth_required
 @swag_from("update_post.yml", methods=["PUT"])
 def update_post_view(post_id):
     dto = UpdatePostRequest(
@@ -93,8 +93,8 @@ def update_post_view(post_id):
 
 
 @api.route("/board/v1/posts/<int:post_id>", methods=["DELETE"])
-@jwt_required
-@auth_required
+# @jwt_required
+# @auth_required
 @swag_from("delete_post.yml", methods=["DELETE"])
 def delete_post_view(post_id):
     dto = DeletePostRequest(
@@ -109,8 +109,8 @@ def delete_post_view(post_id):
 
 
 @api.route("/board/v1/posts/<int:post_id>", methods=["POST"])
-@jwt_required
-@auth_required
+# @jwt_required
+# @auth_required
 @swag_from("like_post.yml", methods=["POST"])
 def like_post_view(post_id):
     dto = LikePostRequest(
@@ -125,8 +125,8 @@ def like_post_view(post_id):
 
 
 @api.route("/board/v1/posts/selling-list", methods=["GET"])
-@jwt_required
-@auth_required
+# @jwt_required
+# @auth_required
 @swag_from("get_selling_post_list.yml", methods=["GET"])
 def get_selling_post_list_view():
     dto = GetSellingPostListRequest(
@@ -141,8 +141,8 @@ def get_selling_post_list_view():
 
 
 @api.route("/board/v1/posts/like-list", methods=["GET"])
-@jwt_required
-@auth_required
+# @jwt_required
+# @auth_required
 @swag_from("get_like_post_list.yml", methods=["GET"])
 def get_like_post_list_view():
     dto = GetLikePostListRequest(**request.get_json(),).validate_request_and_make_dto()
