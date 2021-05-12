@@ -5,7 +5,7 @@ services:
     ports:
       - "5000:5000"
     entrypoint: /usr/local/bin/poetry
-    command: "run gunicorn --timeout 30 -w 2 --threads 2 -k gevent -b :5000 --access-logfile - --error-logfile - application:app"
+    command: "run gunicorn -k gevent application:app --bind 0.0.0.0:5000 --reload --log-level=DEBUG"
     logging:
       driver: awslogs
       options:

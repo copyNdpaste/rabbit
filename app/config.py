@@ -18,7 +18,7 @@ class LocalConfig(Config):
     SQLALCHEMY_ECHO = True
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = (
-        "postgresql+psycopg2://rabbit:password@localhost:5432/bium"
+        "postgresql+psycopg2://ludicer:fnelcpfm@ludicer-dev-db.cdjboewjhw4h.ap-northeast-2.rds.amazonaws.com:5433/bium"
     )
 
 
