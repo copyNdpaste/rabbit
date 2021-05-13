@@ -4,7 +4,7 @@ from pydantic import ValidationError
 
 from app.extensions.utils.log_helper import logger_
 from app.http.responses import failure_response, success_response
-from core.domains.user.schema.user import UserResponseSchema
+from core.domains.user.schema.user_schema import UserResponseSchema
 from core.use_case_output import UseCaseSuccessOutput, UseCaseFailureOutput, FailureType
 
 logger = logger_.getLogger(__name__)

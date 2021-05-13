@@ -5,38 +5,38 @@ from core.domains.user.entity.user_entity import UserEntity
 
 
 class PostResponseBaseSchema(BaseModel):
-    id: StrictInt
-    user_id: StrictInt
-    title: StrictStr
-    body: StrictStr
+    id: StrictInt = None
+    user_id: StrictInt = None
+    title: StrictStr = None
+    body: StrictStr = None
     region_name: StrictStr = None
-    region_group_id: StrictInt
-    region_group_name: StrictStr
-    type: StrictStr
-    is_comment_disabled: bool
-    is_deleted: bool
-    is_blocked: bool
-    report_count: StrictInt
-    read_count: StrictInt
-    category_ids: List[int]
-    last_user_action: StrictStr
-    last_user_action_at: Optional[datetime]
-    last_admin_action: StrictStr
-    last_admin_action_at: Optional[datetime]
-    created_at: datetime
-    updated_at: datetime
-    user: UserEntity
-    post_like_count: StrictInt
+    region_group_id: StrictInt = None
+    region_group_name: StrictStr = None
+    type: StrictStr = None
+    is_comment_disabled: bool = None
+    is_deleted: bool = None
+    is_blocked: bool = None
+    report_count: StrictInt = None
+    read_count: StrictInt = None
+    category_ids: List[int] = None
+    last_user_action: StrictStr = None
+    last_user_action_at: Optional[datetime] = None
+    last_admin_action: StrictStr = None
+    last_admin_action_at: Optional[datetime] = None
+    created_at: datetime = None
+    updated_at: datetime = None
+    user: UserEntity = None
+    post_like_count: StrictInt = None
     post_like_state: Optional[StrictStr] = None
-    amount: int
-    unit: str
-    price_per_unit: int
-    status: str
+    amount: int = None
+    unit: str = None
+    price_per_unit: int = None
+    status: str = None
     attachments: List = []
 
 
 class PostResponseSchema(BaseModel):
-    post: PostResponseBaseSchema
+    post: PostResponseBaseSchema = None
 
 
 class PostListResponseSchema(BaseModel):
