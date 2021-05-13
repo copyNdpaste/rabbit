@@ -67,6 +67,7 @@ def get_post_list_view():
 # @auth_required
 @swag_from("get_post.yml", methods=["GET"])
 def get_post_view(post_id):
+    print("0000000000000000")
     dto = GetPostRequest(post_id=post_id).validate_request_and_make_dto()
     if not dto:
         return failure_response(
