@@ -251,13 +251,16 @@ class BoardRepository:
     def get_post(
         self, post_id: int, is_deleted: bool = False, is_blocked: bool = False
     ) -> Optional[PostEntity]:
-        print("222222222222")
         logger.error("@@@@@@@@@@@@@@@@@@@")
-        post = (
-            session.query(PostModel)
-            .filter_by(id=post_id, is_deleted=is_deleted, is_blocked=is_blocked)
-            .first()
-        )
+        try:
+            post = (
+                session.query(PostModel)
+                .filter_by(id=post_id, is_deleted=is_deleted, is_blocked=is_blocked)
+                .first()
+            )
+        except Exception as e:
+            logger.error("------------> ", e)
+
         logger.error("##################")
         return post.to_entity() if post else None
 

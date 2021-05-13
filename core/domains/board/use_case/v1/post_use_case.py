@@ -217,7 +217,6 @@ class GetPostUseCase(PostBaseUseCase):
         self._board_repo = board_repo
 
     def execute(self, dto: GetPostDto):
-        print("1111111111")
         post = self._board_repo.get_post(post_id=dto.post_id)
         if not post:
             return UseCaseFailureOutput(FailureType.NOT_FOUND_ERROR)
