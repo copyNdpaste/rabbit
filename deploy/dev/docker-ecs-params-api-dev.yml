@@ -3,12 +3,12 @@ task_definition:
   task_execution_role: ecsTaskExecutionRole
   ecs_network_mode: awsvpc
   task_size:
-    cpu_limit: 512
-    mem_limit: 1GB
+    cpu_limit: 256
+    mem_limit: 0.5GB
   services:
     rabbit-api-dev:
-      cpu_shares: 400
-      mem_limit: 0.8GB
+      cpu_shares: 200
+      mem_limit: 0.4GB
 run_params:
   network_configuration:
     awsvpc_configuration:
