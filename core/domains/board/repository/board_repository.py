@@ -262,7 +262,6 @@ class BoardRepository:
                 f"[BoardRepository][get_post] post_id : {post_id} error : {e}"
             )
 
-        logger.error("##################")
         return post.to_entity() if post else None
 
     def add_read_count(self, post_id: int) -> bool:
