@@ -251,7 +251,6 @@ class BoardRepository:
     def get_post(
         self, post_id: int, is_deleted: bool = False, is_blocked: bool = False
     ) -> Optional[PostEntity]:
-        logger.error("@@@@@@@@@@@@@@@@@@@")
         try:
             post = (
                 session.query(PostModel)
@@ -259,7 +258,9 @@ class BoardRepository:
                 .first()
             )
         except Exception as e:
-            logger.error("------------> ", e)
+            logger.error(
+                f"[BoardRepository][get_post] post_id : {post_id} error : {e}"
+            )
 
         logger.error("##################")
         return post.to_entity() if post else None
