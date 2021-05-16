@@ -30,9 +30,6 @@ class TestConfig(Config):
 
     WTF_CSRF_ENABLED = False
 
-    # AWS_ACCESS_KEY = "AKIAVTIDZALHLIYC5U5J"
-    # AWS_SECRET_ACCESS_KEY = "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"
-
 
 class DevelopmentConfig(Config):
     DEBUG = True
