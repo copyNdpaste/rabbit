@@ -6,7 +6,7 @@ security:
 requestBody:
   required: true
   content:
-    application/json:
+    multipart/form-data:
       schema:
         type: object
         properties:
@@ -22,19 +22,23 @@ requestBody:
             type: string
           is_comment_disabled:
             type: boolean
-          is_deleted:
-            type: boolean
-          is_blocked:
-            type: boolean
-          report_count:
+          category_ids:
+            type: array
+            items:
+              type: integer
+          file_type:
+            type: string
+          files:
+            type: array
+          amount:
             type: integer
-          read_count:
-            type: integer
-          category:
+          unit:
+            type: string
+          price_per_unit:
             type: integer
 responses:
   '200':
-    description: A post object
+    description: create post
     content:
       application/json:
         schema:

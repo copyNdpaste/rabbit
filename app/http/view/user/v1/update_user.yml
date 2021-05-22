@@ -1,0 +1,41 @@
+openapi: "3.0.2"
+tags:
+  - User
+security:
+  - userAuth: []
+parameters:
+  - name: user_id
+    in: path
+    required: true
+    description: user id
+    schema:
+      type: integer
+      format: int64
+      minimum: 1
+requestBody:
+  content:
+    multipart/form-data:
+      schema:
+        type: object
+        properties:
+          nickname:
+            type: string
+          status:
+            type: string
+          region_id:
+            type: integer
+          files:
+            type: array
+responses:
+  '200':
+    description: A user object
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/user'
+  '400':
+    description: unauthorized_error, invalid_request_error, not_found_error
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/error'

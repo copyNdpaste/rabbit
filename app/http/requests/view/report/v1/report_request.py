@@ -1,7 +1,10 @@
 from pydantic import ValidationError
 from pydantic import BaseModel
 
+from app.extensions.utils.log_helper import logger_
 from core.domains.report.dto.post_report_dto import CreatePostReportDto
+
+logger = logger_.getLogger(__name__)
 
 
 class CreatePostReportSchema(BaseModel):
@@ -32,26 +35,17 @@ class CreatePostReportRequest:
 
     def validate_request_and_make_dto(self):
         try:
-            CreatePostReportSchema(
+            schema = CreatePostReportSchema(
                 post_id=self.post_id,
                 report_user_id=self.report_user_id,
                 status=self.status,
                 context=self.context,
                 confirm_admin_id=self.confirm_admin_id,
                 is_system_report=self.is_system_report,
-            )
-            return self.to_dto()
+            ).dict()
+            return CreatePostReportDto(**schema)
         except ValidationError as e:
-            # TODO : log로 대체
-            print(e)
+            logger.error(
+                f"[CreatePostReportRequest][validate_request_and_make_dto] error : {e}"
+            )
             return False
-
-    def to_dto(self) -> CreatePostReportDto:
-        return CreatePostReportDto(
-            post_id=self.post_id,
-            report_user_id=self.report_user_id,
-            status=self.status,
-            context=self.context,
-            confirm_admin_id=self.confirm_admin_id,
-            is_system_report=self.is_system_report,
-        )

@@ -17,6 +17,6 @@ user:
     updated_at:
       type: string
     user_profile:
-      $ref: '#/components/schemas/user_profile'
+      type: string
     region:
       $ref: '#/components/schemas/region'

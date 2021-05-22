@@ -2,9 +2,11 @@ import os
 
 
 class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY") or "auckland"
-    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY") or "hawaii"
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "rabbit"
+    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY") or "rabbit"
+    REDIS_URL = os.environ.get("REDIS_URL") or "redis://localhost:6379/0"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    FCM_KEY = os.environ.get("FCM_KEY") or "rabbit"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_ECHO = False
@@ -16,7 +18,7 @@ class LocalConfig(Config):
     SQLALCHEMY_ECHO = True
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = (
-        "postgresql+psycopg2://postgres:1234@localhost:5432/rabbit"
+        "postgresql+psycopg2://rabbit:password@localhost:5432/bium"
     )
 
 
@@ -28,18 +30,25 @@ class TestConfig(Config):
 
     WTF_CSRF_ENABLED = False
 
+    # AWS_ACCESS_KEY = "AKIAVTIDZALHLIYC5U5J"
+    # AWS_SECRET_ACCESS_KEY = "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"
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
     SERVICE_NAME = "rabbit"
     os.environ["FLASK_ENV"] = "development"
     SQLALCHEMY_DATABASE_URI = os.environ.get("DEV_DATABASE_URL")
+    AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
 
 class ProductionConfig(Config):
     SERVICE_NAME = "rabbit"
     os.environ["FLASK_ENV"] = "production"
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("PROD_DATABASE_URL")
+    AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
 
 config = dict(

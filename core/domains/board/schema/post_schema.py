@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import Optional, List
-
 from pydantic import BaseModel, StrictInt, StrictStr
-
 from core.domains.user.entity.user_entity import UserEntity
 
 
@@ -20,7 +18,7 @@ class PostResponseBaseSchema(BaseModel):
     is_blocked: bool
     report_count: StrictInt
     read_count: StrictInt
-    category: StrictInt
+    category_ids: List[int]
     last_user_action: StrictStr
     last_user_action_at: Optional[datetime]
     last_admin_action: StrictStr
@@ -30,6 +28,11 @@ class PostResponseBaseSchema(BaseModel):
     user: UserEntity
     post_like_count: StrictInt
     post_like_state: Optional[StrictStr] = None
+    amount: int
+    unit: str
+    price_per_unit: int
+    status: str
+    attachments: List = []
 
 
 class PostResponseSchema(BaseModel):

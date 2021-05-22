@@ -5,8 +5,9 @@ from flasgger import Swagger
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
+from app.commands import init_commands
 from app.config import config
-from app.extensions import jwt
+from app.extensions import jwt, redis
 from app.extensions.database import db, migrate
 from app.extensions.ioc_container import init_provider
 from app.extensions.swagger import swagger_config
@@ -18,6 +19,7 @@ from app.http.view import api
 from core.domains.board import event
 from core.domains.user import event
 from core.domains.region import event
+from core.domains.notification import event
 
 
 def init_config(
@@ -34,12 +36,13 @@ def init_db(app: Flask, db: SQLAlchemy) -> None:
 
 def init_blueprint(app: Flask):
     app.register_blueprint(main_bp)
-    app.register_blueprint(api)
+    app.register_blueprint(api, url_prefix="/api/rabbit")
 
 
 def init_extensions(app: Flask):
     Swagger(app, **swagger_config())
     jwt.init_app(app)
+    redis.init_app(app)
 
 
 def create_app(
@@ -60,6 +63,7 @@ def create_app(
         init_db(app, db)
         init_provider()
         init_extensions(app)
+        init_commands()
 
     print("\n💌💌💌Flask Config is '{}'".format(config_name))
 

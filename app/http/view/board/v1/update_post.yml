@@ -3,10 +3,16 @@ tags:
   - Post
 security:
   - userAuth: []
+parameters:
+  - in: path
+    name: post_id
+    required: true
+    schema:
+      type: integer
 requestBody:
   required: true
   content:
-    application/json:
+    multipart/form-data:
       schema:
         type: object
         properties:
@@ -22,11 +28,17 @@ requestBody:
             type: string
           is_comment_disabled:
             type: boolean
-          category:
-            type: integer
+          category_ids:
+            type: array
+            items:
+              type: integer
+          file_type:
+            type: string
+          files:
+            type: array
 responses:
   '200':
-    description: A post object
+    description: update post
     content:
       application/json:
         schema:

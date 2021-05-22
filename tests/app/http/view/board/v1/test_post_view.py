@@ -1,24 +1,49 @@
+import io
+import json
+import pytest
+from unittest.mock import patch
 from flask import url_for
-from flask_jwt_extended import create_access_token
-
+from werkzeug.datastructures import FileStorage
+from app.persistence.model.attachment_model import AttachmentModel
+from core.domains.board.enum.attachment_enum import AttachmentEnum
 from core.domains.board.enum.post_enum import (
     PostUnitEnum,
     PostStatusEnum,
     PostLikeStateEnum,
     PostLikeCountEnum,
+    PostCategoryEnum,
 )
 
 
+@patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
 def test_when_create_post_then_success(
-    client, session, test_request_context, jwt_manager, make_header, normal_user_factory
+    s3_upload_mock,
+    client,
+    session,
+    test_request_context,
+    jwt_manager,
+    make_header,
+    normal_user_factory,
+    create_categories,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
-    headers = make_header(authorization=authorization)
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    # 실제 업로드 확인하려면 아래 경로에 이미지 첨부하고 patch 데코레이터 제거한 뒤 실행.
+    file = FileStorage(
+        stream=io.BytesIO(b"aaa"),
+        filename="C:/project/rabbit/app/extensions/utils/a.jpg",
+        content_type="multipart/form-data",
+    )
+
+    authorization = make_authorization(user_id=user.id)
+    headers = make_header(
+        authorization=authorization, content_type="multipart/form-data", accept="*/*"
+    )
     dct = dict(
         user_id=user.id,
         title="떡볶이 나눠 먹어요",
@@ -26,29 +51,35 @@ def test_when_create_post_then_success(
         region_group_id=1,
         type="article",
         is_comment_disabled=True,
-        is_deleted=False,
-        is_blocked=False,
-        report_count=0,
-        read_count=0,
-        category=0,
         amount=10,
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
-        status=PostStatusEnum.SALE.value,
+        status=PostStatusEnum.SELLING.value,
+        category_ids=json.dumps([categories[0].id, categories[1].id]),
+        file_type=AttachmentEnum.PICTURE.value,
+        files=[file],
     )
 
     with test_request_context:
         response = client.post(
-            url_for("api/rabbit.create_post_view"), json=dct, headers=headers
+            url_for("api/rabbit.create_post_view"), data=dct, headers=headers
         )
 
     assert response.status_code == 200
     data = response.get_json()["data"]
     assert data["post"]["user_id"] == user.id
     assert data["post"]["body"] == dct["body"]
+    assert isinstance(data["post"]["category_ids"], list)
+
+    attachment = (
+        session.query(AttachmentModel).filter_by(post_id=data["post"]["id"]).first()
+    )
+    assert attachment.extension == ".jpg"
 
 
+@patch("app.extensions.utils.image_helper.S3Helper.upload", return_value=True)
 def test_when_update_post_then_success(
+    s3_upload_mock,
     client,
     session,
     test_request_context,
@@ -56,41 +87,63 @@ def test_when_update_post_then_success(
     make_header,
     normal_user_factory,
     article_factory,
+    create_categories,
+    attachment_factory,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
+
+    attachment = attachment_factory(post_id=user.post[0].id)
+    add_and_commit([attachment])
 
     article = article_factory(post_id=user.post[0].id)
-    session.add(article)
-    session.commit()
+    add_and_commit([article])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
-    headers = make_header(authorization=authorization)
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    # 실제 업로드 확인하려면 아래 경로에 이미지 첨부하고 patch 데코레이터 제거한 뒤 실행.
+    file = FileStorage(
+        stream=io.BytesIO(b"aaa"),
+        filename="C:/project/rabbit/app/extensions/utils/a.jpg",
+        content_type="multipart/form-data",
+    )
+
+    authorization = make_authorization(user_id=user.id)
+    headers = make_header(
+        authorization=authorization, content_type="multipart/form-data", accept="*/*"
+    )
     dct = dict(
-        post_id=user.post[0].id,
         user_id=user.id,
         title="떡볶이 같이 먹어요",
         body="new body",
         region_group_id=1,
         type="article",
         is_comment_disabled=True,
-        category=0,
+        category_ids=json.dumps([categories[0].id, categories[1].id]),
         amount=10,
         unit=PostUnitEnum.UNIT.value,
         price_per_unit=10000,
-        status=PostStatusEnum.SALE.value,
+        status=PostStatusEnum.SELLING.value,
+        file_type=AttachmentEnum.PICTURE.value,
+        files=[file],
     )
 
     with test_request_context:
         response = client.put(
-            url_for("api/rabbit.update_post_view"), json=dct, headers=headers
+            url_for("api/rabbit.update_post_view", post_id=user.post[0].id),
+            data=dct,
+            headers=headers,
         )
 
     assert response.status_code == 200
     data = response.get_json()["data"]
     assert data["post"]["user_id"] == user.id
+    attachment = (
+        session.query(AttachmentModel).filter_by(post_id=data["post"]["id"]).first()
+    )
+    assert attachment.extension == ".jpg"
 
 
 def test_when_delete_post_then_success(
@@ -101,17 +154,16 @@ def test_when_delete_post_then_success(
     make_header,
     normal_user_factory,
     article_factory,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     article = article_factory(post_id=user.post[0].id)
-    session.add(article)
-    session.commit()
+    add_and_commit([article])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
 
     post_id = user.post[0].id
@@ -134,34 +186,52 @@ def test_when_get_post_list_then_success(
     make_header,
     normal_user_factory,
     post_factory,
+    create_categories,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
     post1 = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+        Article=True,
+        Categories=categories,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
     post2 = post_factory(
-        Article=True, region_group_id=user.region.region_group.id, user_id=user.id
+        Article=True,
+        Categories=categories,
+        region_group_id=user.region.region_group.id,
+        user_id=user.id,
     )
 
     user2 = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user2)
-    session.commit()
+    add_and_commit([user2])
     post3 = post_factory(
-        Article=True, region_group_id=user2.region.region_group.id, user_id=user2.id
+        Article=True,
+        Categories=categories,
+        region_group_id=user2.region.region_group.id,
+        user_id=user2.id,
     )
     post4 = post_factory(
-        Article=True, region_group_id=user2.region.region_group.id, user_id=user2.id
+        Article=True,
+        Categories=categories,
+        region_group_id=user2.region.region_group.id,
+        user_id=user2.id,
     )
 
-    session.add_all([post1, post2, post3, post4])
-    session.commit()
+    add_and_commit([post1, post2, post3, post4])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
-    dct = dict(region_group_id=user.region.region_group.id)
+    dct = dict(
+        region_group_id=user.region.region_group.id,
+        category_ids=[categories[0].id],
+        status=PostStatusEnum.SELLING.value,
+    )
 
     with test_request_context:
         response = client.get(
@@ -183,10 +253,11 @@ def test_when_get_post_then_success(
     make_header,
     normal_user_factory,
     post_factory,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
     post1 = post_factory(
         Article=True, region_group_id=user.region.region_group.id, user_id=user.id
     )
@@ -194,11 +265,9 @@ def test_when_get_post_then_success(
         Article=True, region_group_id=user.region.region_group.id, user_id=user.id
     )
 
-    session.add_all([post1, post2])
-    session.commit()
+    add_and_commit([post1, post2])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
 
     with test_request_context:
@@ -218,26 +287,38 @@ def test_when_search_post_list_then_success(
     make_header,
     test_request_context,
     client,
+    create_categories,
+    add_and_commit,
+    make_authorization,
 ):
     """
     post 검색
     """
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
     region_group_id = user.region.region_group_id
 
-    post = post_factory(Article=True, region_group_id=region_group_id, user_id=user.id,)
+    categories = create_categories(PostCategoryEnum.get_dict())
 
-    session.add(post)
-    session.commit()
+    post = post_factory(
+        Article=True,
+        Categories=categories,
+        region_group_id=region_group_id,
+        user_id=user.id,
+    )
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    add_and_commit([post])
+
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
 
-    dct = dict(region_group_id=region_group_id, title=post.title[2:6])
+    dct = dict(
+        region_group_id=region_group_id,
+        title=post.title[2:6],
+        category_ids=[categories[0].id],
+        status=PostStatusEnum.SELLING.value,
+    )
 
     with test_request_context:
         response = client.get(
@@ -257,22 +338,21 @@ def test_when_like_post_then_success(
     make_header,
     normal_user_factory,
     post_factory,
+    add_and_commit,
+    make_authorization,
 ):
     # 찜하기, 찜취소
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
     post = post_factory(
         Article=True,
         PostLikeCount=True,
         region_group_id=user.region.region_group.id,
         user_id=user.id,
     )
-    session.add(post)
-    session.commit()
+    add_and_commit([post])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
 
     post_id = user.post[0].id
@@ -298,6 +378,9 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     like_post,
     test_request_context,
     client,
+    create_categories,
+    add_and_commit,
+    make_authorization,
 ):
     """
     post list 조회 시 찜 개수 포함, 찜 상태 제외
@@ -307,34 +390,39 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     """
     user1 = normal_user_factory(Region=True, UserProfile=True)
     user2 = normal_user_factory(Region=True, UserProfile=True)
-    session.add_all([user1, user2])
-    session.commit()
+    add_and_commit([user1, user2])
+
+    categories = create_categories(PostCategoryEnum.get_dict())
 
     post1 = post_factory(
         Article=True,
         PostLikeCount=True,
+        Categories=categories,
         region_group_id=user1.region.region_group.id,
         user_id=user1.id,
     )
     post2 = post_factory(
         Article=True,
         PostLikeCount=True,
+        Categories=categories,
         region_group_id=user1.region.region_group.id,
         user_id=user1.id,
     )
 
-    session.add_all([post1, post2])
-    session.commit()
+    add_and_commit([post1, post2])
 
     # 찜하기
     like_post(user_id=user1.id, post_id=post1.id)
     like_post(user_id=user2.id, post_id=post1.id)
     like_post(user_id=user2.id, post_id=post2.id)
 
-    access_token = create_access_token(identity=user1.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user1.id)
     headers = make_header(authorization=authorization)
-    dct = dict(region_group_id=user1.region.region_group.id)
+    dct = dict(
+        region_group_id=user1.region.region_group.id,
+        category_ids=[categories[0].id],
+        status=PostStatusEnum.SELLING.value,
+    )
 
     with test_request_context:
         response = client.get(
@@ -345,3 +433,252 @@ def test_when_get_post_list_then_include_like_count_and_exclude_like_state(
     data = response.get_json()["data"]
     assert data["post_list"][0]["post_like_count"] == 1
     assert data["post_list"][1]["post_like_count"] == 2
+
+
+@pytest.mark.parametrize(
+    "post_status, input_status, result_count",
+    [
+        (PostStatusEnum.SELLING.value, PostStatusEnum.ALL.value, 2),
+        (PostStatusEnum.COMPLETED.value, PostStatusEnum.EXCLUDE_COMPLETED.value, 1),
+    ],
+)
+def test_when_get_post_list_by_status_then_success(
+    post_status,
+    input_status,
+    result_count,
+    session,
+    normal_user_factory,
+    make_header,
+    like_post,
+    test_request_context,
+    client,
+    create_categories,
+    post_factory,
+    add_and_commit,
+    make_authorization,
+):
+    """
+    post list 조회 시 판매중, 거래완료 상태에 따라 응답
+    """
+    user = normal_user_factory(Region=True, UserProfile=True)
+    add_and_commit([user])
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = user.region.region_group_id
+
+    post1 = post_factory(
+        Article=True,
+        Categories=categories,
+        region_group_id=region_group_id,
+        user_id=user.id,
+    )
+    post2 = post_factory(
+        Article=True,
+        Categories=categories,
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=post_status,
+    )
+
+    add_and_commit([post1, post2])
+
+    authorization = make_authorization(user_id=user.id)
+    headers = make_header(authorization=authorization)
+    dct = dict(
+        region_group_id=user.region.region_group.id,
+        category_ids=[categories[0].id],
+        status=input_status,
+    )
+
+    with test_request_context:
+        response = client.get(
+            url_for("api/rabbit.get_post_list_view"), json=dct, headers=headers
+        )
+
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert len(data["post_list"]) == result_count
+
+
+def test_when_get_post_list_order_by_desc_then_success(
+    session,
+    normal_user_factory,
+    create_categories,
+    post_factory,
+    make_header,
+    test_request_context,
+    client,
+    add_and_commit,
+    make_authorization,
+):
+    """
+    판매중, 거래완료 최신순으로 조회
+    """
+    user = normal_user_factory.build(Region=True, UserProfile=True)
+    add_and_commit([user])
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = user.region.region_group_id
+
+    post1 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    post2 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=PostStatusEnum.COMPLETED.value,
+    )
+    post3 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user.id,
+        status=PostStatusEnum.COMPLETED.value,
+    )
+
+    add_and_commit([post1, post2, post3])
+
+    authorization = make_authorization(user_id=user.id)
+    headers = make_header(authorization=authorization)
+    dct = dict(
+        region_group_id=user.region.region_group.id,
+        category_ids=[categories[0].id],
+        status=PostStatusEnum.ALL.value,
+    )
+
+    with test_request_context:
+        response = client.get(
+            url_for("api/rabbit.get_post_list_view"), json=dct, headers=headers
+        )
+
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert len(data["post_list"]) == 3
+    assert data["post_list"][0]["id"] == 3
+    assert data["post_list"][1]["id"] == 2
+    assert data["post_list"][2]["id"] == 1
+
+
+@pytest.mark.parametrize("post_count_result, input_user_id", [(2, 1), (0, 2)])
+def test_get_selling_post_list(
+    post_count_result,
+    input_user_id,
+    session,
+    normal_user_factory,
+    create_categories,
+    post_factory,
+    make_header,
+    test_request_context,
+    client,
+    add_and_commit,
+    make_authorization,
+):
+    """
+    판매 목록 조회
+    """
+    user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
+    add_and_commit(user_list)
+
+    post_owner = user_list[0]
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = post_owner.region.region_group_id
+
+    post1 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=post_owner.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    post2 = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=post_owner.id,
+        status=PostStatusEnum.COMPLETED.value,
+    )
+
+    add_and_commit([post1, post2])
+
+    authorization = make_authorization(user_id=input_user_id)
+    headers = make_header(authorization=authorization)
+    dct = dict(user_id=input_user_id)
+
+    with test_request_context:
+        response = client.get(
+            url_for("api/rabbit.get_selling_post_list_view"), json=dct, headers=headers,
+        )
+
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert len(data["post_list"]) == post_count_result
+
+
+def test_when_get_like_post_list_then_success(
+    session,
+    normal_user_factory,
+    make_header,
+    like_post,
+    test_request_context,
+    client,
+    create_categories,
+    post_factory,
+    post_like_state_factory,
+    add_and_commit,
+    make_authorization,
+):
+    """
+    내가 찜한 게시글, 찜 안한 게시글 생성 후 찜한 게시글만 응답  확인
+    """
+    user_list = normal_user_factory.build_batch(size=2, Region=True, UserProfile=True)
+    add_and_commit(user_list)
+
+    user1 = user_list[0]
+    user2 = user_list[1]
+
+    categories = create_categories(PostCategoryEnum.get_dict())
+
+    region_group_id = user1.region.region_group_id
+
+    liked_post = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user1.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    post = post_factory(
+        Article=True,
+        Categories=[categories[0]],
+        region_group_id=region_group_id,
+        user_id=user1.id,
+        status=PostStatusEnum.SELLING.value,
+    )
+    add_and_commit([liked_post])
+
+    post_like_state = post_like_state_factory(post_id=liked_post.id, user_id=user2.id)
+
+    add_and_commit([post, post_like_state])
+
+    authorization = make_authorization(user_id=user1.id)
+    headers = make_header(authorization=authorization)
+    dct = dict(user_id=user2.id)
+
+    with test_request_context:
+        response = client.get(
+            url_for("api/rabbit.get_like_post_list_view"), json=dct, headers=headers
+        )
+
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert len(data["post_list"]) == 1

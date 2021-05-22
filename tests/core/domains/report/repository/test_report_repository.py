@@ -2,11 +2,12 @@ from core.domains.report.dto.post_report_dto import CreatePostReportDto
 from core.domains.report.repository.report_repository import ReportRepository
 
 
-def test_when_create_post_report_then_success(session, normal_user_factory):
+def test_when_create_post_report_then_success(
+    session, normal_user_factory, add_and_commit
+):
     user = normal_user_factory(Region=True, UserProfile=True, Post=True)
     report_user = normal_user_factory(Region=True, UserProfile=True, Post=True)
-    session.add_all([user, report_user])
-    session.commit()
+    add_and_commit([user, report_user])
 
     dto = CreatePostReportDto(
         post_id=user.post[0].id,

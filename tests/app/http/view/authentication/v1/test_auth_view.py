@@ -1,18 +1,22 @@
 from flask import url_for
-from flask_jwt_extended import create_access_token
 
 from core.use_case_output import FailureType
 
 
 def test_when_user_id_exists_then_check_auth_success(
-    client, session, test_request_context, jwt_manager, make_header, normal_user_factory
+    client,
+    session,
+    test_request_context,
+    jwt_manager,
+    make_header,
+    normal_user_factory,
+    add_and_commit,
+    make_authorization,
 ):
     user = normal_user_factory(Region=True, UserProfile=True)
-    session.add(user)
-    session.commit()
+    add_and_commit([user])
 
-    access_token = create_access_token(identity=user.id)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization(user_id=user.id)
     headers = make_header(authorization=authorization)
 
     with test_request_context:
@@ -26,10 +30,9 @@ def test_when_user_id_exists_then_check_auth_success(
 
 
 def test_when_user_id_not_exists_then_check_auth_failure(
-    client, session, test_request_context, jwt_manager, make_header
+    client, session, test_request_context, jwt_manager, make_header, make_authorization
 ):
-    access_token = create_access_token(identity=None)
-    authorization = "Bearer " + access_token
+    authorization = make_authorization()
     headers = make_header(authorization=authorization)
 
     with test_request_context:

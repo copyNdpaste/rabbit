@@ -1,9 +1,11 @@
 from typing import Optional
-
 from app.extensions.database import session
+from app.extensions.utils.log_helper import logger_
 from app.persistence.model.post_report_model import PostReportModel
 from core.domains.board.entity.report_entity import PostReportEntity
 from core.domains.report.dto.post_report_dto import CreatePostReportDto
+
+logger = logger_.getLogger(__name__)
 
 
 class ReportRepository:
@@ -22,8 +24,21 @@ class ReportRepository:
             session.add(post_report)
             session.commit()
 
-            return post_report
+            return post_report.to_entity() if post_report else None
         except Exception as e:
-            # TODO : log
+            logger.error(
+                f"[ReportRepository][create_post_report] post_id : {dto.post_id} report_user_id : {dto.report_user_id} "
+                f"error : {e}"
+            )
             session.rollback()
             return None
+
+    def get_post_report(
+        self, report_user_id: int, post_id
+    ) -> Optional[PostReportEntity]:
+        post_report = (
+            session.query(PostReportModel)
+            .filter_by(report_user_id=report_user_id, post_id=post_id)
+            .first()
+        )
+        return post_report.to_entity() if post_report else None

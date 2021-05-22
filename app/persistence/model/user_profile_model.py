@@ -1,5 +1,4 @@
 from sqlalchemy import Column, BigInteger, Integer, String, DateTime
-
 from app import db
 from app.extensions.utils.time_helper import get_server_timestamp
 from core.domains.user.entity.user_profile_entity import UserProfileEntity
@@ -12,6 +11,7 @@ class UserProfileModel(db.Model):
     uuid = Column(String(length=50), nullable=False)
     file_name = Column(String(length=50), nullable=False)
     path = Column(String(length=100), nullable=False)
+    extension = Column(String(length=5), nullable=False)
     created_at = Column(DateTime, default=get_server_timestamp())
     updated_at = Column(DateTime, default=get_server_timestamp())
 
@@ -21,6 +21,7 @@ class UserProfileModel(db.Model):
             uuid=self.uuid,
             file_name=self.file_name,
             path=self.path,
+            extension=self.extension,
             created_at=self.created_at,
             updated_at=self.updated_at,
         )

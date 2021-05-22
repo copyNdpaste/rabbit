@@ -7,5 +7,6 @@ class UserProfileEntity(BaseModel):
     uuid: str
     file_name: str
     path: str
+    extension: str
     created_at: datetime
     updated_at: datetime

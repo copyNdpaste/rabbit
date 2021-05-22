@@ -1,13 +1,15 @@
 from typing import Union
-
 from pydantic import ValidationError
 
+from app.extensions.utils.log_helper import logger_
 from app.http.responses import failure_response, success_response
 from core.domains.board.schema.post_schema import (
     PostResponseSchema,
     PostListResponseSchema,
 )
 from core.use_case_output import UseCaseSuccessOutput, UseCaseFailureOutput, FailureType
+
+logger = logger_.getLogger(__name__)
 
 
 class PostPresenter:
@@ -17,7 +19,7 @@ class PostPresenter:
             try:
                 schema = PostResponseSchema(post=value)
             except ValidationError as e:
-                print(e)
+                logger.error(f"[PostPresenter][transform] error : {e}")
                 return failure_response(
                     UseCaseFailureOutput(
                         type=FailureType.SYSTEM_ERROR,
@@ -37,18 +39,21 @@ class PostListPresenter:
     def transform(self, output: Union[UseCaseSuccessOutput, UseCaseFailureOutput]):
         if isinstance(output, UseCaseSuccessOutput):
             value = output.value
-            try:
-                schema = PostListResponseSchema(post_list=value)
-            except ValidationError as e:
-                print(e)
-                return failure_response(
-                    UseCaseFailureOutput(
-                        type=FailureType.SYSTEM_ERROR,
-                        message="response schema validation error",
+            if value:
+                try:
+                    schema = PostListResponseSchema(post_list=value)
+                except ValidationError as e:
+                    logger.error(f"[PostListPresenter][transform] error : {e}")
+                    return failure_response(
+                        UseCaseFailureOutput(
+                            type=FailureType.SYSTEM_ERROR,
+                            message="response schema validation error",
+                        )
                     )
-                )
             result = {
-                "data": schema.dict(exclude_unset={"post_like_state"}),
+                "data": schema.dict(exclude_unset={"post_like_state"})
+                if value
+                else {"post_list": []},
                 "meta": output.meta,
             }
             return success_response(result=result)
